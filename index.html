@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>RAD-XR · neon glass · WhatsApp reports</title>
+    <!-- Font & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            margin: 0;
+            background: #0b0e1a;
+            background-image: radial-gradient(circle at 20% 30%, #1a2a3f 0%, #070a12 90%);
+        }
+
+        /* main glass card — neon glow + liquid glass */
+        .glass-card {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(20, 30, 48, 0.25);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-radius: 64px;
+            padding: 2.5rem 2.8rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 
+                        0 0 0 1px rgba(255, 255, 255, 0.08),
+                        0 0 40px rgba(0, 180, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* neon glow streaks */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -10%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle at 30% 20%, rgba(0, 255, 200, 0.08) 0%, transparent 60%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 0, 200, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass-card > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* header */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.2rem;
+        }
+
+        .brand {
+            font-weight: 650;
+            font-size: 2.4rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(145deg, #9de0ff, #7ac7ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(0, 180, 255, 0.3);
+        }
+        .brand span {
+            font-weight: 300;
+            color: #b3e4ff;
+            -webkit-text-fill-color: #b3e4ff;
+            background: none;
+        }
+
+        .tagline {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: 1px solid rgba(0, 255, 200, 0.15);
+            font-weight: 450;
+            color: #b3e4ff;
+            font-size: 1rem;
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.05);
+            letter-spacing: 0.3px;
+        }
+        .tagline i {
+            margin-right: 8px;
+            color: #3effd0;
+            text-shadow: 0 0 12px #00ffc3;
+        }
+
+        /* hero grid */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.8rem;
+            align-items: center;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .left-col h1 {
+            font-size: 3rem;
+            font-weight: 650;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            color: #d4f0ff;
+            text-shadow: 0 0 30px rgba(0, 180, 255, 0.2);
+            margin-bottom: 1.8rem;
+        }
+        .left-col h1 i {
+            color: #3effd0;
+            filter: drop-shadow(0 0 12px #00ffb3);
+            margin-right: 6px;
+        }
+
+        .highlight-list {
+            list-style: none;
+            margin: 2rem 0 2.8rem;
+        }
+        .highlight-list li {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 1.1rem;
+            padding: 10px 0;
+            font-weight: 450;
+            color: #c4e2ff;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .highlight-list li i {
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 255, 200, 0.06);
+            backdrop-filter: blur(4px);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7effe0;
+            font-size: 1.1rem;
+            border: 1px solid rgba(0, 255, 200, 0.15);
+            box-shadow: 0 0 16px rgba(0, 255, 200, 0.05);
+        }
+
+        /* right col – glass badges (neon) */
+        .right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .badge-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            background: rgba(0, 20, 40, 0.15);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 48px;
+            padding: 1.8rem 1.5rem;
+            border: 1px solid rgba(0, 255, 200, 0.08);
+            box-shadow: 0 0 40px rgba(0, 200, 255, 0.03);
+        }
+
+        /* glass-like button with neon */
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: rgba(255,255,255,0.02);
+            padding: 14px 6px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.04);
+            transition: 0.2s;
+            box-shadow: 0 0 10px rgba(0, 200, 255, 0.02);
+            text-decoration: none;
+            color: inherit;
+        }
+        .badge-item:hover {
+            background: rgba(0, 255, 200, 0.04);
+            border-color: rgba(0, 255, 200, 0.2);
+            box-shadow: 0 0 28px rgba(0, 255, 200, 0.08);
+            transform: scale(1.02);
+        }
+        .badge-item i {
+            font-size: 2.8rem;
+            color: #b3eaff;
+            filter: drop-shadow(0 0 10px rgba(0, 180, 255, 0.2));
+            margin-bottom: 6px;
+        }
+        .badge-item span {
+            font-weight: 480;
+            font-size: 0.85rem;
+            margin-top: 6px;
+            color: #b0d6f0;
+            background: rgba(0,0,0,0.1);
+            padding: 4px 14px;
+            border-radius: 30px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.02);
+            letter-spacing: 0.2px;
+        }
+
+        .connect-note {
+            background: rgba(0, 255, 200, 0.02);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 60px;
+            padding: 1rem 2rem;
+            border: 1px solid rgba(0, 255, 200, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .connect-note p {
+            font-weight: 450;
+            font-size: 1.1rem;
+            color: #b3defa;
+        }
+        .connect-note i {
+            color: #3effd0;
+            filter: drop-shadow(0 0 12px #00ffb3);
+        }
+        .whatsapp-pill {
+            background: rgba(37, 211, 102, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 255, 200, 0.1);
+            padding: 6px 24px;
+            border-radius: 60px;
+            font-weight: 500;
+            color: #b3ffe0;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .whatsapp-pill i {
+            color: #25D366;
+        }
+
+        /* contact form – neon glass */
+        .contact-section {
+            margin: 2.5rem 0 1.2rem;
+            background: rgba(0, 30, 50, 0.12);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 1.8rem 2.2rem;
+            border: 1px solid rgba(0, 255, 200, 0.06);
+            box-shadow: 0 0 40px rgba(0, 200, 255, 0.02);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .contact-section h3 {
+            color: #c8eaff;
+            font-weight: 500;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .contact-section h3 i {
+            color: #3effd0;
+            filter: drop-shadow(0 0 12px #00ffb3);
+        }
+        .contact-form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+        }
+        .contact-form input {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(0, 255, 200, 0.08);
+            padding: 14px 22px;
+            border-radius: 50px;
+            font-size: 1rem;
+            color: #e0f0ff;
+            backdrop-filter: blur(8px);
+            flex: 1 1 160px;
+            min-width: 140px;
+            outline: none;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+        .contact-form input::placeholder {
+            color: #7a9bbd;
+            font-weight: 300;
+        }
+        .contact-form input:focus {
+            border-color: rgba(0, 255, 200, 0.25);
+            box-shadow: 0 0 30px rgba(0, 255, 200, 0.05);
+            background: rgba(255,255,255,0.04);
+        }
+        .contact-form button {
+            background: rgba(0, 255, 200, 0.04);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 200, 0.15);
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-weight: 550;
+            font-size: 1.05rem;
+            color: #c4f0ff;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.02);
+            font-family: inherit;
+        }
+        .contact-form button:hover {
+            background: rgba(0, 255, 200, 0.08);
+            border-color: rgba(0, 255, 200, 0.3);
+            box-shadow: 0 0 40px rgba(0, 255, 200, 0.06);
+            transform: scale(1.01);
+        }
+        .contact-form button i {
+            color: #3effd0;
+            filter: drop-shadow(0 0 8px #00ffb3);
+        }
+
+        /* footer */
+        .footer-note {
+            margin-top: 2.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.2rem;
+            border-top: 1px solid rgba(255,255,255,0.02);
+            font-size: 0.95rem;
+            color: #8bb8da;
+        }
+        .footer-note i {
+            margin: 0 4px;
+            color: #3effd0;
+        }
+
+        /* 3D pill button — Made with love by Sandeep */
+        .sandeep-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.02);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 12px 32px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            color: #c4eaff;
+            font-weight: 500;
+            font-size: 1rem;
+            text-decoration: none;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.02), 0 0 30px rgba(0, 200, 255, 0.02);
+            transition: 0.2s;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+        }
+        .sandeep-btn i {
+            color: #ff6b9d;
+            filter: drop-shadow(0 0 14px #ff3b7a);
+            font-size: 1.1rem;
+        }
+        .sandeep-btn:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255, 200, 200, 0.1);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 40px rgba(255, 100, 150, 0.05);
+            transform: scale(1.02);
+            color: #ffffff;
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .glass-card { padding: 2rem 1.5rem; }
+            .hero-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .left-col h1 { font-size: 2.4rem; }
+            .badge-grid { grid-template-columns: repeat(3, 1fr); }
+            .contact-section { flex-direction: column; align-items: stretch; }
+            .contact-form input { flex: 1 1 100%; }
+        }
+        @media (max-width: 480px) {
+            .badge-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* toast */
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 255, 200, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0,255,200,0.1);
+            padding: 14px 30px;
+            border-radius: 60px;
+            color: #d4f0ff;
+            font-weight: 450;
+            box-shadow: 0 0 60px rgba(0,0,0,0.4);
+            z-index: 999;
+            display: none;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-card">
+
+    <!-- header: brand + tagline (no logo) -->
+    <div class="header">
+        <div class="brand">RAD<span>-XR</span></div>
+        <div class="tagline"><i class="fas fa-bolt"></i> direct WhatsApp · PDF · neon</div>
+    </div>
+
+    <!-- hero grid -->
+    <div class="hero-grid">
+        <div class="left-col">
+            <h1><i class="fas fa-file-pdf"></i> Reports to WhatsApp</h1>
+            <ul class="highlight-list">
+                <li><i class="fas fa-phone-alt"></i> X-ray, CT, MRI — PDF via WhatsApp</li>
+                <li><i class="fas fa-plug"></i> DICOM &amp; PACS integration</li>
+                <li><i class="fas fa-sync-alt"></i> Canon · Carestream · Konica · Agfa · Fuji</li>
+                <li><i class="fas fa-clock"></i> Plug &amp; play · zero hassle</li>
+            </ul>
+        </div>
+
+        <div class="right-col">
+            <!-- glass badges with neon glow – images will be placed in same folder -->
+            <div class="badge-grid">
+                <div class="badge-item"><i class="fas fa-camera"></i><span>Canon</span></div>
+                <div class="badge-item"><i class="fas fa-laptop-medical"></i><span>Carestream</span></div>
+                <div class="badge-item"><i class="fas fa-print"></i><span>Konica</span></div>
+                <div class="badge-item"><i class="fas fa-image"></i><span>Agfa</span></div>
+                <div class="badge-item"><i class="fas fa-microscope"></i><span>Fuji</span></div>
+                <div class="badge-item"><i class="fas fa-cloud-upload-alt"></i><span>DICOM</span></div>
+            </div>
+
+            <div class="connect-note">
+                <p><i class="fas fa-arrow-right"></i> <strong>Seamless integration</strong> with RIS/PACS</p>
+                <div class="whatsapp-pill"><i class="fab fa-whatsapp"></i> WhatsApp PDF</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- contact section: name + mobile + submit -->
+    <div class="contact-section">
+        <h3><i class="fas fa-paper-plane"></i> Get in touch</h3>
+        <form class="contact-form" id="contactForm">
+            <input type="text" id="userName" placeholder="Your name" required>
+            <input type="tel" id="userMobile" placeholder="Mobile number" required>
+            <button type="submit" id="submitBtn"><i class="fab fa-telegram-plane"></i> Submit</button>
+        </form>
+    </div>
+
+    <!-- footer with 3D pill "Made with 💕 By Sandeep" -->
+    <div class="footer-note">
+        <div>
+            <i class="fas fa-check-circle"></i> Works with all modalities · DICOM
+        </div>
+        <div class="footer-right">
+            <a href="https://instagram.com/sandeep_yadav_._._" target="_blank" class="sandeep-btn" id="sandeepLink">
+                <i class="fas fa-heart"></i> Made with 💕 By Sandeep
+            </a>
+        </div>
+    </div>
+
+    <!-- tiny extra glow -->
+    <div style="margin-top: 1.2rem; font-size: 0.85rem; opacity: 0.4; display: flex; gap: 20px; flex-wrap: wrap; backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 60px; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.01);">
+        <span><i class="fas fa-shield-alt"></i> HIPAA ready</span>
+        <span><i class="fas fa-qrcode"></i> scan & send</span>
+        <span><i class="fas fa-mobile-alt"></i> patient friendly</span>
+    </div>
+</div>
+
+<!-- toast message -->
+<div id="toast" class="toast-msg">✅ details sent to Telegram</div>
+
+<script>
+    (function() {
+        // Telegram config
+        const BOT_TOKEN = '7941135502:AAHz-KGvAAoZEhPVgfVKw3zFbkaB0_Pi5rM';
+        const CHAT_IDS = ['878604830', '679625583'];
+
+        const form = document.getElementById('contactForm');
+        const nameInput = document.getElementById('userName');
+        const mobileInput = document.getElementById('userMobile');
+        const toast = document.getElementById('toast');
+
+        function showToast(msg) {
+            toast.textContent = msg || '✅ details sent to Telegram';
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+        }
+
+        async function sendToTelegram(name, mobile) {
+            const message = `📋 *New RAD-XR contact*%0A👤 Name: ${encodeURIComponent(name)}%0A📱 Mobile: ${encodeURIComponent(mobile)}%0A🕒 ${new Date().toLocaleString()}`;
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+            try {
+                const promises = CHAT_IDS.map(chatId => 
+                    fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: message,
+                            parse_mode: 'Markdown'
+                        })
+                    })
+                );
+                await Promise.all(promises);
+                return true;
+            } catch (err) {
+                console.error('Telegram send error', err);
+                return false;
+            }
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = nameInput.value.trim();
+            const mobile = mobileInput.value.trim();
+            if (!name || !mobile) {
+                showToast('⚠️ Please fill both fields');
+                return;
+            }
+            // simple mobile validation (basic)
+            if (!/^[0-9+\- ]{6,20}$/.test(mobile)) {
+                showToast('⚠️ Please enter a valid mobile number');
+                return;
+            }
+
+            // disable button
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> sending...';
+
+            const ok = await sendToTelegram(name, mobile);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fab fa-telegram-plane"></i> Submit';
+
+            if (ok) {
+                showToast('✅ details sent to Telegram');
+                nameInput.value = '';
+                mobileInput.value = '';
+            } else {
+                showToast('❌ error sending, try again');
+            }
+        });
+
+        // optional: smooth instagram link (already href)
+        // sandeep button is pure <a> with target _blank
+
+        // if you want to use images instead of icons for badges, you can replace innerHTML
+        // but we keep icons as placeholder – user can replace with <img src="canon.png" ...>
+        // we keep glass style.
+        console.log('RAD-XR neon glass ready');
+    })();
+</script>
+
+<!-- (no extra) -->
+</body>
+</html>
