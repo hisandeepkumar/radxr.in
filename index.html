@@ -1,543 +1,780 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RAD-XR · Live Monitor</title>
-  <!-- Fonts & Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RAD-XR · Software Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      font-family: "Inter", sans-serif;
-      background: #11131f;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 1.5rem;
-      margin: 0;
-    }
+        body {
+            font-family: "Inter", sans-serif;
+            background: #0d111c;
+            background-image: radial-gradient(circle at 20% 30%, #172237 0%, #070b12 90%);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
 
-    /* main card – subtle glass, dark, no neon wording */
-    .glass-card {
-      max-width: 1260px;
-      width: 100%;
-      background: rgba(20, 24, 38, 0.72);
-      backdrop-filter: blur(12px) saturate(160%);
-      -webkit-backdrop-filter: blur(12px) saturate(160%);
-      border-radius: 40px;
-      padding: 2rem 2.2rem;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.02);
-      transition: all 0.2s;
-    }
+        .main-container {
+            max-width: 1280px;
+            width: 100%;
+            background: rgba(18, 24, 40, 0.55);
+            backdrop-filter: blur(14px) saturate(160%);
+            -webkit-backdrop-filter: blur(14px) saturate(160%);
+            border-radius: 48px;
+            padding: 2.5rem 2.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 40px 70px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.02);
+            position: relative;
+        }
 
-    /* header */
-    .header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.8rem;
-    }
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.2rem;
+        }
+        .brand {
+            font-weight: 700;
+            font-size: 2rem;
+            letter-spacing: -0.02em;
+            color: #eaf0fa;
+            text-shadow: 0 0 18px rgba(0, 160, 255, 0.06);
+        }
+        .brand span {
+            font-weight: 300;
+            color: #6b8aaa;
+        }
+        .tagline {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 8px 24px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            color: #8ab0d0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tagline i {
+            color: #34d399;
+            font-size: 0.5rem;
+        }
 
-    .brand {
-      font-weight: 700;
-      font-size: 1.8rem;
-      letter-spacing: -0.02em;
-      color: #e8f0fe;
-      text-shadow: 0 0 12px rgba(0, 180, 255, 0.08);
-    }
-    .brand span {
-      font-weight: 300;
-      color: #6b8aaa;
-    }
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.8rem;
+            margin-top: 0.5rem;
+        }
 
-    .status-pill {
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.15);
-      padding: 6px 20px;
-      border-radius: 40px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: #6ee7b7;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .status-pill i {
-      font-size: 0.5rem;
-      color: #34d399;
-    }
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        .features h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #eaf0fa;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.2rem;
+        }
+        .features h2 i {
+            color: #34d399;
+            margin-right: 8px;
+        }
+        .features .sub {
+            color: #7a9abb;
+            font-size: 0.95rem;
+            margin-bottom: 0.4rem;
+            font-weight: 400;
+        }
 
-    /* main grid */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 1.8rem;
-      margin-top: 0.2rem;
-    }
+        .feature-list {
+            list-style: none;
+            margin-top: 0.2rem;
+        }
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            color: #c8dcee;
+            font-weight: 400;
+            font-size: 0.95rem;
+        }
+        .feature-list li i {
+            width: 32px;
+            height: 32px;
+            background: rgba(52, 211, 153, 0.04);
+            border: 1px solid rgba(52, 211, 153, 0.06);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #34d399;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .feature-list li strong {
+            color: #eaf0fa;
+            font-weight: 600;
+        }
 
-    /* ----- left panel (network config) ----- */
-    .left-panel {
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 28px;
-      padding: 1.2rem 1rem 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.02);
-    }
+        .right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1.8rem;
+        }
 
-    .panel-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: #6b8aaa;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-      padding-bottom: 0.6rem;
-    }
+        /* ----- GLASS TILE WITH APP PREVIEW (software UI) ----- */
+        .glass-tile {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 32px;
+            padding: 1.2rem 1.2rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.01);
+            transition: 0.2s;
+        }
+        .glass-tile:hover {
+            border-color: rgba(52, 211, 153, 0.06);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.3);
+        }
 
-    .info-row {
-      margin-bottom: 1rem;
-    }
-    .info-row .label {
-      font-size: 0.6rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #5a7a9a;
-      font-weight: 600;
-    }
-    .info-row .value {
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: #d4e4f4;
-      word-break: break-all;
-      margin-top: 2px;
-    }
-    .info-row .value.sub {
-      color: #8aaac8;
-      font-weight: 400;
-      font-size: 0.8rem;
-    }
+        .tile-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #5a7a9a;
+            margin-bottom: 0.8rem;
+            padding: 0 0.2rem;
+        }
+        .tile-label .dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: 4px;
+        }
+        .dot-red { background: #ff5f57; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #28c840; }
 
-    .divider-light {
-      border: none;
-      border-top: 1px solid rgba(255, 255, 255, 0.03);
-      margin: 1rem 0;
-    }
+        /* ----- APP PREVIEW UI (exactly like software) ----- */
+        .app-preview {
+            background: #111520;
+            border-radius: 20px;
+            padding: 1rem 1rem 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
+        }
 
-    .credit-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      color: #b0cce6;
-      padding: 4px 0;
-    }
-    .credit-row i {
-      width: 20px;
-      color: #5a8aaa;
-    }
+        .app-toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .app-toolbar .badge {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            color: #8ab0d0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .app-toolbar .badge i {
+            color: #34d399;
+            font-size: 0.4rem;
+        }
+        .app-toolbar .badge .fa-phone-alt {
+            color: #6b8aaa;
+        }
+        .app-toolbar .badge .fa-folder {
+            color: #6b8aaa;
+        }
 
-    .bot-info {
-      background: rgba(0, 0, 0, 0.15);
-      border-radius: 16px;
-      padding: 0.8rem 1rem;
-      margin-top: 0.5rem;
-    }
-    .bot-info .bot-name {
-      font-weight: 500;
-      color: #d4e4f4;
-      font-size: 0.85rem;
-    }
-    .bot-info .bot-username {
-      color: #6b8aaa;
-      font-size: 0.75rem;
-    }
-    .bot-info .search-hint {
-      color: #4a6a8a;
-      font-size: 0.65rem;
-      margin-top: 4px;
-    }
+        .app-grid-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1.2fr 1fr;
+            gap: 4px 8px;
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #4a6a8a;
+            padding: 4px 0 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            margin-bottom: 2px;
+        }
 
-    .folder-watch {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      color: #b0cce6;
-      margin-top: 0.5rem;
-    }
-    .folder-watch .badge-inactive {
-      background: rgba(239, 68, 68, 0.08);
-      color: #f87171;
-      padding: 2px 14px;
-      border-radius: 30px;
-      font-size: 0.7rem;
-      font-weight: 500;
-      border: 1px solid rgba(239, 68, 68, 0.06);
-    }
+        .app-grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1.2fr 1fr;
+            gap: 4px 8px;
+            font-size: 0.7rem;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.01);
+            color: #b8d0e8;
+            align-items: center;
+        }
+        .app-grid-row .status-sent {
+            color: #34d399;
+            font-weight: 500;
+        }
+        .app-grid-row .status-sent i {
+            margin-right: 4px;
+        }
+        .app-grid-row .status-waiting {
+            color: #fbbf24;
+        }
+        .app-grid-row .file-name {
+            color: #7a9abb;
+            font-size: 0.65rem;
+        }
+        .app-grid-row .patient-id {
+            font-weight: 500;
+            color: #d4e4f4;
+        }
 
-    /* ----- right panel (monitor) ----- */
-    .right-panel {
-      background: rgba(255, 255, 255, 0.01);
-      border-radius: 28px;
-      padding: 1.2rem 1.2rem 1.2rem;
-      border: 1px solid rgba(255, 255, 255, 0.02);
-      display: flex;
-      flex-direction: column;
-    }
+        /* Console log inside preview */
+        .app-console {
+            margin-top: 10px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 14px;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.01);
+        }
+        .app-console .console-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.55rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #4a6a8a;
+            margin-bottom: 3px;
+        }
+        .app-console .console-lines {
+            font-family: "Inter", monospace;
+            font-size: 0.6rem;
+            color: #7a9abb;
+            line-height: 1.7;
+            max-height: 72px;
+            overflow-y: auto;
+        }
+        .app-console .console-lines .ok {
+            color: #34d399;
+        }
+        .app-console .console-lines .ok i {
+            margin-right: 4px;
+        }
+        .app-console .console-lines .warn {
+            color: #fbbf24;
+        }
+        .app-console .console-lines .error {
+            color: #f87171;
+        }
 
-    .monitor-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .monitor-header .title {
-      font-weight: 600;
-      color: #d4e4f4;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .monitor-header .title i {
-      color: #34d399;
-      font-size: 0.6rem;
-    }
+        .app-footer-preview {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 0.6rem;
+            color: #4a6a8a;
+        }
+        .app-footer-preview .bot-name {
+            color: #8ab0d0;
+            font-weight: 500;
+        }
+        .app-footer-preview .bot-username {
+            color: #4a6a8a;
+        }
 
-    .action-buttons {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .action-btn {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      color: #b0cce6;
-      padding: 6px 16px;
-      border-radius: 30px;
-      font-size: 0.7rem;
-      font-weight: 500;
-      cursor: default;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: 0.15s;
-      font-family: inherit;
-    }
-    .action-btn i {
-      font-size: 0.7rem;
-      color: #6b8aaa;
-    }
-    .action-btn.stop {
-      background: rgba(239, 68, 68, 0.04);
-      border-color: rgba(239, 68, 68, 0.08);
-      color: #f87171;
-    }
-    .action-btn.stop i {
-      color: #f87171;
-    }
+        /* ----- demo form ----- */
+        .demo-card {
+            background: rgba(255, 255, 255, 0.015);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 1.2rem 1.6rem 1.6rem;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .demo-card .demo-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1rem;
+            color: #b8d0e8;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .demo-card .demo-header i {
+            color: #34d399;
+            font-size: 1.1rem;
+        }
+        .demo-form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+        .demo-form input {
+            flex: 1 1 160px;
+            min-width: 130px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 12px 18px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            color: #eaf0fa;
+            outline: none;
+            transition: 0.15s;
+            font-family: inherit;
+        }
+        .demo-form input::placeholder {
+            color: #4a6a8a;
+            font-weight: 300;
+        }
+        .demo-form input:focus {
+            border-color: rgba(52, 211, 153, 0.12);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .demo-form button {
+            background: rgba(52, 211, 153, 0.04);
+            border: 1px solid rgba(52, 211, 153, 0.06);
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #b8d0e8;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.15s;
+            font-family: inherit;
+            backdrop-filter: blur(4px);
+        }
+        .demo-form button:hover {
+            background: rgba(52, 211, 153, 0.06);
+            border-color: rgba(52, 211, 153, 0.1);
+            color: #eaf0fa;
+        }
+        .demo-form button i {
+            color: #34d399;
+        }
 
-    /* table / grid */
-    .record-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1.2fr 1fr;
-      gap: 4px 8px;
-      font-size: 0.75rem;
-      padding: 0.4rem 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
-      color: #a0bcd8;
-    }
-    .record-grid.header-row {
-      color: #5a7a9a;
-      font-weight: 600;
-      font-size: 0.6rem;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      padding-bottom: 0.5rem;
-      margin-bottom: 0.2rem;
-    }
-    .record-grid .status-sent {
-      color: #34d399;
-    }
-    .record-grid .status-archiving {
-      color: #fbbf24;
-    }
-    .record-grid .status-error {
-      color: #f87171;
-    }
-    .record-grid .file-name {
-      color: #b0cce6;
-      font-weight: 400;
-    }
+        /* ----- footer floating pill ----- */
+        .footer-float {
+            margin-top: 2.8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 1.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.02);
+        }
 
-    /* console log */
-    .console-log {
-      margin-top: 1.2rem;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 20px;
-      padding: 0.8rem 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.02);
-      flex: 1;
-    }
-    .console-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.65rem;
-      color: #5a7a9a;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-    .console-header .icons i {
-      margin-left: 12px;
-      color: #4a6a8a;
-      cursor: default;
-    }
-    .console-lines {
-      font-family: "Inter", monospace;
-      font-size: 0.7rem;
-      color: #8aaac8;
-      line-height: 1.6;
-      max-height: 100px;
-      overflow-y: auto;
-    }
-    .console-lines .error {
-      color: #f87171;
-    }
-    .console-lines .warn {
-      color: #fbbf24;
-    }
-    .console-lines .ok {
-      color: #34d399;
-    }
+        .floating-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 12px 36px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            color: #b8d0e8;
+            font-weight: 500;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: 0.25s;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.01);
+            letter-spacing: 0.2px;
+            font-family: inherit;
+        }
+        .floating-pill i {
+            color: #f472b6;
+            font-size: 1.1rem;
+            filter: drop-shadow(0 0 12px rgba(244, 114, 182, 0.08));
+        }
+        .floating-pill:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 200, 200, 0.04);
+            color: #eaf0fa;
+            transform: scale(1.02);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
 
-    /* footer progress + made with love */
-    .footer-bar {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.02);
-      font-size: 0.75rem;
-      color: #6b8aaa;
-    }
-    .footer-bar .progress {
-      color: #b0cce6;
-    }
-    .footer-bar .progress i {
-      color: #34d399;
-      margin-right: 6px;
-    }
+        /* toast */
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(18, 24, 40, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(52, 211, 153, 0.06);
+            padding: 12px 30px;
+            border-radius: 60px;
+            color: #b8d0e8;
+            font-weight: 400;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
 
-    .made-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(8px);
-      padding: 8px 24px;
-      border-radius: 60px;
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      color: #b0cce6;
-      font-weight: 500;
-      font-size: 0.85rem;
-      text-decoration: none;
-      transition: 0.2s;
-      font-family: inherit;
-    }
-    .made-btn i {
-      color: #f472b6;
-      font-size: 0.9rem;
-    }
-    .made-btn:hover {
-      background: rgba(255, 255, 255, 0.04);
-      border-color: rgba(255, 200, 200, 0.06);
-      color: #d4e4f4;
-      transform: scale(1.01);
-    }
+        /* scrollbar */
+        .app-console .console-lines::-webkit-scrollbar {
+            width: 2px;
+        }
+        .app-console .console-lines::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .app-console .console-lines::-webkit-scrollbar-thumb {
+            background: #2a3a4a;
+            border-radius: 6px;
+        }
 
-    /* responsive */
-    @media (max-width: 900px) {
-      .main-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-      .glass-card {
-        padding: 1.5rem;
-      }
-      .record-grid {
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 6px;
-      }
-      .record-grid .file-name {
-        display: none;
-      }
-    }
-    @media (max-width: 600px) {
-      .record-grid {
-        grid-template-columns: 1fr 1fr;
-        font-size: 0.7rem;
-      }
-      .record-grid .accession {
-        display: none;
-      }
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-      .action-buttons {
-        width: 100%;
-        justify-content: flex-start;
-      }
-    }
-
-    /* scrollbar */
-    .console-lines::-webkit-scrollbar {
-      width: 3px;
-    }
-    .console-lines::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .console-lines::-webkit-scrollbar-thumb {
-      background: #2a3a4a;
-      border-radius: 6px;
-    }
-  </style>
+        /* responsive */
+        @media (max-width: 1000px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .main-container {
+                padding: 1.8rem;
+            }
+            .glass-tile {
+                padding: 1rem;
+            }
+        }
+        @media (max-width: 700px) {
+            .app-grid-header {
+                grid-template-columns: 1fr 1fr 1fr;
+                font-size: 0.5rem;
+            }
+            .app-grid-row {
+                grid-template-columns: 1fr 1fr 1fr;
+                font-size: 0.6rem;
+                gap: 4px;
+            }
+            .app-grid-row .file-name {
+                display: none;
+            }
+            .app-grid-header .file-name {
+                display: none;
+            }
+        }
+        @media (max-width: 600px) {
+            .main-container {
+                padding: 1.2rem;
+                border-radius: 32px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .brand {
+                font-size: 1.6rem;
+            }
+            .features h2 {
+                font-size: 1.3rem;
+            }
+            .demo-form input {
+                flex: 1 1 100%;
+            }
+            .floating-pill {
+                padding: 10px 24px;
+                font-size: 0.9rem;
+            }
+            .demo-card {
+                padding: 1rem;
+            }
+            .app-grid-header {
+                grid-template-columns: 1fr 1fr;
+            }
+            .app-grid-row {
+                grid-template-columns: 1fr 1fr;
+            }
+            .app-grid-header .accession {
+                display: none;
+            }
+            .app-grid-row .accession {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="glass-card">
+<div class="main-container">
 
-  <!-- header -->
-  <div class="header">
-    <div class="brand">RAD<span>-XR</span></div>
-    <div class="status-pill"><i class="fas fa-circle"></i> Listening</div>
-  </div>
-
-  <!-- main grid -->
-  <div class="main-grid">
-
-    <!-- LEFT: NETWORK CONFIG -->
-    <div class="left-panel">
-      <div class="panel-label"><i class="fas fa-network-wired" style="margin-right:8px;"></i> NETWORK CONFIG</div>
-
-      <div class="info-row">
-        <div class="label">INSTITUTE NAME</div>
-        <div class="value">RAD-XR IMAGING CENTER</div>
-      </div>
-      <div class="info-row">
-        <div class="label">AE TITLE</div>
-        <div class="value">RAD-XR</div>
-      </div>
-      <div class="info-row">
-        <div class="label">IP ADDRESS</div>
-        <div class="value">10.207.193.87</div>
-      </div>
-      <div class="info-row">
-        <div class="label">PORT NUMBER</div>
-        <div class="value">11112</div>
-      </div>
-
-      <hr class="divider-light" />
-
-      <div class="panel-label" style="font-size:0.7rem; margin-bottom:0.6rem;">💳 CREDITS</div>
-      <div class="credit-row"><i class="fab fa-whatsapp"></i> WhatsApp: <span style="color:#d4e4f4;">15000</span></div>
-      <div class="credit-row"><i class="fab fa-telegram-plane"></i> Telegram: <span style="color:#d4e4f4;">4</span></div>
-
-      <hr class="divider-light" />
-
-      <div class="panel-label" style="font-size:0.7rem; margin-bottom:0.6rem;">🤖 TELEGRAM BOT</div>
-      <div class="bot-info">
-        <div class="bot-name">Name: IRD (TB HOSPITAL) SMS</div>
-        <div class="bot-username">Username: @ird_sms_bot</div>
-        <div class="search-hint">Search on Telegram: @...</div>
-      </div>
-
-      <div class="folder-watch">
-        <span><i class="fas fa-folder" style="margin-right:6px;"></i> FOLDER WATCH</span>
-        <span class="badge-inactive">INACTIVE</span>
-      </div>
+    <!-- header -->
+    <div class="header">
+        <div class="brand">RAD<span>-XR</span></div>
+        <div class="tagline">
+            <i class="fas fa-circle"></i> direct WhatsApp · PDF · DICOM
+        </div>
     </div>
 
-    <!-- RIGHT: LIVE MONITOR -->
-    <div class="right-panel">
+    <!-- two column grid -->
+    <div class="grid-2col">
 
-      <!-- monitor header + buttons -->
-      <div class="monitor-header">
-        <div class="title"><i class="fas fa-circle"></i> Live Monitor</div>
-        <div class="action-buttons">
-          <span class="action-btn stop"><i class="fas fa-stop-circle"></i> Stop Server</span>
-          <span class="action-btn"><i class="fas fa-sync-alt"></i> Resend Failed</span>
-          <span class="action-btn"><i class="fas fa-file-import"></i> Import DICOM File</span>
+        <!-- left: features -->
+        <div class="features">
+            <h2><i class="fas fa-bolt"></i> Radiology reports · instant</h2>
+            <div class="sub">Seamless integration with every major modality</div>
+            <ul class="feature-list">
+                <li>
+                    <i class="fas fa-phone-alt"></i>
+                    <div><strong>WhatsApp delivery</strong> — X‑ray, CT, MRI reports sent as PDF directly to the patient’s phone.</div>
+                </li>
+                <li>
+                    <i class="fas fa-plug"></i>
+                    <div><strong>Universal DICOM &amp; PACS</strong> — connects effortlessly with Canon, Carestream, Konica, Agfa, Fuji, and more.</div>
+                </li>
+                <li>
+                    <i class="fas fa-clock"></i>
+                    <div><strong>Zero‑hassle setup</strong> — plug &amp; play. No complex configuration, just point to your archive and go.</div>
+                </li>
+                <li>
+                    <i class="fas fa-robot"></i>
+                    <div><strong>Telegram bot</strong> — patients can request their own reports via a simple ID and name.</div>
+                </li>
+                <li>
+                    <i class="fas fa-file-pdf"></i>
+                    <div><strong>Smart PDF generation</strong> — combines multiple DICOM series into one beautiful report with metadata.</div>
+                </li>
+                <li>
+                    <i class="fas fa-credit-card"></i>
+                    <div><strong>Credits system</strong> — flexible per‑message billing for WhatsApp and Telegram.</div>
+                </li>
+            </ul>
         </div>
-      </div>
 
-      <!-- record grid header -->
-      <div class="record-grid header-row">
-        <span>Patient ID</span>
-        <span>Patient Name</span>
-        <span class="accession">Accession No.</span>
-        <span class="file-name">File Name</span>
-        <span>Status</span>
-      </div>
+        <!-- right: app preview + demo form -->
+        <div class="right-col">
 
-      <!-- record row (exactly as described) -->
-      <div class="record-grid">
-        <span>JULY 26 8 OMPRAKASH 52Y M</span>
-        <span>RAD-XR_dcm</span>
-        <span class="accession">RAD-XR_dcm</span>
-        <span class="file-name">RAD-XR_dcm</span>
-        <span class="status-archiving"><i class="fas fa-archive" style="margin-right:4px;"></i> Sent &amp; Archiving</span>
-      </div>
+            <!-- GLASS TILE WITH APP PREVIEW -->
+            <div class="glass-tile">
+                <div class="tile-label">
+                    <span><i class="fas fa-desktop" style="margin-right:6px;"></i> RAD-XR · Live Monitor</span>
+                    <div class="dots">
+                        <span class="dot-red"></span>
+                        <span class="dot-yellow"></span>
+                        <span class="dot-green"></span>
+                    </div>
+                </div>
 
-      <!-- console log -->
-      <div class="console-log">
-        <div class="console-header">
-          <span>📋 Console Log</span>
-          <span class="icons"><i class="far fa-copy"></i> <i class="far fa-trash-alt"></i></span>
+                <!-- APP PREVIEW UI -->
+                <div class="app-preview">
+                    <!-- toolbar -->
+                    <div class="app-toolbar">
+                        <span class="badge"><i class="fas fa-circle"></i> Server: Running</span>
+                        <span class="badge"><i class="fas fa-phone-alt"></i> AE: RAD-XR</span>
+                        <span class="badge"><i class="fas fa-folder"></i> Inbox: 4 files</span>
+                    </div>
+
+                    <!-- grid header -->
+                    <div class="app-grid-header">
+                        <span>Patient ID</span>
+                        <span>Patient Name</span>
+                        <span class="accession">Accession No.</span>
+                        <span class="file-name">File Name</span>
+                        <span>Status</span>
+                    </div>
+
+                    <!-- dummy patient row 1 -->
+                    <div class="app-grid-row">
+                        <span class="patient-id">JULY 26 8 OMPRAKASH 52Y M</span>
+                        <span>OMPRAKASH</span>
+                        <span class="accession">ACC-2024-001</span>
+                        <span class="file-name">OMPRAKASH_CT.dcm</span>
+                        <span class="status-sent"><i class="fas fa-check-circle"></i> Sent &amp; Archiving</span>
+                    </div>
+
+                    <!-- dummy patient row 2 -->
+                    <div class="app-grid-row">
+                        <span class="patient-id">AUG 15 9 PRIYA 34Y F</span>
+                        <span>PRIYA</span>
+                        <span class="accession">ACC-2024-002</span>
+                        <span class="file-name">PRIYA_MRI.dcm</span>
+                        <span class="status-sent"><i class="fas fa-check-circle"></i> Sent &amp; Archiving</span>
+                    </div>
+
+                    <!-- dummy patient row 3 -->
+                    <div class="app-grid-row">
+                        <span class="patient-id">SEP 02 7 RAHUL 45Y M</span>
+                        <span>RAHUL</span>
+                        <span class="accession">ACC-2024-003</span>
+                        <span class="file-name">RAHUL_XRAY.dcm</span>
+                        <span class="status-waiting"><i class="fas fa-clock"></i> Queued</span>
+                    </div>
+
+                    <!-- dummy patient row 4 -->
+                    <div class="app-grid-row">
+                        <span class="patient-id">OCT 11 5 ANITA 29Y F</span>
+                        <span>ANITA</span>
+                        <span class="accession">ACC-2024-004</span>
+                        <span class="file-name">ANITA_US.dcm</span>
+                        <span class="status-sent"><i class="fas fa-check-circle"></i> Sent &amp; Archiving</span>
+                    </div>
+
+                    <!-- CONSOLE LOG -->
+                    <div class="app-console">
+                        <div class="console-header">
+                            <span>📋 Console Log</span>
+                            <span><i class="far fa-copy"></i> <i class="far fa-trash-alt"></i></span>
+                        </div>
+                        <div class="console-lines">
+                            <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:15:23] WhatsApp ✅ sent to +919876543210</div>
+                            <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:15:24] Telegram ✅ sent to user 878604830</div>
+                            <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:16:01] WhatsApp ✅ sent to +919876543211</div>
+                            <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:16:02] Telegram ✅ sent to user 878604830</div>
+                            <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:16:45] PDF generated: OMPRAKASH_52Y_M_report.pdf</div>
+                            <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:17:12] WhatsApp ✅ sent to +919876543212</div>
+                            <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:17:13] Telegram ✅ sent to user 878604830</div>
+                        </div>
+                    </div>
+
+                    <!-- footer with bot info -->
+                    <div class="app-footer-preview">
+                        <span><i class="fas fa-robot"></i> <span class="bot-name">RAD-XR IMAGING CENTER</span></span>
+                        <span class="bot-username">@rdx_xr_bot</span>
+                        <span><i class="fas fa-circle" style="color:#34d399;font-size:0.3rem;"></i> 4 studies</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Request Demo (discreet) -->
+            <div class="demo-card">
+                <div class="demo-header">
+                    <i class="fas fa-paper-plane"></i> Request a demo
+                    <span style="font-size:0.65rem;color:#4a6a8a;font-weight:400;margin-left:auto;">we'll get back to you</span>
+                </div>
+                <form class="demo-form" id="demoForm">
+                    <input type="text" id="demoName" placeholder="Your name" required />
+                    <input type="tel" id="demoMobile" placeholder="Mobile number" required />
+                    <button type="submit" id="demoSubmitBtn">
+                        <i class="fas fa-arrow-right"></i> Submit
+                    </button>
+                </form>
+            </div>
         </div>
-        <div class="console-lines">
-          <div class="error">[2026-07-11 23:28:51] Failed to send to Telegram user 878604830</div>
-          <div class="error">[2026-07-11 23:28:51] Telegram send failed, credit refunded.</div>
-          <div class="error">[2026-07-11 23:29:32] Telegram send error: ('Connection aborted.', 'TimeoutError('The write operation timed out')')</div>
-          <div class="error">[2026-07-11 23:29:32] Failed to send to Telegram user 878604830</div>
-          <div class="error">[2026-07-11 23:29:32] Telegram send failed, credit refunded.</div>
-          <div class="ok">[2026-07-11 23:31:18] PDF deleted: OMPRAKASH 52Y M's medical</div>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- footer: progress + made with love -->
-  <div class="footer-bar">
-    <div class="progress">
-      <i class="fas fa-spinner fa-pulse"></i> Indexing: 1 / 1 files processed...
+    <!-- footer floating pill -->
+    <div class="footer-float">
+        <a href="https://instagram.com/sandeep_yadav_._._" target="_blank" class="floating-pill">
+            <i class="fas fa-heart"></i> Made with 💕 By Sandeep
+        </a>
     </div>
-    <a href="https://instagram.com/sandeep_yadav_._._" target="_blank" class="made-btn">
-      <i class="fas fa-heart"></i> Made with 💕 By Sandeep
-    </a>
-  </div>
 
 </div>
-<!-- end glass-card -->
+
+<!-- toast -->
+<div id="toast" class="toast-msg">✅ Your request has been received.</div>
+
+<script>
+    (function() {
+        const BOT_TOKEN = '7941135502:AAHz-KGvAAoZEhPVgfVKw3zFbkaB0_Pi5rM';
+        const CHAT_IDS = ['878604830', '679625583'];
+
+        const form = document.getElementById('demoForm');
+        const nameInput = document.getElementById('demoName');
+        const mobileInput = document.getElementById('demoMobile');
+        const toast = document.getElementById('toast');
+        const submitBtn = document.getElementById('demoSubmitBtn');
+
+        function showToast(msg) {
+            toast.textContent = msg || '✅ Your request has been received.';
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3500);
+        }
+
+        async function sendToTelegram(name, mobile) {
+            const message = `📋 *New RAD-XR Demo Request*%0A👤 Name: ${encodeURIComponent(name)}%0A📱 Mobile: ${encodeURIComponent(mobile)}%0A🕒 ${new Date().toLocaleString()}`;
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+            try {
+                const promises = CHAT_IDS.map(chatId => 
+                    fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: message,
+                            parse_mode: 'Markdown'
+                        })
+                    })
+                );
+                await Promise.all(promises);
+                return true;
+            } catch (err) {
+                console.error('Telegram send error', err);
+                return false;
+            }
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = nameInput.value.trim();
+            const mobile = mobileInput.value.trim();
+
+            if (!name || !mobile) {
+                showToast('⚠️ Please fill both fields');
+                return;
+            }
+            if (!/^[0-9+\- ]{6,20}$/.test(mobile)) {
+                showToast('⚠️ Please enter a valid mobile number');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> sending...';
+
+            const ok = await sendToTelegram(name, mobile);
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Submit';
+
+            if (ok) {
+                showToast('✅ Your request has been received.');
+                nameInput.value = '';
+                mobileInput.value = '';
+            } else {
+                showToast('❌ Could not submit, please try again.');
+            }
+        });
+    })();
+</script>
 
 </body>
 </html>
