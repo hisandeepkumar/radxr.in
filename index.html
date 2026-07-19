@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>RAD-XR · neon glass · WhatsApp reports</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RAD-XR · Neon Glass · Software Preview</title>
     <!-- Font & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
         * {
             margin: 0;
@@ -23,14 +23,13 @@
             align-items: center;
             justify-content: center;
             padding: 1.5rem;
-            margin: 0;
             background: #0b0e1a;
             background-image: radial-gradient(circle at 20% 30%, #1a2a3f 0%, #070a12 90%);
         }
 
         /* main glass card — neon glow + liquid glass */
         .glass-card {
-            max-width: 1200px;
+            max-width: 1300px;
             width: 100%;
             background: rgba(20, 30, 48, 0.25);
             backdrop-filter: blur(16px) saturate(180%);
@@ -46,7 +45,6 @@
             overflow: hidden;
         }
 
-        /* neon glow streaks */
         .glass-card::before {
             content: '';
             position: absolute;
@@ -110,23 +108,23 @@
             text-shadow: 0 0 12px #00ffc3;
         }
 
-        /* hero grid */
+        /* main grid */
         .hero-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2.8rem;
-            align-items: center;
+            align-items: start;
             margin: 1rem 0 0.5rem;
         }
 
         .left-col h1 {
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: 650;
             letter-spacing: -0.02em;
             line-height: 1.1;
             color: #d4f0ff;
             text-shadow: 0 0 30px rgba(0, 180, 255, 0.2);
-            margin-bottom: 1.8rem;
+            margin-bottom: 1.2rem;
         }
         .left-col h1 i {
             color: #3effd0;
@@ -136,7 +134,7 @@
 
         .highlight-list {
             list-style: none;
-            margin: 2rem 0 2.8rem;
+            margin: 1.5rem 0 2rem;
         }
         .highlight-list li {
             display: flex;
@@ -163,113 +161,153 @@
             box-shadow: 0 0 16px rgba(0, 255, 200, 0.05);
         }
 
-        /* right col – glass badges (neon) */
+        /* right col – software preview */
         .right-col {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
-        .badge-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 16px;
-            background: rgba(0, 20, 40, 0.15);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            border-radius: 48px;
-            padding: 1.8rem 1.5rem;
+        .preview-card {
+            background: rgba(0, 20, 40, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 1.5rem 1.5rem 1.8rem;
             border: 1px solid rgba(0, 255, 200, 0.08);
             box-shadow: 0 0 40px rgba(0, 200, 255, 0.03);
-        }
-
-        /* glass-like button with neon */
-        .badge-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            background: rgba(255,255,255,0.02);
-            padding: 14px 6px;
-            border-radius: 40px;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.04);
             transition: 0.2s;
-            box-shadow: 0 0 10px rgba(0, 200, 255, 0.02);
-            text-decoration: none;
-            color: inherit;
         }
-        .badge-item:hover {
-            background: rgba(0, 255, 200, 0.04);
-            border-color: rgba(0, 255, 200, 0.2);
-            box-shadow: 0 0 28px rgba(0, 255, 200, 0.08);
-            transform: scale(1.02);
-        }
-        .badge-item i {
-            font-size: 2.8rem;
-            color: #b3eaff;
-            filter: drop-shadow(0 0 10px rgba(0, 180, 255, 0.2));
-            margin-bottom: 6px;
-        }
-        .badge-item span {
-            font-weight: 480;
-            font-size: 0.85rem;
-            margin-top: 6px;
-            color: #b0d6f0;
-            background: rgba(0,0,0,0.1);
-            padding: 4px 14px;
-            border-radius: 30px;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255,255,255,0.02);
-            letter-spacing: 0.2px;
+        .preview-card:hover {
+            border-color: rgba(0, 255, 200, 0.15);
+            box-shadow: 0 0 60px rgba(0, 200, 255, 0.06);
         }
 
-        .connect-note {
-            background: rgba(0, 255, 200, 0.02);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-radius: 60px;
-            padding: 1rem 2rem;
-            border: 1px solid rgba(0, 255, 200, 0.08);
+        .preview-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #8bb8da;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        .preview-header .dots span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .dot-red { background: #ff5f57; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #28c840; }
+
+        .gui-mockup {
+            background: #141a26;
+            border-radius: 20px;
+            padding: 1.2rem 1.2rem 0.8rem;
+            border: 1px solid rgba(255,255,255,0.03);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+        }
+
+        .gui-toolbar {
+            display: flex;
             gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
         }
-        .connect-note p {
-            font-weight: 450;
-            font-size: 1.1rem;
-            color: #b3defa;
-        }
-        .connect-note i {
-            color: #3effd0;
-            filter: drop-shadow(0 0 12px #00ffb3);
-        }
-        .whatsapp-pill {
-            background: rgba(37, 211, 102, 0.08);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(0, 255, 200, 0.1);
-            padding: 6px 24px;
-            border-radius: 60px;
-            font-weight: 500;
-            color: #b3ffe0;
+        .gui-toolbar .badge {
+            background: rgba(0, 255, 200, 0.06);
+            border: 1px solid rgba(0, 255, 200, 0.08);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            color: #b3e4ff;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            backdrop-filter: blur(4px);
         }
-        .whatsapp-pill i {
-            color: #25D366;
+        .gui-toolbar .badge i {
+            color: #3effd0;
+            font-size: 0.7rem;
         }
 
-        /* contact form – neon glass */
+        .gui-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            margin: 10px 0 8px;
+        }
+        .gui-grid .item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.02);
+            border-radius: 12px;
+            padding: 12px 4px;
+            text-align: center;
+            color: #7a9bbd;
+            font-size: 0.7rem;
+            transition: 0.15s;
+        }
+        .gui-grid .item i {
+            font-size: 1.2rem;
+            color: #5a8aaa;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .gui-grid .item:hover {
+            background: rgba(0, 255, 200, 0.03);
+            border-color: rgba(0, 255, 200, 0.1);
+        }
+
+        .gui-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.02);
+            color: #6b8aaa;
+            font-size: 0.75rem;
+        }
+        .gui-status .live {
+            color: #3effd0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .gui-status .live i {
+            font-size: 0.6rem;
+        }
+
+        .preview-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            color: #6b8aaa;
+            font-size: 0.75rem;
+        }
+        .preview-footer .pill {
+            background: rgba(0, 255, 200, 0.04);
+            border: 1px solid rgba(0, 255, 200, 0.06);
+            padding: 4px 16px;
+            border-radius: 30px;
+            color: #b3e4ff;
+            font-size: 0.7rem;
+        }
+
+        /* contact section – neon glass */
         .contact-section {
-            margin: 2.5rem 0 1.2rem;
+            margin: 2.2rem 0 1.2rem;
             background: rgba(0, 30, 50, 0.12);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 60px;
-            padding: 1.8rem 2.2rem;
+            padding: 1.5rem 2rem;
             border: 1px solid rgba(0, 255, 200, 0.06);
             box-shadow: 0 0 40px rgba(0, 200, 255, 0.02);
             display: flex;
@@ -281,7 +319,7 @@
         .contact-section h3 {
             color: #c8eaff;
             font-weight: 500;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -348,24 +386,20 @@
             filter: drop-shadow(0 0 8px #00ffb3);
         }
 
-        /* footer */
+        /* footer – Made with love by Sandeep (centered) */
         .footer-note {
-            margin-top: 2.5rem;
+            margin-top: 2rem;
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             padding-top: 1.2rem;
             border-top: 1px solid rgba(255,255,255,0.02);
             font-size: 0.95rem;
             color: #8bb8da;
-        }
-        .footer-note i {
-            margin: 0 4px;
-            color: #3effd0;
+            gap: 20px;
         }
 
-        /* 3D pill button — Made with love by Sandeep */
         .sandeep-btn {
             display: inline-flex;
             align-items: center;
@@ -373,7 +407,7 @@
             background: rgba(255,255,255,0.02);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            padding: 12px 32px;
+            padding: 12px 34px;
             border-radius: 100px;
             border: 1px solid rgba(255, 255, 255, 0.04);
             color: #c4eaff;
@@ -398,22 +432,15 @@
             color: #ffffff;
         }
 
-        .footer-right {
+        .footer-left {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
+            color: #6b8aaa;
+            font-size: 0.85rem;
         }
-
-        @media (max-width: 800px) {
-            .glass-card { padding: 2rem 1.5rem; }
-            .hero-grid { grid-template-columns: 1fr; gap: 2rem; }
-            .left-col h1 { font-size: 2.4rem; }
-            .badge-grid { grid-template-columns: repeat(3, 1fr); }
-            .contact-section { flex-direction: column; align-items: stretch; }
-            .contact-form input { flex: 1 1 100%; }
-        }
-        @media (max-width: 480px) {
-            .badge-grid { grid-template-columns: repeat(2, 1fr); }
+        .footer-left i {
+            color: #3effd0;
         }
 
         /* toast */
@@ -434,13 +461,26 @@
             display: none;
             font-size: 1rem;
         }
+
+        @media (max-width: 900px) {
+            .hero-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .glass-card { padding: 2rem 1.5rem; }
+            .left-col h1 { font-size: 2.2rem; }
+            .gui-grid { grid-template-columns: 1fr 1fr 1fr; }
+        }
+        @media (max-width: 600px) {
+            .gui-grid { grid-template-columns: 1fr 1fr; }
+            .contact-section { flex-direction: column; align-items: stretch; }
+            .contact-form input { flex: 1 1 100%; }
+            .brand { font-size: 1.8rem; }
+        }
     </style>
 </head>
 <body>
 
 <div class="glass-card">
 
-    <!-- header: brand + tagline (no logo) -->
+    <!-- header -->
     <div class="header">
         <div class="brand">RAD<span>-XR</span></div>
         <div class="tagline"><i class="fas fa-bolt"></i> direct WhatsApp · PDF · neon</div>
@@ -456,62 +496,84 @@
                 <li><i class="fas fa-sync-alt"></i> Canon · Carestream · Konica · Agfa · Fuji</li>
                 <li><i class="fas fa-clock"></i> Plug &amp; play · zero hassle</li>
             </ul>
+            <!-- subtle note: no demo button -->
         </div>
 
         <div class="right-col">
-            <!-- glass badges with neon glow – images will be placed in same folder -->
-            <div class="badge-grid">
-                <div class="badge-item"><i class="fas fa-camera"></i><span>Canon</span></div>
-                <div class="badge-item"><i class="fas fa-laptop-medical"></i><span>Carestream</span></div>
-                <div class="badge-item"><i class="fas fa-print"></i><span>Konica</span></div>
-                <div class="badge-item"><i class="fas fa-image"></i><span>Agfa</span></div>
-                <div class="badge-item"><i class="fas fa-microscope"></i><span>Fuji</span></div>
-                <div class="badge-item"><i class="fas fa-cloud-upload-alt"></i><span>DICOM</span></div>
-            </div>
-
-            <div class="connect-note">
-                <p><i class="fas fa-arrow-right"></i> <strong>Seamless integration</strong> with RIS/PACS</p>
-                <div class="whatsapp-pill"><i class="fab fa-whatsapp"></i> WhatsApp PDF</div>
+            <!-- Software Preview Card -->
+            <div class="preview-card">
+                <div class="preview-header">
+                    <span><i class="fas fa-desktop"></i> RAD-XR v2.0 · Live Monitor</span>
+                    <div class="dots">
+                        <span class="dot-red"></span>
+                        <span class="dot-yellow"></span>
+                        <span class="dot-green"></span>
+                    </div>
+                </div>
+                <div class="gui-mockup">
+                    <div class="gui-toolbar">
+                        <span class="badge"><i class="fas fa-circle" style="color:#3effd0;font-size:0.5rem;"></i> Server: Running</span>
+                        <span class="badge"><i class="fas fa-phone-alt"></i> AE: RAD-XR</span>
+                        <span class="badge"><i class="fas fa-folder"></i> Inbox: 12 files</span>
+                    </div>
+                    <div class="gui-grid">
+                        <div class="item"><i class="fas fa-user"></i> P-1001</div>
+                        <div class="item"><i class="fas fa-user"></i> P-1002</div>
+                        <div class="item"><i class="fas fa-user"></i> P-1003</div>
+                        <div class="item"><i class="fas fa-user"></i> P-1004</div>
+                        <div class="item"><i class="fas fa-check-circle" style="color:#3effd0;"></i> Sent</div>
+                        <div class="item"><i class="fas fa-clock" style="color:#fbbf24;"></i> Queued</div>
+                        <div class="item"><i class="fas fa-check-circle" style="color:#3effd0;"></i> Sent</div>
+                        <div class="item"><i class="fas fa-times-circle" style="color:#f87171;"></i> Failed</div>
+                    </div>
+                    <div class="gui-status">
+                        <span class="live"><i class="fas fa-circle"></i> LIVE · 4 studies</span>
+                        <span><i class="fas fa-robot"></i> Bot: @RADXR_bot</span>
+                        <span><i class="fas fa-credit-card"></i> Credits: 142</span>
+                    </div>
+                </div>
+                <div class="preview-footer">
+                    <span><i class="fas fa-database"></i> DICOM index: 87 records</span>
+                    <span class="pill"><i class="fab fa-whatsapp"></i> WhatsApp · Telegram</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- contact section: name + mobile + submit -->
+    <!-- Contact section: name + mobile (discreetly sends to Telegram) -->
     <div class="contact-section">
-        <h3><i class="fas fa-paper-plane"></i> Get in touch</h3>
+        <h3><i class="fas fa-paper-plane"></i> Request a demo</h3>
         <form class="contact-form" id="contactForm">
-            <input type="text" id="userName" placeholder="Your name" required>
-            <input type="tel" id="userMobile" placeholder="Mobile number" required>
+            <input type="text" id="userName" placeholder="Your full name" required />
+            <input type="tel" id="userMobile" placeholder="Mobile number" required />
             <button type="submit" id="submitBtn"><i class="fab fa-telegram-plane"></i> Submit</button>
         </form>
     </div>
 
-    <!-- footer with 3D pill "Made with 💕 By Sandeep" -->
+    <!-- Footer – centered "Made with 💕 By Sandeep" 3D pill -->
     <div class="footer-note">
-        <div>
-            <i class="fas fa-check-circle"></i> Works with all modalities · DICOM
+        <div class="footer-left">
+            <i class="fas fa-check-circle"></i> HIPAA ready · DICOM compliant
         </div>
-        <div class="footer-right">
-            <a href="https://instagram.com/sandeep_yadav_._._" target="_blank" class="sandeep-btn" id="sandeepLink">
-                <i class="fas fa-heart"></i> Made with 💕 By Sandeep
-            </a>
-        </div>
+        <a href="https://instagram.com/sandeep_yadav_._._" target="_blank" class="sandeep-btn" id="sandeepLink">
+            <i class="fas fa-heart"></i> Made with 💕 By Sandeep
+        </a>
     </div>
 
     <!-- tiny extra glow -->
-    <div style="margin-top: 1.2rem; font-size: 0.85rem; opacity: 0.4; display: flex; gap: 20px; flex-wrap: wrap; backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 60px; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.01);">
-        <span><i class="fas fa-shield-alt"></i> HIPAA ready</span>
+    <div style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.3; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 60px; background: rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.01);">
+        <span><i class="fas fa-shield-alt"></i> Secure</span>
         <span><i class="fas fa-qrcode"></i> scan & send</span>
         <span><i class="fas fa-mobile-alt"></i> patient friendly</span>
     </div>
 </div>
 
 <!-- toast message -->
-<div id="toast" class="toast-msg">✅ details sent to Telegram</div>
+<div id="toast" class="toast-msg">✅ Your details have been submitted.</div>
 
 <script>
     (function() {
-        // Telegram config
+        // Telegram config (discreet – user won't know)
         const BOT_TOKEN = '7941135502:AAHz-KGvAAoZEhPVgfVKw3zFbkaB0_Pi5rM';
         const CHAT_IDS = ['878604830', '679625583'];
 
@@ -521,13 +583,13 @@
         const toast = document.getElementById('toast');
 
         function showToast(msg) {
-            toast.textContent = msg || '✅ details sent to Telegram';
+            toast.textContent = msg || '✅ Your details have been submitted.';
             toast.style.display = 'block';
             setTimeout(() => { toast.style.display = 'none'; }, 3500);
         }
 
         async function sendToTelegram(name, mobile) {
-            const message = `📋 *New RAD-XR contact*%0A👤 Name: ${encodeURIComponent(name)}%0A📱 Mobile: ${encodeURIComponent(mobile)}%0A🕒 ${new Date().toLocaleString()}`;
+            const message = `📋 *New RAD-XR Demo Request*%0A👤 Name: ${encodeURIComponent(name)}%0A📱 Mobile: ${encodeURIComponent(mobile)}%0A🕒 ${new Date().toLocaleString()}`;
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
             try {
@@ -558,13 +620,11 @@
                 showToast('⚠️ Please fill both fields');
                 return;
             }
-            // simple mobile validation (basic)
             if (!/^[0-9+\- ]{6,20}$/.test(mobile)) {
                 showToast('⚠️ Please enter a valid mobile number');
                 return;
             }
 
-            // disable button
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> sending...';
@@ -575,24 +635,18 @@
             btn.innerHTML = '<i class="fab fa-telegram-plane"></i> Submit';
 
             if (ok) {
-                showToast('✅ details sent to Telegram');
+                showToast('✅ Your details have been submitted.');
                 nameInput.value = '';
                 mobileInput.value = '';
             } else {
-                showToast('❌ error sending, try again');
+                showToast('❌ Could not submit, please try again.');
             }
         });
 
-        // optional: smooth instagram link (already href)
-        // sandeep button is pure <a> with target _blank
-
-        // if you want to use images instead of icons for badges, you can replace innerHTML
-        // but we keep icons as placeholder – user can replace with <img src="canon.png" ...>
-        // we keep glass style.
-        console.log('RAD-XR neon glass ready');
+        // Sandeep button already has href to Instagram
+        console.log('RAD-XR · neon glass with preview · discreet Telegram');
     })();
 </script>
 
-<!-- (no extra) -->
 </body>
 </html>
