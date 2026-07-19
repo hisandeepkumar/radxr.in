@@ -1,652 +1,543 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RAD-XR · Neon Glass · Software Preview</title>
-    <!-- Font & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RAD-XR · Live Monitor</title>
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: "Inter", sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            background: #0b0e1a;
-            background-image: radial-gradient(circle at 20% 30%, #1a2a3f 0%, #070a12 90%);
-        }
+    body {
+      font-family: "Inter", sans-serif;
+      background: #11131f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+      margin: 0;
+    }
 
-        /* main glass card — neon glow + liquid glass */
-        .glass-card {
-            max-width: 1300px;
-            width: 100%;
-            background: rgba(20, 30, 48, 0.25);
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            border-radius: 64px;
-            padding: 2.5rem 2.8rem;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 
-                        0 0 0 1px rgba(255, 255, 255, 0.08),
-                        0 0 40px rgba(0, 180, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.25s ease;
-            position: relative;
-            overflow: hidden;
-        }
+    /* main card – subtle glass, dark, no neon wording */
+    .glass-card {
+      max-width: 1260px;
+      width: 100%;
+      background: rgba(20, 24, 38, 0.72);
+      backdrop-filter: blur(12px) saturate(160%);
+      -webkit-backdrop-filter: blur(12px) saturate(160%);
+      border-radius: 40px;
+      padding: 2rem 2.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.02);
+      transition: all 0.2s;
+    }
 
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: -30%;
-            left: -10%;
-            width: 140%;
-            height: 140%;
-            background: radial-gradient(circle at 30% 20%, rgba(0, 255, 200, 0.08) 0%, transparent 60%),
-                        radial-gradient(circle at 80% 70%, rgba(255, 0, 200, 0.05) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
+    /* header */
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.8rem;
+    }
 
-        .glass-card > * {
-            position: relative;
-            z-index: 2;
-        }
+    .brand {
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: -0.02em;
+      color: #e8f0fe;
+      text-shadow: 0 0 12px rgba(0, 180, 255, 0.08);
+    }
+    .brand span {
+      font-weight: 300;
+      color: #6b8aaa;
+    }
 
-        /* header */
-        .header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.2rem;
-        }
+    .status-pill {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+      padding: 6px 20px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #6ee7b7;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-pill i {
+      font-size: 0.5rem;
+      color: #34d399;
+    }
 
-        .brand {
-            font-weight: 650;
-            font-size: 2.4rem;
-            letter-spacing: -0.02em;
-            background: linear-gradient(145deg, #9de0ff, #7ac7ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 20px rgba(0, 180, 255, 0.3);
-        }
-        .brand span {
-            font-weight: 300;
-            color: #b3e4ff;
-            -webkit-text-fill-color: #b3e4ff;
-            background: none;
-        }
+    /* main grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 1.8rem;
+      margin-top: 0.2rem;
+    }
 
-        .tagline {
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            padding: 10px 24px;
-            border-radius: 50px;
-            border: 1px solid rgba(0, 255, 200, 0.15);
-            font-weight: 450;
-            color: #b3e4ff;
-            font-size: 1rem;
-            box-shadow: 0 0 20px rgba(0, 200, 255, 0.05);
-            letter-spacing: 0.3px;
-        }
-        .tagline i {
-            margin-right: 8px;
-            color: #3effd0;
-            text-shadow: 0 0 12px #00ffc3;
-        }
+    /* ----- left panel (network config) ----- */
+    .left-panel {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 28px;
+      padding: 1.2rem 1rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
 
-        /* main grid */
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2.8rem;
-            align-items: start;
-            margin: 1rem 0 0.5rem;
-        }
+    .panel-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #6b8aaa;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      padding-bottom: 0.6rem;
+    }
 
-        .left-col h1 {
-            font-size: 2.8rem;
-            font-weight: 650;
-            letter-spacing: -0.02em;
-            line-height: 1.1;
-            color: #d4f0ff;
-            text-shadow: 0 0 30px rgba(0, 180, 255, 0.2);
-            margin-bottom: 1.2rem;
-        }
-        .left-col h1 i {
-            color: #3effd0;
-            filter: drop-shadow(0 0 12px #00ffb3);
-            margin-right: 6px;
-        }
+    .info-row {
+      margin-bottom: 1rem;
+    }
+    .info-row .label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #5a7a9a;
+      font-weight: 600;
+    }
+    .info-row .value {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #d4e4f4;
+      word-break: break-all;
+      margin-top: 2px;
+    }
+    .info-row .value.sub {
+      color: #8aaac8;
+      font-weight: 400;
+      font-size: 0.8rem;
+    }
 
-        .highlight-list {
-            list-style: none;
-            margin: 1.5rem 0 2rem;
-        }
-        .highlight-list li {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            font-size: 1.1rem;
-            padding: 10px 0;
-            font-weight: 450;
-            color: #c4e2ff;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-        .highlight-list li i {
-            width: 36px;
-            height: 36px;
-            background: rgba(0, 255, 200, 0.06);
-            backdrop-filter: blur(4px);
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #7effe0;
-            font-size: 1.1rem;
-            border: 1px solid rgba(0, 255, 200, 0.15);
-            box-shadow: 0 0 16px rgba(0, 255, 200, 0.05);
-        }
+    .divider-light {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      margin: 1rem 0;
+    }
 
-        /* right col – software preview */
-        .right-col {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
+    .credit-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #b0cce6;
+      padding: 4px 0;
+    }
+    .credit-row i {
+      width: 20px;
+      color: #5a8aaa;
+    }
 
-        .preview-card {
-            background: rgba(0, 20, 40, 0.25);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 32px;
-            padding: 1.5rem 1.5rem 1.8rem;
-            border: 1px solid rgba(0, 255, 200, 0.08);
-            box-shadow: 0 0 40px rgba(0, 200, 255, 0.03);
-            transition: 0.2s;
-        }
-        .preview-card:hover {
-            border-color: rgba(0, 255, 200, 0.15);
-            box-shadow: 0 0 60px rgba(0, 200, 255, 0.06);
-        }
+    .bot-info {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 16px;
+      padding: 0.8rem 1rem;
+      margin-top: 0.5rem;
+    }
+    .bot-info .bot-name {
+      font-weight: 500;
+      color: #d4e4f4;
+      font-size: 0.85rem;
+    }
+    .bot-info .bot-username {
+      color: #6b8aaa;
+      font-size: 0.75rem;
+    }
+    .bot-info .search-hint {
+      color: #4a6a8a;
+      font-size: 0.65rem;
+      margin-top: 4px;
+    }
 
-        .preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            color: #8bb8da;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-        }
-        .preview-header .dots span {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 6px;
-        }
-        .dot-red { background: #ff5f57; }
-        .dot-yellow { background: #ffbd2e; }
-        .dot-green { background: #28c840; }
+    .folder-watch {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #b0cce6;
+      margin-top: 0.5rem;
+    }
+    .folder-watch .badge-inactive {
+      background: rgba(239, 68, 68, 0.08);
+      color: #f87171;
+      padding: 2px 14px;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      border: 1px solid rgba(239, 68, 68, 0.06);
+    }
 
-        .gui-mockup {
-            background: #141a26;
-            border-radius: 20px;
-            padding: 1.2rem 1.2rem 0.8rem;
-            border: 1px solid rgba(255,255,255,0.03);
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
-        }
+    /* ----- right panel (monitor) ----- */
+    .right-panel {
+      background: rgba(255, 255, 255, 0.01);
+      border-radius: 28px;
+      padding: 1.2rem 1.2rem 1.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      display: flex;
+      flex-direction: column;
+    }
 
-        .gui-toolbar {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 14px;
-        }
-        .gui-toolbar .badge {
-            background: rgba(0, 255, 200, 0.06);
-            border: 1px solid rgba(0, 255, 200, 0.08);
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            color: #b3e4ff;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            backdrop-filter: blur(4px);
-        }
-        .gui-toolbar .badge i {
-            color: #3effd0;
-            font-size: 0.7rem;
-        }
+    .monitor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .monitor-header .title {
+      font-weight: 600;
+      color: #d4e4f4;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .monitor-header .title i {
+      color: #34d399;
+      font-size: 0.6rem;
+    }
 
-        .gui-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 8px;
-            margin: 10px 0 8px;
-        }
-        .gui-grid .item {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.02);
-            border-radius: 12px;
-            padding: 12px 4px;
-            text-align: center;
-            color: #7a9bbd;
-            font-size: 0.7rem;
-            transition: 0.15s;
-        }
-        .gui-grid .item i {
-            font-size: 1.2rem;
-            color: #5a8aaa;
-            display: block;
-            margin-bottom: 4px;
-        }
-        .gui-grid .item:hover {
-            background: rgba(0, 255, 200, 0.03);
-            border-color: rgba(0, 255, 200, 0.1);
-        }
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      color: #b0cce6;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      cursor: default;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.15s;
+      font-family: inherit;
+    }
+    .action-btn i {
+      font-size: 0.7rem;
+      color: #6b8aaa;
+    }
+    .action-btn.stop {
+      background: rgba(239, 68, 68, 0.04);
+      border-color: rgba(239, 68, 68, 0.08);
+      color: #f87171;
+    }
+    .action-btn.stop i {
+      color: #f87171;
+    }
 
-        .gui-status {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid rgba(255,255,255,0.02);
-            color: #6b8aaa;
-            font-size: 0.75rem;
-        }
-        .gui-status .live {
-            color: #3effd0;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .gui-status .live i {
-            font-size: 0.6rem;
-        }
+    /* table / grid */
+    .record-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.2fr 1fr;
+      gap: 4px 8px;
+      font-size: 0.75rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      color: #a0bcd8;
+    }
+    .record-grid.header-row {
+      color: #5a7a9a;
+      font-weight: 600;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.2rem;
+    }
+    .record-grid .status-sent {
+      color: #34d399;
+    }
+    .record-grid .status-archiving {
+      color: #fbbf24;
+    }
+    .record-grid .status-error {
+      color: #f87171;
+    }
+    .record-grid .file-name {
+      color: #b0cce6;
+      font-weight: 400;
+    }
 
-        .preview-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-            color: #6b8aaa;
-            font-size: 0.75rem;
-        }
-        .preview-footer .pill {
-            background: rgba(0, 255, 200, 0.04);
-            border: 1px solid rgba(0, 255, 200, 0.06);
-            padding: 4px 16px;
-            border-radius: 30px;
-            color: #b3e4ff;
-            font-size: 0.7rem;
-        }
+    /* console log */
+    .console-log {
+      margin-top: 1.2rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 20px;
+      padding: 0.8rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      flex: 1;
+    }
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.65rem;
+      color: #5a7a9a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .console-header .icons i {
+      margin-left: 12px;
+      color: #4a6a8a;
+      cursor: default;
+    }
+    .console-lines {
+      font-family: "Inter", monospace;
+      font-size: 0.7rem;
+      color: #8aaac8;
+      line-height: 1.6;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+    .console-lines .error {
+      color: #f87171;
+    }
+    .console-lines .warn {
+      color: #fbbf24;
+    }
+    .console-lines .ok {
+      color: #34d399;
+    }
 
-        /* contact section – neon glass */
-        .contact-section {
-            margin: 2.2rem 0 1.2rem;
-            background: rgba(0, 30, 50, 0.12);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 60px;
-            padding: 1.5rem 2rem;
-            border: 1px solid rgba(0, 255, 200, 0.06);
-            box-shadow: 0 0 40px rgba(0, 200, 255, 0.02);
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-        .contact-section h3 {
-            color: #c8eaff;
-            font-weight: 500;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .contact-section h3 i {
-            color: #3effd0;
-            filter: drop-shadow(0 0 12px #00ffb3);
-        }
-        .contact-form {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 14px;
-            flex: 1;
-        }
-        .contact-form input {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(0, 255, 200, 0.08);
-            padding: 14px 22px;
-            border-radius: 50px;
-            font-size: 1rem;
-            color: #e0f0ff;
-            backdrop-filter: blur(8px);
-            flex: 1 1 160px;
-            min-width: 140px;
-            outline: none;
-            transition: 0.2s;
-            font-family: inherit;
-        }
-        .contact-form input::placeholder {
-            color: #7a9bbd;
-            font-weight: 300;
-        }
-        .contact-form input:focus {
-            border-color: rgba(0, 255, 200, 0.25);
-            box-shadow: 0 0 30px rgba(0, 255, 200, 0.05);
-            background: rgba(255,255,255,0.04);
-        }
-        .contact-form button {
-            background: rgba(0, 255, 200, 0.04);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 255, 200, 0.15);
-            padding: 14px 32px;
-            border-radius: 60px;
-            font-weight: 550;
-            font-size: 1.05rem;
-            color: #c4f0ff;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 0 20px rgba(0, 200, 255, 0.02);
-            font-family: inherit;
-        }
-        .contact-form button:hover {
-            background: rgba(0, 255, 200, 0.08);
-            border-color: rgba(0, 255, 200, 0.3);
-            box-shadow: 0 0 40px rgba(0, 255, 200, 0.06);
-            transform: scale(1.01);
-        }
-        .contact-form button i {
-            color: #3effd0;
-            filter: drop-shadow(0 0 8px #00ffb3);
-        }
+    /* footer progress + made with love */
+    .footer-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.02);
+      font-size: 0.75rem;
+      color: #6b8aaa;
+    }
+    .footer-bar .progress {
+      color: #b0cce6;
+    }
+    .footer-bar .progress i {
+      color: #34d399;
+      margin-right: 6px;
+    }
 
-        /* footer – Made with love by Sandeep (centered) */
-        .footer-note {
-            margin-top: 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            padding-top: 1.2rem;
-            border-top: 1px solid rgba(255,255,255,0.02);
-            font-size: 0.95rem;
-            color: #8bb8da;
-            gap: 20px;
-        }
+    .made-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(8px);
+      padding: 8px 24px;
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      color: #b0cce6;
+      font-weight: 500;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+    .made-btn i {
+      color: #f472b6;
+      font-size: 0.9rem;
+    }
+    .made-btn:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 200, 200, 0.06);
+      color: #d4e4f4;
+      transform: scale(1.01);
+    }
 
-        .sandeep-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,0.02);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 12px 34px;
-            border-radius: 100px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            color: #c4eaff;
-            font-weight: 500;
-            font-size: 1rem;
-            text-decoration: none;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.02), 0 0 30px rgba(0, 200, 255, 0.02);
-            transition: 0.2s;
-            letter-spacing: 0.3px;
-            cursor: pointer;
-        }
-        .sandeep-btn i {
-            color: #ff6b9d;
-            filter: drop-shadow(0 0 14px #ff3b7a);
-            font-size: 1.1rem;
-        }
-        .sandeep-btn:hover {
-            background: rgba(255,255,255,0.04);
-            border-color: rgba(255, 200, 200, 0.1);
-            box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 40px rgba(255, 100, 150, 0.05);
-            transform: scale(1.02);
-            color: #ffffff;
-        }
+    /* responsive */
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .glass-card {
+        padding: 1.5rem;
+      }
+      .record-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+      }
+      .record-grid .file-name {
+        display: none;
+      }
+    }
+    @media (max-width: 600px) {
+      .record-grid {
+        grid-template-columns: 1fr 1fr;
+        font-size: 0.7rem;
+      }
+      .record-grid .accession {
+        display: none;
+      }
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .action-buttons {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
 
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            color: #6b8aaa;
-            font-size: 0.85rem;
-        }
-        .footer-left i {
-            color: #3effd0;
-        }
-
-        /* toast */
-        .toast-msg {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 255, 200, 0.08);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(0,255,200,0.1);
-            padding: 14px 30px;
-            border-radius: 60px;
-            color: #d4f0ff;
-            font-weight: 450;
-            box-shadow: 0 0 60px rgba(0,0,0,0.4);
-            z-index: 999;
-            display: none;
-            font-size: 1rem;
-        }
-
-        @media (max-width: 900px) {
-            .hero-grid { grid-template-columns: 1fr; gap: 2rem; }
-            .glass-card { padding: 2rem 1.5rem; }
-            .left-col h1 { font-size: 2.2rem; }
-            .gui-grid { grid-template-columns: 1fr 1fr 1fr; }
-        }
-        @media (max-width: 600px) {
-            .gui-grid { grid-template-columns: 1fr 1fr; }
-            .contact-section { flex-direction: column; align-items: stretch; }
-            .contact-form input { flex: 1 1 100%; }
-            .brand { font-size: 1.8rem; }
-        }
-    </style>
+    /* scrollbar */
+    .console-lines::-webkit-scrollbar {
+      width: 3px;
+    }
+    .console-lines::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .console-lines::-webkit-scrollbar-thumb {
+      background: #2a3a4a;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
 
 <div class="glass-card">
 
-    <!-- header -->
-    <div class="header">
-        <div class="brand">RAD<span>-XR</span></div>
-        <div class="tagline"><i class="fas fa-bolt"></i> direct WhatsApp · PDF · neon</div>
+  <!-- header -->
+  <div class="header">
+    <div class="brand">RAD<span>-XR</span></div>
+    <div class="status-pill"><i class="fas fa-circle"></i> Listening</div>
+  </div>
+
+  <!-- main grid -->
+  <div class="main-grid">
+
+    <!-- LEFT: NETWORK CONFIG -->
+    <div class="left-panel">
+      <div class="panel-label"><i class="fas fa-network-wired" style="margin-right:8px;"></i> NETWORK CONFIG</div>
+
+      <div class="info-row">
+        <div class="label">INSTITUTE NAME</div>
+        <div class="value">RAD-XR IMAGING CENTER</div>
+      </div>
+      <div class="info-row">
+        <div class="label">AE TITLE</div>
+        <div class="value">RAD-XR</div>
+      </div>
+      <div class="info-row">
+        <div class="label">IP ADDRESS</div>
+        <div class="value">10.207.193.87</div>
+      </div>
+      <div class="info-row">
+        <div class="label">PORT NUMBER</div>
+        <div class="value">11112</div>
+      </div>
+
+      <hr class="divider-light" />
+
+      <div class="panel-label" style="font-size:0.7rem; margin-bottom:0.6rem;">💳 CREDITS</div>
+      <div class="credit-row"><i class="fab fa-whatsapp"></i> WhatsApp: <span style="color:#d4e4f4;">15000</span></div>
+      <div class="credit-row"><i class="fab fa-telegram-plane"></i> Telegram: <span style="color:#d4e4f4;">4</span></div>
+
+      <hr class="divider-light" />
+
+      <div class="panel-label" style="font-size:0.7rem; margin-bottom:0.6rem;">🤖 TELEGRAM BOT</div>
+      <div class="bot-info">
+        <div class="bot-name">Name: IRD (TB HOSPITAL) SMS</div>
+        <div class="bot-username">Username: @ird_sms_bot</div>
+        <div class="search-hint">Search on Telegram: @...</div>
+      </div>
+
+      <div class="folder-watch">
+        <span><i class="fas fa-folder" style="margin-right:6px;"></i> FOLDER WATCH</span>
+        <span class="badge-inactive">INACTIVE</span>
+      </div>
     </div>
 
-    <!-- hero grid -->
-    <div class="hero-grid">
-        <div class="left-col">
-            <h1><i class="fas fa-file-pdf"></i> Reports to WhatsApp</h1>
-            <ul class="highlight-list">
-                <li><i class="fas fa-phone-alt"></i> X-ray, CT, MRI — PDF via WhatsApp</li>
-                <li><i class="fas fa-plug"></i> DICOM &amp; PACS integration</li>
-                <li><i class="fas fa-sync-alt"></i> Canon · Carestream · Konica · Agfa · Fuji</li>
-                <li><i class="fas fa-clock"></i> Plug &amp; play · zero hassle</li>
-            </ul>
-            <!-- subtle note: no demo button -->
+    <!-- RIGHT: LIVE MONITOR -->
+    <div class="right-panel">
+
+      <!-- monitor header + buttons -->
+      <div class="monitor-header">
+        <div class="title"><i class="fas fa-circle"></i> Live Monitor</div>
+        <div class="action-buttons">
+          <span class="action-btn stop"><i class="fas fa-stop-circle"></i> Stop Server</span>
+          <span class="action-btn"><i class="fas fa-sync-alt"></i> Resend Failed</span>
+          <span class="action-btn"><i class="fas fa-file-import"></i> Import DICOM File</span>
         </div>
+      </div>
 
-        <div class="right-col">
-            <!-- Software Preview Card -->
-            <div class="preview-card">
-                <div class="preview-header">
-                    <span><i class="fas fa-desktop"></i> RAD-XR v2.0 · Live Monitor</span>
-                    <div class="dots">
-                        <span class="dot-red"></span>
-                        <span class="dot-yellow"></span>
-                        <span class="dot-green"></span>
-                    </div>
-                </div>
-                <div class="gui-mockup">
-                    <div class="gui-toolbar">
-                        <span class="badge"><i class="fas fa-circle" style="color:#3effd0;font-size:0.5rem;"></i> Server: Running</span>
-                        <span class="badge"><i class="fas fa-phone-alt"></i> AE: RAD-XR</span>
-                        <span class="badge"><i class="fas fa-folder"></i> Inbox: 12 files</span>
-                    </div>
-                    <div class="gui-grid">
-                        <div class="item"><i class="fas fa-user"></i> P-1001</div>
-                        <div class="item"><i class="fas fa-user"></i> P-1002</div>
-                        <div class="item"><i class="fas fa-user"></i> P-1003</div>
-                        <div class="item"><i class="fas fa-user"></i> P-1004</div>
-                        <div class="item"><i class="fas fa-check-circle" style="color:#3effd0;"></i> Sent</div>
-                        <div class="item"><i class="fas fa-clock" style="color:#fbbf24;"></i> Queued</div>
-                        <div class="item"><i class="fas fa-check-circle" style="color:#3effd0;"></i> Sent</div>
-                        <div class="item"><i class="fas fa-times-circle" style="color:#f87171;"></i> Failed</div>
-                    </div>
-                    <div class="gui-status">
-                        <span class="live"><i class="fas fa-circle"></i> LIVE · 4 studies</span>
-                        <span><i class="fas fa-robot"></i> Bot: @RADXR_bot</span>
-                        <span><i class="fas fa-credit-card"></i> Credits: 142</span>
-                    </div>
-                </div>
-                <div class="preview-footer">
-                    <span><i class="fas fa-database"></i> DICOM index: 87 records</span>
-                    <span class="pill"><i class="fab fa-whatsapp"></i> WhatsApp · Telegram</span>
-                </div>
-            </div>
+      <!-- record grid header -->
+      <div class="record-grid header-row">
+        <span>Patient ID</span>
+        <span>Patient Name</span>
+        <span class="accession">Accession No.</span>
+        <span class="file-name">File Name</span>
+        <span>Status</span>
+      </div>
+
+      <!-- record row (exactly as described) -->
+      <div class="record-grid">
+        <span>JULY 26 8 OMPRAKASH 52Y M</span>
+        <span>RAD-XR_dcm</span>
+        <span class="accession">RAD-XR_dcm</span>
+        <span class="file-name">RAD-XR_dcm</span>
+        <span class="status-archiving"><i class="fas fa-archive" style="margin-right:4px;"></i> Sent &amp; Archiving</span>
+      </div>
+
+      <!-- console log -->
+      <div class="console-log">
+        <div class="console-header">
+          <span>📋 Console Log</span>
+          <span class="icons"><i class="far fa-copy"></i> <i class="far fa-trash-alt"></i></span>
         </div>
-    </div>
-
-    <!-- Contact section: name + mobile (discreetly sends to Telegram) -->
-    <div class="contact-section">
-        <h3><i class="fas fa-paper-plane"></i> Request a demo</h3>
-        <form class="contact-form" id="contactForm">
-            <input type="text" id="userName" placeholder="Your full name" required />
-            <input type="tel" id="userMobile" placeholder="Mobile number" required />
-            <button type="submit" id="submitBtn"><i class="fab fa-telegram-plane"></i> Submit</button>
-        </form>
-    </div>
-
-    <!-- Footer – centered "Made with 💕 By Sandeep" 3D pill -->
-    <div class="footer-note">
-        <div class="footer-left">
-            <i class="fas fa-check-circle"></i> HIPAA ready · DICOM compliant
+        <div class="console-lines">
+          <div class="error">[2026-07-11 23:28:51] Failed to send to Telegram user 878604830</div>
+          <div class="error">[2026-07-11 23:28:51] Telegram send failed, credit refunded.</div>
+          <div class="error">[2026-07-11 23:29:32] Telegram send error: ('Connection aborted.', 'TimeoutError('The write operation timed out')')</div>
+          <div class="error">[2026-07-11 23:29:32] Failed to send to Telegram user 878604830</div>
+          <div class="error">[2026-07-11 23:29:32] Telegram send failed, credit refunded.</div>
+          <div class="ok">[2026-07-11 23:31:18] PDF deleted: OMPRAKASH 52Y M's medical</div>
         </div>
-        <a href="https://instagram.com/sandeep_yadav_._._" target="_blank" class="sandeep-btn" id="sandeepLink">
-            <i class="fas fa-heart"></i> Made with 💕 By Sandeep
-        </a>
+      </div>
     </div>
+  </div>
 
-    <!-- tiny extra glow -->
-    <div style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.3; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 60px; background: rgba(0,0,0,0.05); border: 1px solid rgba(255,255,255,0.01);">
-        <span><i class="fas fa-shield-alt"></i> Secure</span>
-        <span><i class="fas fa-qrcode"></i> scan & send</span>
-        <span><i class="fas fa-mobile-alt"></i> patient friendly</span>
+  <!-- footer: progress + made with love -->
+  <div class="footer-bar">
+    <div class="progress">
+      <i class="fas fa-spinner fa-pulse"></i> Indexing: 1 / 1 files processed...
     </div>
+    <a href="https://instagram.com/sandeep_yadav_._._" target="_blank" class="made-btn">
+      <i class="fas fa-heart"></i> Made with 💕 By Sandeep
+    </a>
+  </div>
+
 </div>
-
-<!-- toast message -->
-<div id="toast" class="toast-msg">✅ Your details have been submitted.</div>
-
-<script>
-    (function() {
-        // Telegram config (discreet – user won't know)
-        const BOT_TOKEN = '7941135502:AAHz-KGvAAoZEhPVgfVKw3zFbkaB0_Pi5rM';
-        const CHAT_IDS = ['878604830', '679625583'];
-
-        const form = document.getElementById('contactForm');
-        const nameInput = document.getElementById('userName');
-        const mobileInput = document.getElementById('userMobile');
-        const toast = document.getElementById('toast');
-
-        function showToast(msg) {
-            toast.textContent = msg || '✅ Your details have been submitted.';
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 3500);
-        }
-
-        async function sendToTelegram(name, mobile) {
-            const message = `📋 *New RAD-XR Demo Request*%0A👤 Name: ${encodeURIComponent(name)}%0A📱 Mobile: ${encodeURIComponent(mobile)}%0A🕒 ${new Date().toLocaleString()}`;
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
-            try {
-                const promises = CHAT_IDS.map(chatId => 
-                    fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: chatId,
-                            text: message,
-                            parse_mode: 'Markdown'
-                        })
-                    })
-                );
-                await Promise.all(promises);
-                return true;
-            } catch (err) {
-                console.error('Telegram send error', err);
-                return false;
-            }
-        }
-
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const name = nameInput.value.trim();
-            const mobile = mobileInput.value.trim();
-            if (!name || !mobile) {
-                showToast('⚠️ Please fill both fields');
-                return;
-            }
-            if (!/^[0-9+\- ]{6,20}$/.test(mobile)) {
-                showToast('⚠️ Please enter a valid mobile number');
-                return;
-            }
-
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> sending...';
-
-            const ok = await sendToTelegram(name, mobile);
-
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fab fa-telegram-plane"></i> Submit';
-
-            if (ok) {
-                showToast('✅ Your details have been submitted.');
-                nameInput.value = '';
-                mobileInput.value = '';
-            } else {
-                showToast('❌ Could not submit, please try again.');
-            }
-        });
-
-        // Sandeep button already has href to Instagram
-        console.log('RAD-XR · neon glass with preview · discreet Telegram');
-    })();
-</script>
+<!-- end glass-card -->
 
 </body>
 </html>
