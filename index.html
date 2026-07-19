@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>RAD-XR · radiology reports via WhatsApp</title>
+    <!-- Font & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            background: radial-gradient(circle at 10% 20%, #e8f0fe 0%, #d4e0f0 80%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            margin: 0;
+        }
+
+        /* Glassmorphism card — liquid glass effect */
+        .glass-card {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border-radius: 64px;
+            padding: 2.5rem 2.8rem;
+            box-shadow: 0 30px 60px rgba(0, 20, 40, 0.12), 
+                        0 10px 30px rgba(0, 0, 0, 0.05),
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+            transition: all 0.25s ease;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* extra liquid shine */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -2%;
+            left: -2%;
+            width: 104%;
+            height: 104%;
+            background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.5) 0%, transparent 70%);
+            border-radius: 70px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.5;
+            filter: blur(2px);
+        }
+
+        .glass-card > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* header / logo */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.8rem;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: rgba(255,255,255,0.35);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 30px;
+            padding: 10px 16px;
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.02);
+        }
+
+        .logo-icon i {
+            font-size: 2.2rem;
+            color: #0b2b4a;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.02));
+        }
+
+        .brand {
+            font-weight: 600;
+            font-size: 2.2rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(145deg, #0b2b4a, #1d4a6e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 12px rgba(0,40,70,0.08);
+        }
+
+        .brand span {
+            font-weight: 300;
+            color: #1f4a6e;
+            background: none;
+            -webkit-text-fill-color: #1f4a6e;
+        }
+
+        .tagline {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 12px 22px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.5);
+            font-weight: 450;
+            color: #0a2c47;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .tagline i {
+            margin-right: 8px;
+            color: #1f6e4a;
+        }
+
+        /* main grid */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.8rem;
+            align-items: center;
+            margin: 1.8rem 0 1.5rem;
+        }
+
+        .left-col h1 {
+            font-size: 3.2rem;
+            font-weight: 650;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            color: #0b2945;
+            margin-bottom: 1.8rem;
+        }
+
+        .left-col h1 i {
+            color: #1d7a4e;
+            font-size: 2.8rem;
+            margin-right: 8px;
+        }
+
+        .highlight-list {
+            list-style: none;
+            margin: 2rem 0 2.8rem;
+        }
+
+        .highlight-list li {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 1.15rem;
+            padding: 10px 0;
+            font-weight: 460;
+            color: #10364e;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(2px);
+        }
+
+        .highlight-list li i {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.3);
+            backdrop-filter: blur(4px);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0b3d5a;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.7);
+            padding: 16px 44px;
+            border-radius: 60px;
+            font-weight: 550;
+            font-size: 1.2rem;
+            color: #052035;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 20px rgba(0,20,30,0.06);
+            transition: 0.2s;
+            cursor: default;
+            letter-spacing: -0.2px;
+        }
+
+        .btn-primary i {
+            font-size: 1.4rem;
+            color: #0f5b3a;
+        }
+
+        .btn-primary:hover {
+            background: rgba(255,255,255,0.55);
+            box-shadow: 0 16px 32px rgba(0,30,50,0.08);
+            transform: scale(1.01);
+        }
+
+        /* right col – company badges */
+        .right-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .badge-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 48px;
+            padding: 1.6rem 1.8rem;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: rgba(255,255,255,0.05);
+            padding: 12px 4px;
+            border-radius: 28px;
+            backdrop-filter: blur(2px);
+            transition: 0.1s;
+        }
+
+        .badge-item i {
+            font-size: 2.6rem;
+            color: #0b3752;
+            opacity: 0.8;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.02));
+        }
+
+        .badge-item span {
+            font-weight: 480;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            color: #1b3c54;
+            letter-spacing: -0.2px;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 30px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .connect-note {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 60px;
+            padding: 1.2rem 2rem;
+            border: 1px solid rgba(255,255,255,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .connect-note p {
+            font-weight: 460;
+            font-size: 1.1rem;
+            color: #0b314a;
+        }
+
+        .connect-note i {
+            color: #1b6d48;
+            font-size: 1.6rem;
+        }
+
+        .whatsapp-pill {
+            background: rgba(37, 211, 102, 0.18);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 24px;
+            border-radius: 60px;
+            font-weight: 500;
+            color: #0b3d2a;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .whatsapp-pill i {
+            color: #25D366;
+        }
+
+        /* footer */
+        .footer-note {
+            margin-top: 3.2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.8rem;
+            border-top: 1px solid rgba(255,255,255,0.25);
+            font-size: 0.95rem;
+            color: #15415e;
+            backdrop-filter: blur(2px);
+        }
+
+        .footer-note i {
+            margin: 0 4px;
+            color: #146b42;
+        }
+
+        .footer-note .easy-setup {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 24px;
+            border-radius: 100px;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-weight: 450;
+        }
+
+        /* responsive */
+        @media (max-width: 800px) {
+            .glass-card {
+                padding: 2rem 1.5rem;
+                border-radius: 40px;
+            }
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .left-col h1 {
+                font-size: 2.5rem;
+            }
+            .badge-grid {
+                grid-template-columns: repeat(3, 1fr);
+                padding: 1.2rem;
+                border-radius: 32px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 18px;
+            }
+            .tagline {
+                align-self: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .badge-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .connect-note {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .footer-note {
+                flex-direction: column;
+                gap: 14px;
+                align-items: flex-start;
+            }
+            .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* subtle glassmorphism extras */
+        .glassmorphism-extra {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="glass-card">
+
+    <!-- header -->
+    <div class="header">
+        <div class="logo-area">
+            <div class="logo-icon">
+                <i class="fas fa-x-ray"></i>
+            </div>
+            <div class="brand">RAD<span>-XR</span></div>
+        </div>
+        <div class="tagline">
+            <i class="fas fa-bolt"></i> direct WhatsApp · PDF
+        </div>
+    </div>
+
+    <!-- hero -->
+    <div class="hero-grid">
+        <!-- left -->
+        <div class="left-col">
+            <h1>
+                <i class="fas fa-file-pdf"></i> Radiology reports <br> straight to WhatsApp
+            </h1>
+            <ul class="highlight-list">
+                <li><i class="fas fa-phone-alt"></i> X-ray, CT, MRI — PDF via WhatsApp</li>
+                <li><i class="fas fa-plug"></i> Seamless DICOM &amp; PACS integration</li>
+                <li><i class="fas fa-sync-alt"></i> Canon · Carestream · Konica · Agfa · Fuji</li>
+                <li><i class="fas fa-clock"></i> Plug &amp; play · zero hassle setup</li>
+            </ul>
+            <div class="btn-primary">
+                <i class="fab fa-whatsapp"></i> Send demo report
+                <i class="fas fa-arrow-right" style="font-size: 1rem;"></i>
+            </div>
+        </div>
+
+        <!-- right -->
+        <div class="right-col">
+            <div class="badge-grid">
+                <div class="badge-item"><i class="fas fa-camera"></i><span>Canon</span></div>
+                <div class="badge-item"><i class="fas fa-laptop-medical"></i><span>Carestream</span></div>
+                <div class="badge-item"><i class="fas fa-print"></i><span>Konica</span></div>
+                <div class="badge-item"><i class="fas fa-image"></i><span>Agfa</span></div>
+                <div class="badge-item"><i class="fas fa-microscope"></i><span>Fuji</span></div>
+                <div class="badge-item"><i class="fas fa-cloud-upload-alt"></i><span>DICOM</span></div>
+            </div>
+
+            <div class="connect-note">
+                <p><i class="fas fa-arrow-right"></i> <strong>Seamless integration</strong> with your existing RIS/PACS</p>
+                <div class="whatsapp-pill">
+                    <i class="fab fa-whatsapp"></i> WhatsApp PDF
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- footer: easy setup & compat -->
+    <div class="footer-note">
+        <div>
+            <i class="fas fa-check-circle"></i> <strong>Works with all modalities</strong> · DICOM compliant
+        </div>
+        <div class="easy-setup">
+            <i class="fas fa-wrench"></i> Easy setup ·  <i class="fas fa-arrow-right"></i>  ready in minutes
+        </div>
+        <div>
+            <i class="fas fa-robot"></i> 100% automated delivery
+        </div>
+    </div>
+
+    <!-- subtle extra glass effect note (optional) -->
+    <div style="margin-top: 1.5rem; font-size: 0.9rem; opacity: 0.6; display: flex; gap: 20px; flex-wrap: wrap; backdrop-filter: blur(4px); padding: 4px 8px; border-radius: 60px; background: rgba(255,255,255,0.05);">
+        <span><i class="fas fa-shield-alt"></i> HIPAA ready</span>
+        <span><i class="fas fa-qrcode"></i> scan & send</span>
+        <span><i class="fas fa-mobile-alt"></i> patient friendly</span>
+    </div>
+</div>
+
+<!-- (no extra scripts) -->
+</body>
+</html>
