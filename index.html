@@ -42,7 +42,6 @@
             box-shadow: 0 40px 70px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.02);
         }
 
-        /* header */
         .header {
             display: flex;
             flex-wrap: wrap;
@@ -78,7 +77,6 @@
             font-size: 0.5rem;
         }
 
-        /* H1 title */
         .page-title {
             text-align: center;
             margin: 0.2rem 0 1.8rem 0;
@@ -101,7 +99,6 @@
             margin-top: 4px;
         }
 
-        /* ===== PREVIEW (CENTERED) ===== */
         .preview-wrapper {
             max-width: 1100px;
             margin: 0 auto 2rem auto;
@@ -145,7 +142,6 @@
         .dot-yellow { background: #ffbd2e; }
         .dot-green { background: #28c840; }
 
-        /* ===== EXACT SOFTWARE UI ===== */
         .app-ui {
             background: #111520;
             border-radius: 18px;
@@ -154,14 +150,12 @@
             box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
         }
 
-        /* === TWO COLUMNS — ALWAYS SIDE BY SIDE === */
         .app-inner-grid {
             display: grid;
             grid-template-columns: 220px 1fr;
             gap: 1rem;
         }
 
-        /* left panel */
         .app-left-panel {
             background: rgba(255, 255, 255, 0.01);
             border-radius: 16px;
@@ -255,10 +249,11 @@
             border: 1px solid rgba(239, 68, 68, 0.06);
         }
 
-        /* right panel */
         .app-right-panel {
             padding: 0 0.2rem;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
         }
         .app-monitor-header {
             display: flex;
@@ -345,8 +340,25 @@
             font-size: 0.5rem;
         }
 
+        /* Patient list scrollable */
+        .patient-list {
+            max-height: 160px;
+            overflow-y: auto;
+            margin-bottom: 0.4rem;
+        }
+        .patient-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .patient-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .patient-list::-webkit-scrollbar-thumb {
+            background: #2a3a4a;
+            border-radius: 6px;
+        }
+
         .app-console {
-            margin-top: 0.6rem;
+            margin-top: 0.2rem;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 12px;
             padding: 0.3rem 0.6rem;
@@ -366,7 +378,7 @@
             font-size: 0.5rem;
             color: #7a9abb;
             line-height: 1.5;
-            max-height: 56px;
+            max-height: 48px;
             overflow-y: auto;
         }
         .app-console .console-lines .ok {
@@ -380,7 +392,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 0.5rem;
+            margin-top: 0.3rem;
             font-size: 0.5rem;
             color: #4a6a8a;
             flex-wrap: wrap;
@@ -394,7 +406,6 @@
             color: #4a6a8a;
         }
 
-        /* ===== CONTENT BELOW PREVIEW ===== */
         .content-below {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -533,7 +544,6 @@
             color: #34d399;
         }
 
-        /* ===== FOOTER FLOATING PILL ===== */
         .footer-float {
             margin-top: 2.2rem;
             display: flex;
@@ -575,7 +585,6 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
         }
 
-        /* toast */
         .toast-msg {
             position: fixed;
             bottom: 30px;
@@ -594,353 +603,128 @@
             display: none;
         }
 
-        .app-console .console-lines::-webkit-scrollbar {
+        .app-console .console-lines::-webkit-scrollbar,
+        .patient-list::-webkit-scrollbar {
             width: 2px;
         }
-        .app-console .console-lines::-webkit-scrollbar-track {
+        .app-console .console-lines::-webkit-scrollbar-track,
+        .patient-list::-webkit-scrollbar-track {
             background: transparent;
         }
-        .app-console .console-lines::-webkit-scrollbar-thumb {
+        .app-console .console-lines::-webkit-scrollbar-thumb,
+        .patient-list::-webkit-scrollbar-thumb {
             background: #2a3a4a;
             border-radius: 6px;
         }
 
-        /* ===== RESPONSIVE — KEEP SIDE BY SIDE ALWAYS ===== */
         @media (max-width: 1100px) {
-            .main-container {
-                padding: 1.8rem 1.8rem;
-            }
-            .app-inner-grid {
-                grid-template-columns: 200px 1fr;
-                gap: 0.8rem;
-            }
+            .main-container { padding: 1.8rem 1.8rem; }
+            .app-inner-grid { grid-template-columns: 200px 1fr; gap: 0.8rem; }
         }
 
         @media (max-width: 860px) {
-            .main-container {
-                padding: 1.5rem 1.2rem;
-            }
-            .page-title h1 {
-                font-size: 1.5rem;
-            }
-            .content-below {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-            .app-inner-grid {
-                grid-template-columns: 180px 1fr;
-                gap: 0.7rem;
-            }
-            .app-record-grid {
-                grid-template-columns: 1fr 1fr 1fr;
-                font-size: 0.5rem;
-            }
-            .app-record-grid .file-name {
-                display: none;
-            }
-            .app-record-grid.header-row .file-name {
-                display: none;
-            }
+            .main-container { padding: 1.5rem 1.2rem; }
+            .page-title h1 { font-size: 1.5rem; }
+            .content-below { grid-template-columns: 1fr; gap: 1.5rem; }
+            .app-inner-grid { grid-template-columns: 180px 1fr; gap: 0.7rem; }
+            .app-record-grid { grid-template-columns: 1fr 1fr 1fr; font-size: 0.5rem; }
+            .app-record-grid .file-name { display: none; }
+            .app-record-grid.header-row .file-name { display: none; }
         }
 
         @media (max-width: 680px) {
-            .main-container {
-                padding: 1.2rem 1rem;
-                border-radius: 32px;
-            }
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            .brand {
-                font-size: 1.5rem;
-            }
-            .tagline {
-                font-size: 0.7rem;
-                padding: 6px 16px;
-            }
-            .page-title h1 {
-                font-size: 1.2rem;
-            }
-            .page-title .sub {
-                font-size: 0.8rem;
-            }
-            .glass-tile {
-                padding: 0.8rem;
-            }
-            .app-ui {
-                padding: 0.7rem;
-            }
-            /* KEEP SIDE BY SIDE — just shrink left panel */
-            .app-inner-grid {
-                grid-template-columns: 150px 1fr;
-                gap: 0.6rem;
-            }
-            .app-left-panel {
-                padding: 0.4rem 0.5rem 0.6rem;
-            }
-            .app-info-row .value {
-                font-size: 0.5rem;
-            }
-            .app-info-row .label {
-                font-size: 0.4rem;
-            }
-            .app-credit-row {
-                font-size: 0.45rem;
-            }
-            .app-bot-info .bot-name {
-                font-size: 0.5rem;
-            }
-            .app-bot-info .bot-username {
-                font-size: 0.45rem;
-            }
-            .app-bot-info .search-hint {
-                font-size: 0.4rem;
-            }
-            .app-folder-watch {
-                font-size: 0.5rem;
-            }
-            .app-folder-watch .badge-inactive {
-                font-size: 0.4rem;
-                padding: 1px 6px;
-            }
-            .app-panel-label {
-                font-size: 0.45rem;
-            }
-            .app-record-grid {
-                grid-template-columns: 1fr 1fr;
-                font-size: 0.45rem;
-            }
-            .app-record-grid .accession {
-                display: none;
-            }
-            .app-record-grid.header-row .accession {
-                display: none;
-            }
-            .app-footer-preview {
-                font-size: 0.45rem;
-            }
-            .floating-pill {
-                padding: 10px 24px;
-                font-size: 0.85rem;
-            }
-            .demo-card {
-                padding: 1rem;
-            }
-            .demo-card .demo-header {
-                font-size: 0.8rem;
-            }
-            .tile-label {
-                font-size: 0.55rem;
-            }
-            .app-monitor-header .title {
-                font-size: 0.6rem;
-            }
-            .app-action-btn {
-                font-size: 0.45rem;
-                padding: 2px 8px;
-            }
-            .demo-form input {
-                flex: 1 1 100%;
-                min-width: 100%;
-            }
-            .demo-form button {
-                width: 100%;
-                justify-content: center;
-            }
-            .features h2 {
-                font-size: 1.1rem;
-            }
-            .feature-list li {
-                font-size: 0.8rem;
-                padding: 10px 0;
-            }
-            .feature-list li i {
-                width: 26px;
-                height: 26px;
-                font-size: 0.75rem;
-            }
-            .app-console .console-lines {
-                font-size: 0.45rem;
-                max-height: 48px;
-            }
+            .main-container { padding: 1.2rem 1rem; border-radius: 32px; }
+            .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .brand { font-size: 1.5rem; }
+            .tagline { font-size: 0.7rem; padding: 6px 16px; }
+            .page-title h1 { font-size: 1.2rem; }
+            .page-title .sub { font-size: 0.8rem; }
+            .glass-tile { padding: 0.8rem; }
+            .app-ui { padding: 0.7rem; }
+            .app-inner-grid { grid-template-columns: 150px 1fr; gap: 0.6rem; }
+            .app-left-panel { padding: 0.4rem 0.5rem 0.6rem; }
+            .app-info-row .value { font-size: 0.5rem; }
+            .app-info-row .label { font-size: 0.4rem; }
+            .app-credit-row { font-size: 0.45rem; }
+            .app-bot-info .bot-name { font-size: 0.5rem; }
+            .app-bot-info .bot-username { font-size: 0.45rem; }
+            .app-bot-info .search-hint { font-size: 0.4rem; }
+            .app-folder-watch { font-size: 0.5rem; }
+            .app-folder-watch .badge-inactive { font-size: 0.4rem; padding: 1px 6px; }
+            .app-panel-label { font-size: 0.45rem; }
+            .patient-list { max-height: 120px; }
+            .app-record-grid { grid-template-columns: 1fr 1fr; font-size: 0.45rem; }
+            .app-record-grid .accession { display: none; }
+            .app-record-grid.header-row .accession { display: none; }
+            .app-footer-preview { font-size: 0.45rem; }
+            .floating-pill { padding: 10px 24px; font-size: 0.85rem; }
+            .demo-card { padding: 1rem; }
+            .demo-card .demo-header { font-size: 0.8rem; }
+            .tile-label { font-size: 0.55rem; }
+            .app-monitor-header .title { font-size: 0.6rem; }
+            .app-action-btn { font-size: 0.45rem; padding: 2px 8px; }
+            .demo-form input { flex: 1 1 100%; min-width: 100%; }
+            .demo-form button { width: 100%; justify-content: center; }
+            .features h2 { font-size: 1.1rem; }
+            .feature-list li { font-size: 0.8rem; padding: 10px 0; }
+            .feature-list li i { width: 26px; height: 26px; font-size: 0.75rem; }
+            .app-console .console-lines { font-size: 0.45rem; max-height: 40px; }
         }
 
         @media (max-width: 480px) {
-            .main-container {
-                padding: 0.8rem 0.6rem;
-                border-radius: 24px;
-            }
-            .brand {
-                font-size: 1.2rem;
-            }
-            .page-title h1 {
-                font-size: 1rem;
-            }
-            /* KEEP SIDE BY SIDE — even smaller left panel */
-            .app-inner-grid {
-                grid-template-columns: 120px 1fr;
-                gap: 0.4rem;
-            }
-            .app-left-panel {
-                padding: 0.3rem 0.4rem 0.4rem;
-            }
-            .app-info-row {
-                margin-bottom: 0.3rem;
-            }
-            .app-info-row .value {
-                font-size: 0.45rem;
-            }
-            .app-info-row .label {
-                font-size: 0.35rem;
-            }
-            .app-credit-row {
-                font-size: 0.4rem;
-                padding: 1px 0;
-            }
-            .app-credit-row i {
-                width: 12px;
-                font-size: 0.4rem;
-            }
-            .app-bot-info {
-                padding: 0.2rem 0.4rem;
-            }
-            .app-bot-info .bot-name {
-                font-size: 0.45rem;
-            }
-            .app-bot-info .bot-username {
-                font-size: 0.4rem;
-            }
-            .app-bot-info .search-hint {
-                font-size: 0.35rem;
-            }
-            .app-folder-watch {
-                font-size: 0.45rem;
-            }
-            .app-folder-watch .badge-inactive {
-                font-size: 0.35rem;
-                padding: 1px 5px;
-            }
-            .app-panel-label {
-                font-size: 0.4rem;
-                margin-bottom: 0.3rem;
-                padding-bottom: 0.2rem;
-            }
-            .app-divider {
-                margin: 0.3rem 0;
-            }
-            .app-record-grid {
-                font-size: 0.4rem;
-                padding: 2px 0;
-                gap: 2px;
-            }
-            .app-record-grid .patient-id {
-                font-size: 0.4rem;
-            }
-            .app-record-grid.header-row {
-                font-size: 0.35rem;
-            }
-            .app-right-panel {
-                padding: 0;
-            }
-            .app-monitor-header .title {
-                font-size: 0.5rem;
-            }
-            .app-action-btn {
-                font-size: 0.4rem;
-                padding: 1px 6px;
-            }
-            .app-action-btn i {
-                font-size: 0.4rem;
-            }
-            .app-console {
-                padding: 0.2rem 0.4rem;
-                margin-top: 0.4rem;
-            }
-            .app-console .console-header {
-                font-size: 0.35rem;
-            }
-            .app-console .console-lines {
-                font-size: 0.4rem;
-                max-height: 36px;
-                line-height: 1.4;
-            }
-            .app-footer-preview {
-                font-size: 0.4rem;
-                margin-top: 0.3rem;
-            }
-            .floating-pill {
-                padding: 8px 18px;
-                font-size: 0.75rem;
-                gap: 6px;
-            }
-            .floating-pill i {
-                font-size: 0.9rem;
-            }
-            .demo-form input {
-                font-size: 0.75rem;
-                padding: 9px 14px;
-            }
-            .demo-form button {
-                font-size: 0.75rem;
-                padding: 9px 18px;
-            }
-            .features .sub {
-                font-size: 0.7rem;
-            }
-            .feature-list li {
-                font-size: 0.7rem;
-                padding: 8px 0;
-                gap: 10px;
-            }
-            .feature-list li i {
-                width: 22px;
-                height: 22px;
-                font-size: 0.65rem;
-            }
+            .main-container { padding: 0.8rem 0.6rem; border-radius: 24px; }
+            .brand { font-size: 1.2rem; }
+            .page-title h1 { font-size: 1rem; }
+            .app-inner-grid { grid-template-columns: 120px 1fr; gap: 0.4rem; }
+            .app-left-panel { padding: 0.3rem 0.4rem 0.4rem; }
+            .app-info-row { margin-bottom: 0.3rem; }
+            .app-info-row .value { font-size: 0.45rem; }
+            .app-info-row .label { font-size: 0.35rem; }
+            .app-credit-row { font-size: 0.4rem; padding: 1px 0; }
+            .app-credit-row i { width: 12px; font-size: 0.4rem; }
+            .app-bot-info { padding: 0.2rem 0.4rem; }
+            .app-bot-info .bot-name { font-size: 0.45rem; }
+            .app-bot-info .bot-username { font-size: 0.4rem; }
+            .app-bot-info .search-hint { font-size: 0.35rem; }
+            .app-folder-watch { font-size: 0.45rem; }
+            .app-folder-watch .badge-inactive { font-size: 0.35rem; padding: 1px 5px; }
+            .app-panel-label { font-size: 0.4rem; margin-bottom: 0.3rem; padding-bottom: 0.2rem; }
+            .app-divider { margin: 0.3rem 0; }
+            .patient-list { max-height: 100px; }
+            .app-record-grid { font-size: 0.4rem; padding: 2px 0; gap: 2px; }
+            .app-record-grid .patient-id { font-size: 0.4rem; }
+            .app-record-grid.header-row { font-size: 0.35rem; }
+            .app-right-panel { padding: 0; }
+            .app-monitor-header .title { font-size: 0.5rem; }
+            .app-action-btn { font-size: 0.4rem; padding: 1px 6px; }
+            .app-action-btn i { font-size: 0.4rem; }
+            .app-console { padding: 0.2rem 0.4rem; margin-top: 0.2rem; }
+            .app-console .console-header { font-size: 0.35rem; }
+            .app-console .console-lines { font-size: 0.4rem; max-height: 32px; line-height: 1.4; }
+            .app-footer-preview { font-size: 0.4rem; margin-top: 0.2rem; }
+            .floating-pill { padding: 8px 18px; font-size: 0.75rem; gap: 6px; }
+            .floating-pill i { font-size: 0.9rem; }
+            .demo-form input { font-size: 0.75rem; padding: 9px 14px; }
+            .demo-form button { font-size: 0.75rem; padding: 9px 18px; }
+            .features .sub { font-size: 0.7rem; }
+            .feature-list li { font-size: 0.7rem; padding: 8px 0; gap: 10px; }
+            .feature-list li i { width: 22px; height: 22px; font-size: 0.65rem; }
         }
 
         @media (max-width: 380px) {
-            .app-inner-grid {
-                grid-template-columns: 100px 1fr;
-                gap: 0.3rem;
-            }
-            .app-left-panel {
-                padding: 0.2rem 0.3rem 0.3rem;
-            }
-            .app-info-row .value {
-                font-size: 0.4rem;
-            }
-            .app-info-row .label {
-                font-size: 0.3rem;
-            }
-            .app-credit-row {
-                font-size: 0.35rem;
-            }
-            .app-bot-info .bot-name {
-                font-size: 0.4rem;
-            }
-            .app-bot-info .bot-username {
-                font-size: 0.35rem;
-            }
-            .app-record-grid {
-                font-size: 0.35rem;
-            }
-            .app-record-grid .patient-id {
-                font-size: 0.35rem;
-            }
-            .app-monitor-header .title {
-                font-size: 0.45rem;
-            }
-            .app-action-btn {
-                font-size: 0.35rem;
-                padding: 1px 5px;
-            }
-            .app-console .console-lines {
-                font-size: 0.35rem;
-                max-height: 30px;
-            }
+            .app-inner-grid { grid-template-columns: 100px 1fr; gap: 0.3rem; }
+            .app-left-panel { padding: 0.2rem 0.3rem 0.3rem; }
+            .app-info-row .value { font-size: 0.4rem; }
+            .app-info-row .label { font-size: 0.3rem; }
+            .app-credit-row { font-size: 0.35rem; }
+            .app-bot-info .bot-name { font-size: 0.4rem; }
+            .app-bot-info .bot-username { font-size: 0.35rem; }
+            .app-record-grid { font-size: 0.35rem; }
+            .app-record-grid .patient-id { font-size: 0.35rem; }
+            .app-monitor-header .title { font-size: 0.45rem; }
+            .app-action-btn { font-size: 0.35rem; padding: 1px 5px; }
+            .app-console .console-lines { font-size: 0.35rem; max-height: 28px; }
+            .patient-list { max-height: 80px; }
         }
     </style>
 </head>
@@ -962,7 +746,7 @@
         <div class="sub">Seamless DICOM integration · Canon · Carestream · Konica · Agfa · Fuji</div>
     </div>
 
-    <!-- ===== PREVIEW (CENTERED) ===== -->
+    <!-- PREVIEW (CENTERED) -->
     <div class="preview-wrapper">
         <div class="glass-tile">
             <div class="tile-label">
@@ -974,7 +758,6 @@
                 </div>
             </div>
 
-            <!-- EXACT UI REPLICA — SIDE BY SIDE ALWAYS -->
             <div class="app-ui">
                 <div class="app-inner-grid">
 
@@ -1031,7 +814,7 @@
                             </div>
                         </div>
 
-                        <!-- record grid header -->
+                        <!-- Grid header -->
                         <div class="app-record-grid header-row">
                             <span>Patient ID</span>
                             <span>Patient Name</span>
@@ -1040,13 +823,24 @@
                             <span>Status</span>
                         </div>
 
-                        <!-- single record row -->
-                        <div class="app-record-grid">
-                            <span class="patient-id">JULY 26 8 OMPRAKASH 52Y M</span>
-                            <span>RAD-XR_dcm</span>
-                            <span class="accession">RAD-XR_dcm</span>
-                            <span class="file-name">RAD-XR_dcm</span>
-                            <span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span>
+                        <!-- Scrollable patient list -->
+                        <div class="patient-list">
+                            <!-- Patient rows generated from provided list -->
+                            <div class="app-record-grid"><span class="patient-id">PT250701</span><span>Aarav Sharma</span><span class="accession">PT250701</span><span class="file-name">PT250701.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250702</span><span>Ananya Verma</span><span class="accession">PT250702</span><span class="file-name">PT250702.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250703</span><span>Rahul Meena</span><span class="accession">PT250703</span><span class="file-name">PT250703.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250704</span><span>Priya Singh</span><span class="accession">PT250704</span><span class="file-name">PT250704.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250705</span><span>Mohit Yadav</span><span class="accession">PT250705</span><span class="file-name">PT250705.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250706</span><span>Neha Gupta</span><span class="accession">PT250706</span><span class="file-name">PT250706.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250707</span><span>Rohan Patel</span><span class="accession">PT250707</span><span class="file-name">PT250707.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250708</span><span>Pooja Kumari</span><span class="accession">PT250708</span><span class="file-name">PT250708.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250709</span><span>Vivek Joshi</span><span class="accession">PT250709</span><span class="file-name">PT250709.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250710</span><span>Sneha Choudhary</span><span class="accession">PT250710</span><span class="file-name">PT250710.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250711</span><span>Aditya Jain</span><span class="accession">PT250711</span><span class="file-name">PT250711.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250712</span><span>Kavya Agarwal</span><span class="accession">PT250712</span><span class="file-name">PT250712.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250713</span><span>Nikhil Saini</span><span class="accession">PT250713</span><span class="file-name">PT250713.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250714</span><span>Riya Sharma</span><span class="accession">PT250714</span><span class="file-name">PT250714.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
+                            <div class="app-record-grid"><span class="patient-id">PT250715</span><span>Manish Kumar</span><span class="accession">PT250715</span><span class="file-name">PT250715.dcm</span><span class="status-archiving"><i class="fas fa-archive"></i> Sent &amp; Archiving</span></div>
                         </div>
 
                         <!-- CONSOLE LOG (ALL SUCCESSFUL) -->
@@ -1060,10 +854,10 @@
                                 <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:15:24] Telegram ✅ sent to user 878604830</div>
                                 <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:16:01] WhatsApp ✅ sent to +919876543211</div>
                                 <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:16:02] Telegram ✅ sent to user 878604830</div>
-                                <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:16:45] PDF generated: OMPRAKASH_52Y_M_report.pdf</div>
+                                <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:16:45] PDF generated: PT250701_Aarav_Sharma.pdf</div>
                                 <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:17:12] WhatsApp ✅ sent to +919876543212</div>
                                 <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:17:13] Telegram ✅ sent to user 878604830</div>
-                                <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:18:05] All reports archived successfully</div>
+                                <div class="ok"><i class="fas fa-check-circle"></i> [2026-07-19 10:18:05] All 15 reports archived successfully</div>
                             </div>
                         </div>
 
@@ -1071,7 +865,7 @@
                         <div class="app-footer-preview">
                             <span><i class="fas fa-robot"></i> <span class="bot-name">RAD-XR IMAGING CENTER</span></span>
                             <span class="bot-username">@rdx_xr_bot</span>
-                            <span><i class="fas fa-circle" style="color:#34d399;font-size:0.3rem;"></i> 4 studies</span>
+                            <span><i class="fas fa-circle" style="color:#34d399;font-size:0.3rem;"></i> 15 studies</span>
                         </div>
                     </div>
                 </div>
@@ -1079,7 +873,7 @@
         </div>
     </div>
 
-    <!-- ===== CONTENT BELOW: Features + Demo ===== -->
+    <!-- CONTENT BELOW: Features + Demo -->
     <div class="content-below">
 
         <!-- FEATURES -->
