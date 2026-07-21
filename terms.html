@@ -7,20 +7,24 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: #f8fafc;
-            color: #0b1a33;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #0f0f1a;
+            color: #e2e8f0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            line-height: 1.6;
         }
         header {
             width: 100%;
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
+            background: #1a1a2e;
+            border-bottom: 1px solid #2a2a44;
             padding: 0 2rem;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .nav-container {
             max-width: 1280px;
@@ -30,69 +34,237 @@
             justify-content: space-between;
             height: 72px;
         }
-        .logo { font-weight: 700; font-size: 1.35rem; }
-        .logo span { color: #2563eb; }
+        .logo { font-weight: 700; font-size: 1.4rem; color: #e2e8f0; }
+        .logo span { color: #06b6d4; }
         nav { display: flex; gap: 0.3rem; flex-wrap: wrap; }
         nav a {
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 8px;
             font-size: 0.9rem;
             font-weight: 500;
-            color: #475569;
+            color: #94a3b8;
             text-decoration: none;
             transition: all 0.2s;
             font-family: inherit;
+            white-space: nowrap;
         }
-        nav a:hover { background: #f1f5f9; color: #0b1a33; }
-        nav a.active { background: #2563eb; color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.25); }
+        nav a:hover { background: #2a2a44; color: #e2e8f0; }
+        nav a.active {
+            background: #06b6d4;
+            color: #0f0f1a;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
         .page-wrapper {
             flex: 1;
             max-width: 1280px;
             width: 100%;
-            padding: 2.5rem 2rem 4rem;
+            padding: 2rem 2rem 3rem;
         }
-        .page-header { margin-bottom: 2.5rem; }
-        .page-header h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; }
-        .page-header p { color: #64748b; font-size: 1.05rem; }
-        .divider { width: 60px; height: 4px; background: #2563eb; border-radius: 4px; margin-top: 0.75rem; }
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #e2e8f0 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .page-header p { color: #94a3b8; font-size: 1.05rem; }
+        .divider { width: 70px; height: 4px; background: #06b6d4; border-radius: 4px; margin-top: 0.6rem; }
+
+        /* ─── PREVIEW ─── */
+        .preview-section {
+            margin: 1.5rem 0 2.5rem;
+            background: #141425;
+            border-radius: 20px;
+            border: 1px solid #2a2a44;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+        .preview-header {
+            background: #1a1a32;
+            padding: 0.7rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2a2a44;
+        }
+        .preview-header .dots { display: flex; gap: 0.5rem; }
+        .preview-header .dots span { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .preview-header .dots .r { background: #ef4444; }
+        .preview-header .dots .y { background: #f59e0b; }
+        .preview-header .dots .g { background: #10b981; }
+        .preview-header .title { font-size: 0.85rem; color: #94a3b8; font-weight: 500; }
+        .preview-header .title span { color: #06b6d4; }
+        .preview-body {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 0;
+            min-height: 380px;
+        }
+        .preview-sidebar {
+            background: #111127;
+            padding: 1.2rem 1.2rem;
+            border-right: 1px solid #2a2a44;
+        }
+        .preview-sidebar .net-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #06b6d4;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .preview-sidebar .stat-item { margin-bottom: 0.8rem; }
+        .preview-sidebar .stat-item .label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .preview-sidebar .stat-item .value { font-size: 0.85rem; color: #e2e8f0; font-weight: 500; }
+        .preview-sidebar .divider { border-top: 1px solid #2a2a44; margin: 1rem 0; }
+        .preview-sidebar .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: #10b981;
+        }
+        .preview-sidebar .status-indicator .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse-dot 1.5s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+        .preview-sidebar .credit-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            padding: 0.3rem 0;
+        }
+        .preview-sidebar .credit-row .num { color: #e2e8f0; font-weight: 600; }
+
+        .preview-grid {
+            background: #0f0f1f;
+            padding: 1rem 1.2rem;
+        }
+        .preview-grid .grid-header {
+            display: grid;
+            grid-template-columns: 80px 120px 90px 100px 130px;
+            gap: 0.5rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid #2a2a44;
+            font-weight: 600;
+        }
+        .preview-grid .grid-row {
+            display: grid;
+            grid-template-columns: 80px 120px 90px 100px 130px;
+            gap: 0.5rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #1a1a32;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            align-items: center;
+        }
+        .preview-grid .grid-row .status-badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.6rem;
+            border-radius: 20px;
+            display: inline-block;
+            width: fit-content;
+        }
+        .status-badge.sent { background: #10b98122; color: #10b981; border: 1px solid #10b98144; }
+        .status-badge.sending { background: #f59e0b22; color: #f59e0b; border: 1px solid #f59e0b44; }
+        .status-badge.queued { background: #3b82f622; color: #3b82f6; border: 1px solid #3b82f644; }
+
+        .preview-footer {
+            background: #1a1a32;
+            padding: 0.6rem 1.5rem;
+            border-top: 1px solid #2a2a44;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .preview-footer .highlight { color: #06b6d4; }
+
+        /* ─── LEGAL CONTENT ─── */
         .legal-content {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 2.5rem;
-            border: 1px solid #eef2f6;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            background: #141425;
+            border-radius: 20px;
+            padding: 2.5rem 3rem;
+            border: 1px solid #2a2a44;
         }
-        .legal-content h2 { font-size: 1.3rem; font-weight: 600; margin: 1.8rem 0 0.6rem; }
+        .legal-content h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin: 1.8rem 0 0.6rem;
+        }
         .legal-content h2:first-of-type { margin-top: 0; }
-        .legal-content p { color: #334155; margin-bottom: 0.8rem; font-size: 0.98rem; }
-        .legal-content ul { padding-left: 1.5rem; color: #334155; margin-bottom: 0.8rem; }
+        .legal-content p { color: #cbd5e1; margin-bottom: 0.8rem; font-size: 0.98rem; }
+        .legal-content ul { padding-left: 1.5rem; color: #cbd5e1; margin-bottom: 0.8rem; }
         .legal-content ul li { margin-bottom: 0.4rem; font-size: 0.98rem; }
         .legal-content .update-date {
             margin-top: 2rem;
             padding-top: 1.5rem;
-            border-top: 1px solid #eef2f6;
-            color: #94a3b8;
+            border-top: 1px solid #2a2a44;
+            color: #64748b;
             font-size: 0.85rem;
         }
+
         footer {
-            margin-top: 3rem;
-            color: #94a3b8;
+            margin-top: 2rem;
+            color: #475569;
             font-size: 0.85rem;
-            border-top: 1px solid #e2e8f0;
+            border-top: 1px solid #1e1e38;
             padding: 1.5rem 2rem;
             width: 100%;
             text-align: center;
-            background: #ffffff;
+            background: #0f0f1a;
         }
-        footer span { color: #2563eb; }
+        footer span { color: #06b6d4; }
+
+        @media (max-width: 900px) {
+            .preview-body { grid-template-columns: 1fr; }
+            .preview-sidebar { border-right: none; border-bottom: 1px solid #2a2a44; }
+            .preview-grid .grid-header,
+            .preview-grid .grid-row {
+                grid-template-columns: 70px 90px 70px 80px 100px;
+                font-size: 0.7rem;
+            }
+        }
         @media (max-width: 700px) {
             .nav-container { flex-wrap: wrap; height: auto; padding: 0.75rem 0; gap: 0.5rem; }
             header { padding: 0 1rem; }
             nav { gap: 0.15rem; justify-content: center; width: 100%; }
             nav a { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
-            .page-wrapper { padding: 1.5rem 1rem 3rem; }
-            .page-header h1 { font-size: 1.6rem; }
+            .page-wrapper { padding: 1rem 1rem 2rem; }
+            .page-header h1 { font-size: 1.8rem; }
             .legal-content { padding: 1.5rem; }
+            .preview-grid .grid-header,
+            .preview-grid .grid-row {
+                grid-template-columns: 50px 70px 55px 60px 80px;
+                font-size: 0.6rem;
+                gap: 0.3rem;
+            }
+            .preview-sidebar { padding: 1rem; }
+        }
+        @media (max-width: 480px) {
+            .preview-grid .grid-header,
+            .preview-grid .grid-row {
+                grid-template-columns: 40px 55px 45px 50px 65px;
+                font-size: 0.55rem;
+                gap: 0.2rem;
+            }
+            .preview-grid .grid-row .status-badge { font-size: 0.55rem; padding: 0.1rem 0.4rem; }
         }
     </style>
 </head>
@@ -117,25 +289,78 @@
             <p>Please read these terms carefully before using RAD‑XR software.</p>
             <div class="divider"></div>
         </div>
+
+        <!-- ─── SOFTWARE PREVIEW ─── -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <div class="dots">
+                    <span class="r"></span>
+                    <span class="y"></span>
+                    <span class="g"></span>
+                </div>
+                <div class="title">⚕️ RAD‑XR · <span>Live Monitor</span></div>
+                <div style="width:52px;"></div>
+            </div>
+            <div class="preview-body">
+                <div class="preview-sidebar">
+                    <div class="net-label">📡 Network Config</div>
+                    <div class="stat-item"><div class="label">Institute</div><div class="value">RAD‑XR IMAGING CENTER</div></div>
+                    <div class="stat-item"><div class="label">AE Title</div><div class="value">RAD‑XR</div></div>
+                    <div class="stat-item"><div class="label">IP Address</div><div class="value">192.168.1.100</div></div>
+                    <div class="stat-item"><div class="label">Port</div><div class="value">11112</div></div>
+                    <div class="divider"></div>
+                    <div class="status-indicator"><span class="dot"></span><span>● Listening</span></div>
+                    <div class="divider"></div>
+                    <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">💳 Credits</div>
+                    <div class="credit-row"><span>WhatsApp</span><span class="num">42</span></div>
+                    <div class="credit-row"><span>Telegram</span><span class="num">87</span></div>
+                    <div class="divider"></div>
+                    <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.3rem;">🤖 Bot</div>
+                    <div style="font-size:0.8rem; color:#e2e8f0;">@RADXR_Bot</div>
+                    <div style="font-size:0.7rem; color:#64748b;">✅ Online</div>
+                </div>
+                <div class="preview-grid">
+                    <div class="grid-header"><span>Patient ID</span><span>Patient Name</span><span>Accession</span><span>File</span><span>Status</span></div>
+                    <div class="grid-row"><span>P-1024</span><span>Rajesh Kumar</span><span>ACC-2201</span><span>RADXR_2201.dcm</span><span><span class="status-badge sent">✅ Sent</span></span></div>
+                    <div class="grid-row"><span>P-2048</span><span>Priya Sharma</span><span>ACC-2202</span><span>RADXR_2202.dcm</span><span><span class="status-badge sending">📤 Sending</span></span></div>
+                    <div class="grid-row"><span>P-3072</span><span>Ananya Patel</span><span>ACC-2203</span><span>RADXR_2203.dcm</span><span><span class="status-badge queued">⏳ Queued</span></span></div>
+                    <div class="grid-row"><span>P-4096</span><span>Vikram Singh</span><span>ACC-2204</span><span>RADXR_2204.dcm</span><span><span class="status-badge sent">✅ Sent</span></span></div>
+                </div>
+            </div>
+            <div class="preview-footer">
+                <span>📋 Console: <span class="highlight">✅ Server started on 192.168.1.100:11112</span></span>
+                <span>🔄 4 files indexed</span>
+            </div>
+        </div>
+
+        <!-- ─── TERMS CONTENT ─── -->
         <div class="legal-content">
             <h2>1. Acceptance of Terms</h2>
             <p>By accessing or using RAD‑XR ("the Software"), you agree to be bound by these Terms &amp; Conditions. If you do not agree, you may not use the Software.</p>
+
             <h2>2. License Grant</h2>
             <p>We grant you a limited, non‑exclusive, non‑transferable license to use the Software for your internal business purposes, subject to these terms.</p>
+
             <h2>3. User Responsibilities</h2>
             <ul>
                 <li>You are responsible for maintaining the security of your account.</li>
                 <li>You may not share your credentials with unauthorised users.</li>
                 <li>You agree to use the Software only for lawful purposes.</li>
+                <li>You shall not reverse engineer, decompile, or disassemble the Software.</li>
             </ul>
+
             <h2>4. Intellectual Property</h2>
             <p>All content, features, and functionality of the Software are owned by RAD‑XR and protected by copyright, trademark, and other intellectual property laws.</p>
+
             <h2>5. Termination</h2>
             <p>We reserve the right to suspend or terminate your access at any time if you violate these terms or if we suspect fraudulent or harmful activity.</p>
+
             <h2>6. Limitation of Liability</h2>
             <p>RAD‑XR is provided "as is" without warranties of any kind. To the fullest extent permitted by law, we are not liable for any indirect, incidental, or consequential damages arising from your use of the Software.</p>
+
             <h2>7. Governing Law</h2>
             <p>These terms are governed by the laws of India. Any disputes shall be resolved in the courts of Mumbai, Maharashtra.</p>
+
             <div class="update-date">Last updated: 21 July 2026</div>
         </div>
     </main>
