@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>RAD‑XR – Home</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #f8fafc;
+            color: #0b1a33;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            width: 100%;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 2rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+        }
+        .logo { font-weight: 700; font-size: 1.35rem; letter-spacing: -0.02em; }
+        .logo span { color: #2563eb; }
+        nav { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+        nav a {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        nav a:hover { background: #f1f5f9; color: #0b1a33; }
+        nav a.active { background: #2563eb; color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.25); }
+        .page-wrapper {
+            flex: 1;
+            max-width: 1280px;
+            width: 100%;
+            padding: 3rem 2rem 4rem;
+        }
+        .hero {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 2.6rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+        }
+        .hero h1 span { color: #2563eb; }
+        .hero p {
+            color: #64748b;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0.8rem auto 2rem;
+        }
+        .hero .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .hero .btn-group a {
+            display: inline-block;
+            padding: 0.7rem 1.8rem;
+            background: #f1f5f9;
+            border-radius: 40px;
+            font-weight: 500;
+            color: #0b1a33;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            text-decoration: none;
+        }
+        .hero .btn-group a:hover {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37,99,235,0.25);
+        }
+        .hero .btn-group a.primary {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+        .hero .btn-group a.primary:hover { background: #1d4ed8; }
+        footer {
+            margin-top: 3rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem 2rem;
+            width: 100%;
+            text-align: center;
+            background: #ffffff;
+        }
+        footer span { color: #2563eb; }
+        @media (max-width: 700px) {
+            .nav-container { flex-wrap: wrap; height: auto; padding: 0.75rem 0; gap: 0.5rem; }
+            header { padding: 0 1rem; }
+            nav { gap: 0.15rem; justify-content: center; width: 100%; }
+            nav a { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+            .hero { padding: 2rem 1.5rem; }
+            .hero h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <div class="logo">◆ RAD‑<span>XR</span></div>
+            <nav>
+                <a href="index.html" class="active">Home</a>
+                <a href="about.html">About</a>
+                <a href="terms.html">Terms</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="demo.html">Demo</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="hero">
+            <h1>Welcome to <span>RAD‑XR</span></h1>
+            <p>Enterprise DICOM receiver, PDF report generator, and multi‑platform medical imaging gateway.</p>
+            <div class="btn-group">
+                <a href="about.html" class="primary">About Software</a>
+                <a href="terms.html">Terms &amp; Conditions</a>
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="demo.html">Request Demo</a>
+                <a href="contact.html">Contact Us</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>&copy; 2026 RAD‑XR. All rights reserved. <span>✦</span> Made with ❤️ by Sandeep</footer>
+</body>
+</html>
