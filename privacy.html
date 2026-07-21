@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>RAD‑XR – Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f8fafc;
+            color: #0b1a33;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            width: 100%;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 2rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+        }
+        .logo { font-weight: 700; font-size: 1.35rem; }
+        .logo span { color: #2563eb; }
+        nav { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+        nav a {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        nav a:hover { background: #f1f5f9; color: #0b1a33; }
+        nav a.active { background: #2563eb; color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.25); }
+        .page-wrapper {
+            flex: 1;
+            max-width: 1280px;
+            width: 100%;
+            padding: 2.5rem 2rem 4rem;
+        }
+        .page-header { margin-bottom: 2.5rem; }
+        .page-header h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; }
+        .page-header p { color: #64748b; font-size: 1.05rem; }
+        .divider { width: 60px; height: 4px; background: #2563eb; border-radius: 4px; margin-top: 0.75rem; }
+        .demo-form {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 2.5rem;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            max-width: 720px;
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 0.4rem; }
+        .form-group label .required { color: #ef4444; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1px solid #d1d9e6;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border 0.2s, box-shadow 0.2s;
+            background: #fafcff;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
+            background: #ffffff;
+        }
+        .form-group textarea { resize: vertical; min-height: 110px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+        .btn-primary {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 0.8rem 2.2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            box-shadow: 0 2px 12px rgba(37,99,235,0.25);
+        }
+        .btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); }
+        .demo-success {
+            display: none;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            color: #065f46;
+            margin-top: 1.5rem;
+            font-weight: 500;
+        }
+        .demo-success.show { display: block; }
+        footer {
+            margin-top: 3rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem 2rem;
+            width: 100%;
+            text-align: center;
+            background: #ffffff;
+        }
+        footer span { color: #2563eb; }
+        @media (max-width: 700px) {
+            .nav-container { flex-wrap: wrap; height: auto; padding: 0.75rem 0; gap: 0.5rem; }
+            header { padding: 0 1rem; }
+            nav { gap: 0.15rem; justify-content: center; width: 100%; }
+            nav a { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+            .page-wrapper { padding: 1.5rem 1rem 3rem; }
+            .page-header h1 { font-size: 1.6rem; }
+            .demo-form { padding: 1.5rem; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <div class="logo">◆ RAD‑<span>XR</span></div>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="terms.html">Terms</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="demo.html" class="active">Demo</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="page-header">
+            <h1>Request a Demo</h1>
+            <p>See RAD‑XR in action. Fill in the details and we'll get back to you within 24 hours.</p>
+            <div class="divider"></div>
+        </div>
+        <div class="demo-form">
+            <form id="demoForm" novalidate>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="demoName">Full Name <span class="required">*</span></label>
+                        <input type="text" id="demoName" placeholder="e.g. Ananya Patel" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="demoEmail">Email Address <span class="required">*</span></label>
+                        <input type="email" id="demoEmail" placeholder="you@hospital.com" required />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="demoCompany">Hospital / Institute Name <span class="required">*</span></label>
+                    <input type="text" id="demoCompany" placeholder="e.g. City Imaging Center" required />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="demoRole">Your Role</label>
+                        <select id="demoRole">
+                            <option value="">Select…</option>
+                            <option value="radiologist">Radiologist</option>
+                            <option value="technologist">Technologist</option>
+                            <option value="admin">Admin / IT</option>
+                            <option value="manager">Department Manager</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="demoTeamSize">Daily Study Volume</label>
+                        <select id="demoTeamSize">
+                            <option value="">Select…</option>
+                            <option value="1-20">1 – 20</option>
+                            <option value="21-50">21 – 50</option>
+                            <option value="51-100">51 – 100</option>
+                            <option value="101-500">101 – 500</option>
+                            <option value="500+">500+</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="demoMessage">What would you like to see? <span class="required">*</span></label>
+                    <textarea id="demoMessage" placeholder="Tell us about your workflow, DICOM sources, integration needs, and any specific questions…" required></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Send Demo Request</button>
+            </form>
+            <div class="demo-success" id="demoSuccess">✅ Thank you! Your demo request has been received. We'll reach out within 24 hours.</div>
+        </div>
+    </main>
+
+    <footer>&copy; 2026 RAD‑XR. All rights reserved. <span>✦</span> Made with ❤️ by Sandeep</footer>
+
+    <script>
+        document.getElementById('demoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (this.checkValidity()) {
+                document.getElementById('demoSuccess').classList.add('show');
+                this.reset();
+            } else {
+                this.reportValidity();
+            }
+        });
+    </script>
+</body>
+</html>
