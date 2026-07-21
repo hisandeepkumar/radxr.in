@@ -3,24 +3,28 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>RAD‑XR – Demo</title>
+    <title>RAD‑XR – Privacy</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: #f8fafc;
-            color: #0b1a33;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #0f0f1a;
+            color: #e2e8f0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            line-height: 1.6;
         }
         header {
             width: 100%;
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
+            background: #1a1a2e;
+            border-bottom: 1px solid #2a2a44;
             padding: 0 2rem;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         .nav-container {
             max-width: 1280px;
@@ -30,105 +34,237 @@
             justify-content: space-between;
             height: 72px;
         }
-        .logo { font-weight: 700; font-size: 1.35rem; }
-        .logo span { color: #2563eb; }
+        .logo { font-weight: 700; font-size: 1.4rem; color: #e2e8f0; }
+        .logo span { color: #06b6d4; }
         nav { display: flex; gap: 0.3rem; flex-wrap: wrap; }
         nav a {
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 8px;
             font-size: 0.9rem;
             font-weight: 500;
-            color: #475569;
+            color: #94a3b8;
             text-decoration: none;
             transition: all 0.2s;
             font-family: inherit;
+            white-space: nowrap;
         }
-        nav a:hover { background: #f1f5f9; color: #0b1a33; }
-        nav a.active { background: #2563eb; color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.25); }
+        nav a:hover { background: #2a2a44; color: #e2e8f0; }
+        nav a.active {
+            background: #06b6d4;
+            color: #0f0f1a;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+        }
         .page-wrapper {
             flex: 1;
             max-width: 1280px;
             width: 100%;
-            padding: 2.5rem 2rem 4rem;
+            padding: 2rem 2rem 3rem;
         }
-        .page-header { margin-bottom: 2.5rem; }
-        .page-header h1 { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; }
-        .page-header p { color: #64748b; font-size: 1.05rem; }
-        .divider { width: 60px; height: 4px; background: #2563eb; border-radius: 4px; margin-top: 0.75rem; }
-        .demo-form {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 2.5rem;
-            border: 1px solid #eef2f6;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-            max-width: 720px;
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #e2e8f0 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 0.4rem; }
-        .form-group label .required { color: #ef4444; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 0.7rem 1rem;
-            border: 1px solid #d1d9e6;
-            border-radius: 10px;
-            font-family: inherit;
-            font-size: 0.95rem;
-            transition: border 0.2s, box-shadow 0.2s;
-            background: #fafcff;
+        .page-header p { color: #94a3b8; font-size: 1.05rem; }
+        .divider { width: 70px; height: 4px; background: #06b6d4; border-radius: 4px; margin-top: 0.6rem; }
+
+        /* ─── PREVIEW ─── */
+        .preview-section {
+            margin: 1.5rem 0 2.5rem;
+            background: #141425;
+            border-radius: 20px;
+            border: 1px solid #2a2a44;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
         }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
-            background: #ffffff;
+        .preview-header {
+            background: #1a1a32;
+            padding: 0.7rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2a2a44;
         }
-        .form-group textarea { resize: vertical; min-height: 110px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
-        .btn-primary {
-            background: #2563eb;
-            color: #ffffff;
-            border: none;
-            padding: 0.8rem 2.2rem;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-            box-shadow: 0 2px 12px rgba(37,99,235,0.25);
+        .preview-header .dots { display: flex; gap: 0.5rem; }
+        .preview-header .dots span { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .preview-header .dots .r { background: #ef4444; }
+        .preview-header .dots .y { background: #f59e0b; }
+        .preview-header .dots .g { background: #10b981; }
+        .preview-header .title { font-size: 0.85rem; color: #94a3b8; font-weight: 500; }
+        .preview-header .title span { color: #06b6d4; }
+        .preview-body {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 0;
+            min-height: 380px;
         }
-        .btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); }
-        .demo-success {
-            display: none;
-            background: #ecfdf5;
-            border: 1px solid #a7f3d0;
-            border-radius: 12px;
-            padding: 1.2rem 1.5rem;
-            color: #065f46;
-            margin-top: 1.5rem;
-            font-weight: 500;
+        .preview-sidebar {
+            background: #111127;
+            padding: 1.2rem 1.2rem;
+            border-right: 1px solid #2a2a44;
         }
-        .demo-success.show { display: block; }
-        footer {
-            margin-top: 3rem;
-            color: #94a3b8;
+        .preview-sidebar .net-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #06b6d4;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .preview-sidebar .stat-item { margin-bottom: 0.8rem; }
+        .preview-sidebar .stat-item .label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .preview-sidebar .stat-item .value { font-size: 0.85rem; color: #e2e8f0; font-weight: 500; }
+        .preview-sidebar .divider { border-top: 1px solid #2a2a44; margin: 1rem 0; }
+        .preview-sidebar .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
             font-size: 0.85rem;
-            border-top: 1px solid #e2e8f0;
+            color: #10b981;
+        }
+        .preview-sidebar .status-indicator .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse-dot 1.5s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+        .preview-sidebar .credit-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            padding: 0.3rem 0;
+        }
+        .preview-sidebar .credit-row .num { color: #e2e8f0; font-weight: 600; }
+
+        .preview-grid {
+            background: #0f0f1f;
+            padding: 1rem 1.2rem;
+        }
+        .preview-grid .grid-header {
+            display: grid;
+            grid-template-columns: 80px 120px 90px 100px 130px;
+            gap: 0.5rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid #2a2a44;
+            font-weight: 600;
+        }
+        .preview-grid .grid-row {
+            display: grid;
+            grid-template-columns: 80px 120px 90px 100px 130px;
+            gap: 0.5rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #1a1a32;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            align-items: center;
+        }
+        .preview-grid .grid-row .status-badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.6rem;
+            border-radius: 20px;
+            display: inline-block;
+            width: fit-content;
+        }
+        .status-badge.sent { background: #10b98122; color: #10b981; border: 1px solid #10b98144; }
+        .status-badge.sending { background: #f59e0b22; color: #f59e0b; border: 1px solid #f59e0b44; }
+        .status-badge.queued { background: #3b82f622; color: #3b82f6; border: 1px solid #3b82f644; }
+
+        .preview-footer {
+            background: #1a1a32;
+            padding: 0.6rem 1.5rem;
+            border-top: 1px solid #2a2a44;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .preview-footer .highlight { color: #06b6d4; }
+
+        /* ─── LEGAL CONTENT ─── */
+        .legal-content {
+            background: #141425;
+            border-radius: 20px;
+            padding: 2.5rem 3rem;
+            border: 1px solid #2a2a44;
+        }
+        .legal-content h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin: 1.8rem 0 0.6rem;
+        }
+        .legal-content h2:first-of-type { margin-top: 0; }
+        .legal-content p { color: #cbd5e1; margin-bottom: 0.8rem; font-size: 0.98rem; }
+        .legal-content ul { padding-left: 1.5rem; color: #cbd5e1; margin-bottom: 0.8rem; }
+        .legal-content ul li { margin-bottom: 0.4rem; font-size: 0.98rem; }
+        .legal-content .update-date {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #2a2a44;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        footer {
+            margin-top: 2rem;
+            color: #475569;
+            font-size: 0.85rem;
+            border-top: 1px solid #1e1e38;
             padding: 1.5rem 2rem;
             width: 100%;
             text-align: center;
-            background: #ffffff;
+            background: #0f0f1a;
         }
-        footer span { color: #2563eb; }
+        footer span { color: #06b6d4; }
+
+        @media (max-width: 900px) {
+            .preview-body { grid-template-columns: 1fr; }
+            .preview-sidebar { border-right: none; border-bottom: 1px solid #2a2a44; }
+            .preview-grid .grid-header,
+            .preview-grid .grid-row {
+                grid-template-columns: 70px 90px 70px 80px 100px;
+                font-size: 0.7rem;
+            }
+        }
         @media (max-width: 700px) {
             .nav-container { flex-wrap: wrap; height: auto; padding: 0.75rem 0; gap: 0.5rem; }
             header { padding: 0 1rem; }
             nav { gap: 0.15rem; justify-content: center; width: 100%; }
             nav a { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
-            .page-wrapper { padding: 1.5rem 1rem 3rem; }
-            .page-header h1 { font-size: 1.6rem; }
-            .demo-form { padding: 1.5rem; }
-            .form-row { grid-template-columns: 1fr; }
+            .page-wrapper { padding: 1rem 1rem 2rem; }
+            .page-header h1 { font-size: 1.8rem; }
+            .legal-content { padding: 1.5rem; }
+            .preview-grid .grid-header,
+            .preview-grid .grid-row {
+                grid-template-columns: 50px 70px 55px 60px 80px;
+                font-size: 0.6rem;
+                gap: 0.3rem;
+            }
+            .preview-sidebar { padding: 1rem; }
+        }
+        @media (max-width: 480px) {
+            .preview-grid .grid-header,
+            .preview-grid .grid-row {
+                grid-template-columns: 40px 55px 45px 50px 65px;
+                font-size: 0.55rem;
+                gap: 0.2rem;
+            }
+            .preview-grid .grid-row .status-badge { font-size: 0.55rem; padding: 0.1rem 0.4rem; }
         }
     </style>
 </head>
@@ -140,8 +276,8 @@
                 <a href="index.html">Home</a>
                 <a href="about.html">About</a>
                 <a href="terms.html">Terms</a>
-                <a href="privacy.html">Privacy</a>
-                <a href="demo.html" class="active">Demo</a>
+                <a href="privacy.html" class="active">Privacy</a>
+                <a href="demo.html">Demo</a>
                 <a href="contact.html">Contact</a>
             </nav>
         </div>
@@ -149,72 +285,95 @@
 
     <main class="page-wrapper">
         <div class="page-header">
-            <h1>Request a Demo</h1>
-            <p>See RAD‑XR in action. Fill in the details and we'll get back to you within 24 hours.</p>
+            <h1>Privacy Policy</h1>
+            <p>How we collect, use, and protect your data.</p>
             <div class="divider"></div>
         </div>
-        <div class="demo-form">
-            <form id="demoForm" novalidate>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="demoName">Full Name <span class="required">*</span></label>
-                        <input type="text" id="demoName" placeholder="e.g. Ananya Patel" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="demoEmail">Email Address <span class="required">*</span></label>
-                        <input type="email" id="demoEmail" placeholder="you@hospital.com" required />
-                    </div>
+
+        <!-- ─── SOFTWARE PREVIEW ─── -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <div class="dots">
+                    <span class="r"></span>
+                    <span class="y"></span>
+                    <span class="g"></span>
                 </div>
-                <div class="form-group">
-                    <label for="demoCompany">Hospital / Institute Name <span class="required">*</span></label>
-                    <input type="text" id="demoCompany" placeholder="e.g. City Imaging Center" required />
+                <div class="title">⚕️ RAD‑XR · <span>Live Monitor</span></div>
+                <div style="width:52px;"></div>
+            </div>
+            <div class="preview-body">
+                <div class="preview-sidebar">
+                    <div class="net-label">📡 Network Config</div>
+                    <div class="stat-item"><div class="label">Institute</div><div class="value">RAD‑XR IMAGING CENTER</div></div>
+                    <div class="stat-item"><div class="label">AE Title</div><div class="value">RAD‑XR</div></div>
+                    <div class="stat-item"><div class="label">IP Address</div><div class="value">192.168.1.100</div></div>
+                    <div class="stat-item"><div class="label">Port</div><div class="value">11112</div></div>
+                    <div class="divider"></div>
+                    <div class="status-indicator"><span class="dot"></span><span>● Listening</span></div>
+                    <div class="divider"></div>
+                    <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.4rem;">💳 Credits</div>
+                    <div class="credit-row"><span>WhatsApp</span><span class="num">42</span></div>
+                    <div class="credit-row"><span>Telegram</span><span class="num">87</span></div>
+                    <div class="divider"></div>
+                    <div style="font-size:0.7rem; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:0.3rem;">🤖 Bot</div>
+                    <div style="font-size:0.8rem; color:#e2e8f0;">@RADXR_Bot</div>
+                    <div style="font-size:0.7rem; color:#64748b;">✅ Online</div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="demoRole">Your Role</label>
-                        <select id="demoRole">
-                            <option value="">Select…</option>
-                            <option value="radiologist">Radiologist</option>
-                            <option value="technologist">Technologist</option>
-                            <option value="admin">Admin / IT</option>
-                            <option value="manager">Department Manager</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="demoTeamSize">Daily Study Volume</label>
-                        <select id="demoTeamSize">
-                            <option value="">Select…</option>
-                            <option value="1-20">1 – 20</option>
-                            <option value="21-50">21 – 50</option>
-                            <option value="51-100">51 – 100</option>
-                            <option value="101-500">101 – 500</option>
-                            <option value="500+">500+</option>
-                        </select>
-                    </div>
+                <div class="preview-grid">
+                    <div class="grid-header"><span>Patient ID</span><span>Patient Name</span><span>Accession</span><span>File</span><span>Status</span></div>
+                    <div class="grid-row"><span>P-1024</span><span>Rajesh Kumar</span><span>ACC-2201</span><span>RADXR_2201.dcm</span><span><span class="status-badge sent">✅ Sent</span></span></div>
+                    <div class="grid-row"><span>P-2048</span><span>Priya Sharma</span><span>ACC-2202</span><span>RADXR_2202.dcm</span><span><span class="status-badge sending">📤 Sending</span></span></div>
+                    <div class="grid-row"><span>P-3072</span><span>Ananya Patel</span><span>ACC-2203</span><span>RADXR_2203.dcm</span><span><span class="status-badge queued">⏳ Queued</span></span></div>
+                    <div class="grid-row"><span>P-4096</span><span>Vikram Singh</span><span>ACC-2204</span><span>RADXR_2204.dcm</span><span><span class="status-badge sent">✅ Sent</span></span></div>
                 </div>
-                <div class="form-group">
-                    <label for="demoMessage">What would you like to see? <span class="required">*</span></label>
-                    <textarea id="demoMessage" placeholder="Tell us about your workflow, DICOM sources, integration needs, and any specific questions…" required></textarea>
-                </div>
-                <button type="submit" class="btn-primary">Send Demo Request</button>
-            </form>
-            <div class="demo-success" id="demoSuccess">✅ Thank you! Your demo request has been received. We'll reach out within 24 hours.</div>
+            </div>
+            <div class="preview-footer">
+                <span>📋 Console: <span class="highlight">✅ Server started on 192.168.1.100:11112</span></span>
+                <span>🔄 4 files indexed</span>
+            </div>
+        </div>
+
+        <!-- ─── PRIVACY CONTENT ─── -->
+        <div class="legal-content">
+            <h2>1. Information We Collect</h2>
+            <p>We collect information you provide directly, such as your name, email address, phone number, and company details when you register or request a demo. We also collect usage data to improve the Software.</p>
+
+            <h2>2. How We Use Your Data</h2>
+            <ul>
+                <li>To provide, maintain, and improve the Software.</li>
+                <li>To personalise your experience and send relevant updates.</li>
+                <li>To respond to your inquiries and support requests.</li>
+                <li>For analytics and performance monitoring.</li>
+                <li>To comply with legal obligations and regulatory requirements.</li>
+            </ul>
+
+            <h2>3. Data Sharing &amp; Disclosure</h2>
+            <p>We do not sell or rent your personal data. We may share data with trusted third‑party service providers who help us operate the Software, subject to strict confidentiality agreements.</p>
+
+            <h2>4. Data Retention</h2>
+            <p>We retain your personal data only for as long as necessary to fulfil the purposes outlined in this policy, unless a longer retention period is required by law.</p>
+
+            <h2>5. Security</h2>
+            <p>We implement industry‑standard security measures, including encryption, access controls, and regular audits, to protect your data from unauthorised access or disclosure.</p>
+
+            <h2>6. Your Rights</h2>
+            <ul>
+                <li>You may access, update, or delete your account data at any time.</li>
+                <li>You can opt out of marketing emails by clicking the unsubscribe link.</li>
+                <li>You have the right to request a copy of your data.</li>
+                <li>You have the right to lodge a complaint with a data protection authority.</li>
+            </ul>
+
+            <h2>7. Cookies</h2>
+            <p>We use cookies to enhance your experience, analyse traffic, and remember your preferences. You can manage cookie settings in your browser.</p>
+
+            <h2>8. Changes to This Policy</h2>
+            <p>We may update this Privacy Policy from time to time. We will notify you of material changes via email or through the Software.</p>
+
+            <div class="update-date">Last updated: 21 July 2026</div>
         </div>
     </main>
 
     <footer>&copy; 2026 RAD‑XR. All rights reserved. <span>✦</span> Made with ❤️ by Sandeep</footer>
-
-    <script>
-        document.getElementById('demoForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (this.checkValidity()) {
-                document.getElementById('demoSuccess').classList.add('show');
-                this.reset();
-            } else {
-                this.reportValidity();
-            }
-        });
-    </script>
 </body>
 </html>
