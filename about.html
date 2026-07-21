@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>RAD‑XR – About</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #f8fafc;
+            color: #0b1a33;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.6;
+        }
+        header {
+            width: 100%;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 2rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+        }
+        .logo { font-weight: 700; font-size: 1.35rem; letter-spacing: -0.02em; }
+        .logo span { color: #2563eb; }
+        nav { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+        nav a {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        nav a:hover { background: #f1f5f9; color: #0b1a33; }
+        nav a.active { background: #2563eb; color: #ffffff; box-shadow: 0 2px 8px rgba(37,99,235,0.25); }
+        .page-wrapper {
+            flex: 1;
+            max-width: 1280px;
+            width: 100%;
+            padding: 2.5rem 2rem 4rem;
+        }
+        .page-header { margin-bottom: 2.5rem; }
+        .page-header h1 { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.03em; }
+        .page-header h1 span { color: #2563eb; }
+        .page-header p { color: #64748b; font-size: 1.1rem; max-width: 720px; }
+        .divider { width: 70px; height: 4px; background: #2563eb; border-radius: 4px; margin-top: 0.75rem; }
+
+        .about-hero {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2.5rem 3rem;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            margin-bottom: 2.5rem;
+        }
+        .about-hero h2 { font-size: 1.6rem; font-weight: 600; margin-bottom: 1rem; }
+        .about-hero h2 i { color: #2563eb; }
+        .about-hero p { color: #334155; font-size: 1.05rem; margin-bottom: 1rem; }
+        .about-hero .highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.2rem;
+            margin: 1.8rem 0 0.5rem;
+        }
+        .about-hero .highlight-item {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            text-align: center;
+        }
+        .about-hero .highlight-item .num { font-size: 1.8rem; font-weight: 700; color: #2563eb; }
+        .about-hero .highlight-item .label { font-size: 0.85rem; color: #475569; }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8rem;
+            margin: 2rem 0 2.5rem;
+        }
+        .feature-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.8rem 2rem;
+            border: 1px solid #eef2f6;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            transition: transform 0.2s;
+        }
+        .feature-card:hover { transform: translateY(-4px); }
+        .feature-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .feature-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.4rem; }
+        .feature-card p { color: #475569; font-size: 0.95rem; }
+
+        .tech-section {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2.5rem 3rem;
+            border: 1px solid #eef2f6;
+            margin: 2rem 0;
+        }
+        .tech-section h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.2rem; }
+        .tech-section h2 i { color: #2563eb; }
+        .tech-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        .tech-grid .tech-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .tech-grid .tech-item .tag { font-weight: 600; color: #0b1a33; font-size: 0.9rem; }
+        .tech-grid .tech-item .desc { color: #64748b; font-size: 0.9rem; }
+
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .workflow-step {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 1.5rem;
+            border-left: 4px solid #2563eb;
+        }
+        .workflow-step .step-num {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #2563eb;
+            background: #eff6ff;
+            display: inline-block;
+            padding: 0.1rem 0.6rem;
+            border-radius: 20px;
+            margin-bottom: 0.4rem;
+        }
+        .workflow-step h4 { font-size: 1rem; font-weight: 600; }
+        .workflow-step p { color: #475569; font-size: 0.9rem; }
+
+        footer {
+            margin-top: 2rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem 2rem;
+            width: 100%;
+            text-align: center;
+            background: #ffffff;
+        }
+        footer span { color: #2563eb; }
+
+        @media (max-width: 900px) {
+            .features-grid { grid-template-columns: 1fr; }
+            .tech-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+            .nav-container { flex-wrap: wrap; height: auto; padding: 0.75rem 0; gap: 0.5rem; }
+            header { padding: 0 1rem; }
+            nav { gap: 0.15rem; justify-content: center; width: 100%; }
+            nav a { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+            .page-wrapper { padding: 1.5rem 1rem 3rem; }
+            .page-header h1 { font-size: 1.8rem; }
+            .about-hero { padding: 1.5rem; }
+            .tech-section { padding: 1.5rem; }
+            .about-hero .highlight-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 450px) {
+            .about-hero .highlight-grid { grid-template-columns: 1fr; }
+            .workflow-steps { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-container">
+            <div class="logo">◆ RAD‑<span>XR</span></div>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="about.html" class="active">About</a>
+                <a href="terms.html">Terms</a>
+                <a href="privacy.html">Privacy</a>
+                <a href="demo.html">Demo</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="page-header">
+            <h1>About <span>RAD‑XR</span></h1>
+            <p>The complete DICOM receiver, PDF report generator, and multi‑platform medical imaging gateway.</p>
+            <div class="divider"></div>
+        </div>
+
+        <section class="about-hero">
+            <h2><i>⚕️</i> What is RAD‑XR?</h2>
+            <p>
+                <strong>RAD‑XR</strong> is an enterprise‑grade DICOM receiver and medical imaging automation platform
+                built for radiology departments, imaging centers, and healthcare IT teams. It listens for incoming DICOM
+                studies over the network, automatically groups images by patient, generates beautiful multi‑page PDF
+                reports, and delivers them instantly via <strong>Telegram</strong> and <strong>WhatsApp Business</strong>.
+            </p>
+            <p>
+                Designed for high‑volume environments, RAD‑XR handles compressed DICOM (JPEG, JPEG2000, RLE, etc.),
+                supports batching, maintains a full SQLite index, and offers a modern GUI for live monitoring and
+                configuration. It’s the bridge between your PACS and your clinical workflow.
+            </p>
+            <div class="highlight-grid">
+                <div class="highlight-item"><div class="num">12,400+</div><div class="label">Active Users</div></div>
+                <div class="highlight-item"><div class="num">2,180+</div><div class="label">Teams Deployed</div></div>
+                <div class="highlight-item"><div class="num">99.97%</div><div class="label">Uptime</div></div>
+                <div class="highlight-item"><div class="num">65+</div><div class="label">Integrations</div></div>
+            </div>
+        </section>
+
+        <h2 style="font-size:1.6rem; font-weight:600; margin: 1.5rem 0 0.5rem;">✨ Core Features</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">📡</div>
+                <h3>DICOM Server (SCP)</h3>
+                <p>Listens on any IP/port, accepts C‑STORE and C‑ECHO, supports all standard SOP classes and compressed transfer syntaxes (JPEG, JPEG2000, RLE).</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📄</div>
+                <h3>Multi‑Page PDF Reports</h3>
+                <p>Combines multiple DICOM images (or multi‑frame) into a single PDF with patient metadata, footer image support, and beautiful layout — one report per patient.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🤖</div>
+                <h3>Telegram Bot Integration</h3>
+                <p>Auto‑sends PDF reports to admin users and groups. Users can request reports by Patient ID + Name. Full command set for admin: add/remove users, groups, broadcast, credits.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">💬</div>
+                <h3>WhatsApp Business API</h3>
+                <p>Sends PDF reports directly to WhatsApp using the phone number from the Accession Number. Supports media upload and caption formatting. Credits‑based usage.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🗂️</div>
+                <h3>Smart Patient Batching</h3>
+                <p>Groups incoming DICOM files by Patient ID or Name. Waits for a configurable time (default 15s) to collect all images of a study before generating a single combined PDF.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📁</div>
+                <h3>Folder Monitoring (Archive)</h3>
+                <p>Watches the Archive folder for new DICOM files added by external systems (e.g., PACS export) and processes them automatically through the same pipeline.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🔍</div>
+                <h3>Patient Index &amp; Cache</h3>
+                <p>SQLite database indexes every DICOM file by Patient ID, Name, and Accession Number. PDF reports are cached and can be re‑sent on demand — no need to regenerate.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">💳</div>
+                <h3>Credits System</h3>
+                <p>Separate credit balances for Telegram and WhatsApp. Each send consumes one credit. Admins can recharge via Telegram commands or the GUI. Prevents runaway usage.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🛡️</div>
+                <h3>Admin &amp; Group Management</h3>
+                <p>Add/remove admin users (auto‑send recipients) and Telegram groups. Master user has full control. Users can also be granted access to request reports.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">⚙️</div>
+                <h3>Full GUI Dashboard</h3>
+                <p>Built with Tkinter — live monitor shows incoming files, status, network config, credits, and console log. Configuration tab for all settings with password protection.</p>
+            </div>
+        </div>
+
+        <h2 style="font-size:1.6rem; font-weight:600; margin: 2.5rem 0 0.5rem;">⚙️ How It Works</h2>
+        <div class="workflow-steps">
+            <div class="workflow-step">
+                <div class="step-num">STEP 1</div>
+                <h4>Receive DICOM</h4>
+                <p>DICOM files arrive via C‑STORE (network) or are dropped into the Archive folder. The server accepts all standard modalities (CT, MR, US, CR, DX, etc.).</p>
+            </div>
+            <div class="workflow-step">
+                <div class="step-num">STEP 2</div>
+                <h4>Batch by Patient</h4>
+                <p>Files are grouped by Patient ID or Name. A timer (configurable) waits for additional images of the same study to arrive before processing.</p>
+            </div>
+            <div class="workflow-step">
+                <div class="step-num">STEP 3</div>
+                <h4>Generate PDF</h4>
+                <p>All images (or frames) are assembled into a single multi‑page PDF. Metadata (Patient Name, ID, Sex, Study Date, Accession, Modality) is printed on each page.</p>
+            </div>
+            <div class="workflow-step">
+                <div class="step-num">STEP 4</div>
+                <h4>Deliver &amp; Archive</h4>
+                <p>The PDF is sent to all configured Telegram admins/groups and, if Accession Number is present, to the patient via WhatsApp. DICOM files are deleted on success.</p>
+            </div>
+        </div>
+
+        <div class="tech-section">
+            <h2><i>🔧</i> Technical Specifications</h2>
+            <div class="tech-grid">
+                <div class="tech-item"><span class="tag">Protocol</span><span class="desc">DICOM (DICOM PS 3.8) – C‑STORE, C‑ECHO, all Storage SOP Classes</span></div>
+                <div class="tech-item"><span class="tag">Transfer Syntaxes</span><span class="desc">Implicit/Explicit Little/Big Endian, JPEG Baseline, JPEG2000, JPEG‑LS, RLE Lossless, Deflated</span></div>
+                <div class="tech-item"><span class="tag">Database</span><span class="desc">SQLite 3 – dicom_index, pdf_index, telegram_users, admin_users, groups, credits</span></div>
+                <div class="tech-item"><span class="tag">PDF Engine</span><span class="desc">ReportLab (canvas) + PIL – multi‑page, metadata, footer image</span></div>
+                <div class="tech-item"><span class="tag">Telegram API</span><span class="desc">Bot API v7.0+ – sendDocument, copyMessage, getUpdates, getFile</span></div>
+                <div class="tech-item"><span class="tag">WhatsApp API</span><span class="desc">Meta Cloud API v18.0 – media upload, document messages</span></div>
+                <div class="tech-item"><span class="tag">Supported OS</span><span class="desc">Windows 10/11, Windows Server 2019+ (auto‑start via Registry)</span></div>
+                <div class="tech-item"><span class="tag">Codec Plugins</span><span class="desc">pylibjpeg (+ libjpeg, openjpeg) or python‑gdcm (optional, fallback)</span></div>
+                <div class="tech-item"><span class="tag">DICOM Library</span><span class="desc">pynetdicom 2.0+ (SCP), pydicom 2.4+ (reading/writing)</span></div>
+                <div class="tech-item"><span class="tag">GUI Framework</span><span class="desc">Tkinter + ttk (native, with custom styles)</span></div>
+                <div class="tech-item"><span class="tag">File System</span><span class="desc">watchdog (folder monitoring), threading, queue‑based batching</span></div>
+                <div class="tech-item"><span class="tag">Credits System</span><span class="desc">Per‑platform (Telegram / WhatsApp) integer balance, recharge via GUI or Telegram /recharge command</span></div>
+            </div>
+        </div>
+
+        <div style="background:#ffffff; border-radius:20px; padding:2.5rem 3rem; border:1px solid #eef2f6; margin:1.5rem 0;">
+            <h2 style="font-size:1.5rem; font-weight:600; margin-bottom:1rem;"><i>🌟</i> Why RAD‑XR?</h2>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+                <div style="display:flex; gap:0.8rem; align-items:flex-start;">
+                    <span style="font-size:1.4rem;">🚀</span>
+                    <div><strong>Zero‑click automation</strong><br/><span style="color:#475569;font-size:0.95rem;">Images arrive → PDF generated → delivered automatically. No manual intervention.</span></div>
+                </div>
+                <div style="display:flex; gap:0.8rem; align-items:flex-start;">
+                    <span style="font-size:1.4rem;">🔗</span>
+                    <div><strong>Multi‑platform delivery</strong><br/><span style="color:#475569;font-size:0.95rem;">Telegram + WhatsApp — reach clinicians and patients on their preferred channel.</span></div>
+                </div>
+                <div style="display:flex; gap:0.8rem; align-items:flex-start;">
+                    <span style="font-size:1.4rem;">🧠</span>
+                    <div><strong>Smart batching</strong><br/><span style="color:#475569;font-size:0.95rem;">Combines multiple images of the same study into one concise report — reduces clutter.</span></div>
+                </div>
+                <div style="display:flex; gap:0.8rem; align-items:flex-start;">
+                    <span style="font-size:1.4rem;">🔐</span>
+                    <div><strong>Enterprise‑grade security</strong><br/><span style="color:#475569;font-size:0.95rem;">Password‑protected config, admin‑only commands, audit trails, and credit controls.</span></div>
+                </div>
+                <div style="display:flex; gap:0.8rem; align-items:flex-start;">
+                    <span style="font-size:1.4rem;">📊</span>
+                    <div><strong>Full audit &amp; cache</strong><br/><span style="color:#475569;font-size:0.95rem;">Every file is indexed; PDFs are cached and can be resent instantly via bot.</span></div>
+                </div>
+                <div style="display:flex; gap:0.8rem; align-items:flex-start;">
+                    <span style="font-size:1.4rem;">🛠️</span>
+                    <div><strong>Simple management</strong><br/><span style="color:#475569;font-size:0.95rem;">GUI dashboard + Telegram commands — manage everything from anywhere.</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="background:#f1f5f9; border-radius:16px; padding:2rem; margin-top:1rem; text-align:center;">
+            <p style="font-size:1.05rem; color:#1e293b; max-width:800px; margin:0 auto;">
+                <strong>RAD‑XR</strong> is the complete solution for radiology departments that want to modernize their
+                workflow — from DICOM reception to instant, secure delivery of patient reports via messaging apps.
+                Built with ❤️ by <strong>Sandeep</strong>.
+            </p>
+        </div>
+    </main>
+
+    <footer>&copy; 2026 RAD‑XR. All rights reserved. <span>✦</span> Made with ❤️ by Sandeep</footer>
+</body>
+</html>
