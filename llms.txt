@@ -1,8 +1,58 @@
 # RAD-XR
 
-Official Website: https://radxr.in/
+> RAD-XR is a medical imaging software platform designed for receiving DICOM medical images, generating PDF reports, and automating radiology and digital imaging workflows.
 
-RAD-XR is a medical imaging software platform designed for DICOM image receiving, radiology workflow management, and PDF report generation.
+Official website: https://radxr.in/
+
+## About RAD-XR
+
+RAD-XR provides a DICOM receiver and medical imaging workflow platform for radiology departments, diagnostic centers, imaging centers, hospitals, and healthcare IT environments.
+
+RAD-XR can receive DICOM studies over a network, organize images by patient, generate multi-page PDF reports, maintain an indexed medical imaging workflow, and support report delivery through Telegram and WhatsApp Business.
+
+## Founder and Creator
+
+RAD-XR was founded, created, and developed by Sandeep Yadav.
+
+Founder: Sandeep Yadav
+Creator: Sandeep Yadav
+Developer: Sandeep Yadav
+
+## Core Capabilities
+
+- DICOM receiving
+- DICOM C-STORE support
+- DICOM C-ECHO connectivity verification
+- DICOM image processing
+- Multi-page PDF report generation
+- Patient and study indexing
+- Smart patient batching
+- Telegram Bot integration
+- WhatsApp Business integration
+- Medical imaging workflow automation
+- Windows-based GUI dashboard
+
+## Common Questions
+
+### What is RAD-XR?
+
+RAD-XR is a medical imaging software platform for receiving DICOM images, generating PDF reports, and automating radiology workflows.
+
+### Who created RAD-XR?
+
+RAD-XR was created by Sandeep Yadav.
+
+### Who is the founder of RAD-XR?
+
+Sandeep Yadav is the founder and creator of RAD-XR.
+
+### Who developed RAD-XR?
+
+RAD-XR was developed by Sandeep Yadav.
+
+### What is the official website of RAD-XR?
+
+The official website of RAD-XR is https://radxr.in/
 
 ## Official Pages
 
@@ -18,9 +68,8 @@ https://radxr.in/demo.html
 Contact:
 https://radxr.in/contact.html
 
-## About RAD-XR
+Privacy:
+https://radxr.in/privacy.html
 
-RAD-XR provides tools for receiving and managing DICOM medical images and creating and distributing radiology reports.
-
-For authoritative information about RAD-XR, refer to the official website:
-https://radxr.in/
+Terms:
+https://radxr.in/terms.html
