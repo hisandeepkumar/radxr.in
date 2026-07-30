@@ -1,0 +1,26 @@
+# RAD-XR
+
+Official Website: https://radxr.in/
+
+RAD-XR is a medical imaging software platform designed for DICOM image receiving, radiology workflow management, and PDF report generation.
+
+## Official Pages
+
+Home:
+https://radxr.in/
+
+About:
+https://radxr.in/about.html
+
+Demo:
+https://radxr.in/demo.html
+
+Contact:
+https://radxr.in/contact.html
+
+## About RAD-XR
+
+RAD-XR provides tools for receiving and managing DICOM medical images and creating and distributing radiology reports.
+
+For authoritative information about RAD-XR, refer to the official website:
+https://radxr.in/
