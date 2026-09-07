@@ -389,6 +389,155 @@
         }
         footer span { color: #06b6d4; }
 
+
+        /* ─── SOFTWARE SCREENSHOTS ─── */
+        .screenshots-section {
+            margin: 3.5rem 0 2.5rem;
+        }
+        .screenshots-heading {
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+        .screenshots-heading .eyebrow {
+            display: inline-block;
+            color: #06b6d4;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 0.45rem;
+        }
+        .screenshots-heading h2 {
+            color: #e2e8f0;
+            font-size: 1.9rem;
+            margin-bottom: 0.55rem;
+        }
+        .screenshots-heading p {
+            max-width: 760px;
+            margin: 0 auto;
+            color: #94a3b8;
+            line-height: 1.7;
+        }
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1.5rem;
+        }
+        .screenshot-card {
+            background: #141425;
+            border: 1px solid #2a2a44;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 16px 45px rgba(0,0,0,0.35);
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .screenshot-card:hover {
+            transform: translateY(-5px);
+            border-color: #06b6d4;
+            box-shadow: 0 22px 55px rgba(0,0,0,0.48);
+        }
+        .screenshot-image-wrap {
+            position: relative;
+            background: #0b0b15;
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            border-bottom: 1px solid #2a2a44;
+        }
+        .screenshot-image-wrap::after {
+            content: "VIEW";
+            position: absolute;
+            right: 0.8rem;
+            top: 0.8rem;
+            padding: 0.28rem 0.55rem;
+            border-radius: 6px;
+            background: rgba(15,15,26,0.82);
+            border: 1px solid #2a2a44;
+            color: #cbd5e1;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .screenshot-card:hover .screenshot-image-wrap::after {
+            opacity: 1;
+        }
+        .screenshot-image-wrap img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            cursor: zoom-in;
+            transition: transform 0.35s ease;
+        }
+        .screenshot-card:hover .screenshot-image-wrap img {
+            transform: scale(1.025);
+        }
+        .screenshot-content {
+            padding: 1.15rem 1.25rem 1.3rem;
+        }
+        .screenshot-content h3 {
+            color: #e2e8f0;
+            font-size: 1.05rem;
+            margin-bottom: 0.35rem;
+        }
+        .screenshot-content p {
+            color: #94a3b8;
+            font-size: 0.88rem;
+            line-height: 1.6;
+        }
+        .screenshot-number {
+            color: #06b6d4;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 0.3rem;
+        }
+
+        /* Screenshot lightbox */
+        .screenshot-lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: rgba(5,5,12,0.94);
+            backdrop-filter: blur(8px);
+        }
+        .screenshot-lightbox.open {
+            display: flex;
+        }
+        .screenshot-lightbox img {
+            max-width: min(1200px, 94vw);
+            max-height: 88vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border: 1px solid #2a2a44;
+            border-radius: 12px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.65);
+        }
+        .lightbox-close {
+            position: fixed;
+            top: 1rem;
+            right: 1.25rem;
+            width: 42px;
+            height: 42px;
+            border: 1px solid #2a2a44;
+            border-radius: 50%;
+            background: #141425;
+            color: #e2e8f0;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .lightbox-close:hover {
+            background: #06b6d4;
+            color: #0f0f1a;
+        }
+
         @media (max-width: 900px) {
             .preview-body { grid-template-columns: 1fr; }
             .preview-sidebar { border-right: none; border-bottom: 1px solid #2a2a44; }
@@ -399,6 +548,11 @@
             }
         }
         @media (max-width: 700px) {
+            .screenshots-grid { grid-template-columns: 1fr; gap: 1.1rem; }
+            .screenshots-heading h2 { font-size: 1.55rem; }
+            .screenshots-section { margin-top: 2.5rem; }
+            .screenshot-lightbox { padding: 1rem; }
+
             .nav-container { flex-wrap: wrap; height: auto; padding: 0.75rem 0; gap: 0.5rem; }
             header { padding: 0 1rem; }
             nav { gap: 0.15rem; justify-content: center; width: 100%; }
@@ -607,8 +761,128 @@
                 <span>🔄 5 files indexed</span>
             </div>
         </div>
+
+        <!-- ─── SOFTWARE SCREENSHOTS ─── -->
+        <section class="screenshots-section" aria-labelledby="screenshots-title">
+            <div class="screenshots-heading">
+                <span class="eyebrow">RAD-XR IN ACTION</span>
+                <h2 id="screenshots-title">See RAD-XR Software in Action</h2>
+                <p>
+                    Explore the RAD-XR interface, processed medical imaging workflow,
+                    patient message delivery, and Telegram communication experience.
+                </p>
+            </div>
+
+            <div class="screenshots-grid">
+                <article class="screenshot-card">
+                    <div class="screenshot-image-wrap">
+                        <img src="radxr1.png"
+                             alt="RAD-XR DICOM PACS and radiology workflow software interface"
+                             loading="lazy"
+                             decoding="async"
+                             data-lightbox="RAD-XR Software Interface">
+                    </div>
+                    <div class="screenshot-content">
+                        <div class="screenshot-number">01 · SOFTWARE INTERFACE</div>
+                        <h3>RAD-XR Software Interface</h3>
+                        <p>RAD-XR's main software interface for managing the medical imaging workflow.</p>
+                    </div>
+                </article>
+
+                <article class="screenshot-card">
+                    <div class="screenshot-image-wrap">
+                        <img src="radxr2.png"
+                             alt="RAD-XR processed medical image and DICOM imaging workflow"
+                             loading="lazy"
+                             decoding="async"
+                             data-lightbox="RAD-XR Processed Medical Image">
+                    </div>
+                    <div class="screenshot-content">
+                        <div class="screenshot-number">02 · IMAGE PROCESSING</div>
+                        <h3>Processed Medical Imaging</h3>
+                        <p>Example of the processed medical imaging output handled through RAD-XR.</p>
+                    </div>
+                </article>
+
+                <article class="screenshot-card">
+                    <div class="screenshot-image-wrap">
+                        <img src="radxr3.png"
+                             alt="RAD-XR patient message notification and report delivery"
+                             loading="lazy"
+                             decoding="async"
+                             data-lightbox="RAD-XR Patient Message">
+                    </div>
+                    <div class="screenshot-content">
+                        <div class="screenshot-number">03 · PATIENT DELIVERY</div>
+                        <h3>Patient Message &amp; Report Delivery</h3>
+                        <p>Example showing how a patient receives a message as part of the RAD-XR delivery workflow.</p>
+                    </div>
+                </article>
+
+                <article class="screenshot-card">
+                    <div class="screenshot-image-wrap">
+                        <img src="radxr4.png"
+                             alt="RAD-XR Telegram report delivery message"
+                             loading="lazy"
+                             decoding="async"
+                             data-lightbox="RAD-XR Telegram Message">
+                    </div>
+                    <div class="screenshot-content">
+                        <div class="screenshot-number">04 · TELEGRAM INTEGRATION</div>
+                        <h3>Telegram Report Delivery</h3>
+                        <p>Example of the Telegram message workflow used for sending reports through RAD-XR.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Full-screen screenshot viewer -->
+        <div class="screenshot-lightbox" id="screenshotLightbox" role="dialog" aria-modal="true" aria-label="Screenshot preview">
+            <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Close screenshot preview">&times;</button>
+            <img id="lightboxImage" src="" alt="">
+        </div>
+
     </main>
 
     <footer>&copy; 2026 RAD‑XR. All rights reserved. <span>✦</span> Made with ❤️ by Sandeep</footer>
+
+    <script>
+        (function () {
+            const lightbox = document.getElementById('screenshotLightbox');
+            const lightboxImage = document.getElementById('lightboxImage');
+            const closeButton = document.getElementById('lightboxClose');
+            const screenshotImages = document.querySelectorAll('[data-lightbox]');
+
+            function closeLightbox() {
+                lightbox.classList.remove('open');
+                lightboxImage.src = '';
+                document.body.style.overflow = '';
+            }
+
+            screenshotImages.forEach(function (image) {
+                image.addEventListener('click', function () {
+                    lightboxImage.src = image.currentSrc || image.src;
+                    lightboxImage.alt = image.alt;
+                    lightbox.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            closeButton.addEventListener('click', closeLightbox);
+
+            lightbox.addEventListener('click', function (event) {
+                if (event.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && lightbox.classList.contains('open')) {
+                    closeLightbox();
+                }
+            });
+        })();
+    </script>
+
 </body>
 </html>
