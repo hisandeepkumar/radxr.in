@@ -12,7 +12,7 @@
     <title>About RAD-XR | DICOM & Medical Imaging Software</title>
 
     <meta name="description"
-          content="Learn about RAD-XR, a medical imaging software platform for receiving DICOM images, generating PDF reports, patient workflow automation, Telegram integration and WhatsApp report delivery.">
+          content="Learn about RAD-XR, a medical imaging software platform founded, created and developed by Sandeep Yadav. RAD-XR provides DICOM image receiving, medical image management, PDF report generation and radiology workflow automation.">
 
     <meta name="keywords"
           content="RAD-XR, RADXR, what is RAD-XR, about RAD-XR, RAD-XR founder, RAD-XR creator, Sandeep Yadav, DICOM receiver, DICOM server, medical imaging software, radiology software, DICOM software, PDF report generator, radiology workflow">
@@ -65,185 +65,181 @@
 
 
     <!-- =========================================
-         Structured Data - Software
+         Structured Data - RAD-XR Entity Graph
     ========================================== -->
 
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "@id": "https://radxr.in/#software",
-        "name": "RAD-XR",
-        "alternateName": "RADXR",
-        "url": "https://radxr.in/",
-        "description": "RAD-XR is a medical imaging software platform for receiving DICOM medical images, generating PDF reports, and automating radiology workflows.",
-        "applicationCategory": "MedicalApplication",
-        "applicationSubCategory": "Medical Imaging Software",
-        "operatingSystem": "Windows",
-        "author": {
-    "@type": "Person",
-    "@id": "https://radxr.in/about.html#sandeep-yadav",
-    "name": "Sandeep Yadav"
-},
-"creator": {
-    "@type": "Person",
-    "@id": "https://radxr.in/about.html#sandeep-yadav",
-    "name": "Sandeep Yadav"
-}
-    }
-    </script>
-
-
-    <!-- =========================================
-         Structured Data - About Page
-    ========================================== -->
-
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "AboutPage",
-        "@id": "https://radxr.in/about.html#webpage",
-        "url": "https://radxr.in/about.html",
-        "name": "About RAD-XR",
-        "description": "Information about RAD-XR medical imaging software, its DICOM capabilities, report generation and radiology workflow features.",
-        "isPartOf": {
-            "@id": "https://radxr.in/#website"
-        },
-        "about": {
-            "@id": "https://radxr.in/#software"
-        }
-    }
-    </script>
-
-
-
-
-
-    <!-- =========================================
-         Structured Data - Founder / Creator
-    ========================================== -->
-
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Person",
-        "@id": "https://radxr.in/about.html#sandeep-yadav",
-        "name": "Sandeep Yadav",
-        "url": "https://radxr.in/about.html",
-        "description": "Sandeep Yadav is the founder, creator, and developer of RAD-XR medical imaging software.",
-        "knowsAbout": [
-            "RAD-XR",
-            "DICOM",
-            "Medical Imaging Software",
-            "Radiology Workflow Automation"
-        ]
-    }
-    </script>
-
-    <!-- =========================================
-         Structured Data - FAQ
-    ========================================== -->
-
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
+        "@graph": [
             {
-                "@type": "Question",
-                "name": "What is RAD-XR?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "RAD-XR is a medical imaging software platform designed for receiving DICOM medical images, generating PDF reports, and automating radiology and digital imaging workflows."
+                "@type": "SoftwareApplication",
+                "@id": "https://radxr.in/#software",
+                "name": "RAD-XR",
+                "alternateName": [
+                    "RADXR",
+                    "RAD-XR Medical Imaging Software"
+                ],
+                "url": "https://radxr.in/",
+                "description": "RAD-XR is a medical imaging software platform founded, created and developed by Sandeep Yadav. It is designed for receiving DICOM medical images, managing medical imaging data, generating PDF reports and supporting radiology workflows.",
+                "applicationCategory": "MedicalApplication",
+                "applicationSubCategory": "Medical Imaging Software",
+                "operatingSystem": "Windows",
+                "creator": {
+                    "@id": "https://radxr.in/about.html#sandeep-yadav"
+                },
+                "author": {
+                    "@id": "https://radxr.in/about.html#sandeep-yadav"
+                },
+                "publisher": {
+                    "@id": "https://radxr.in/#organization"
                 }
             },
             {
-                "@type": "Question",
-                "name": "Who created RAD-XR?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "RAD-XR was created by Sandeep Yadav."
+                "@type": "Organization",
+                "@id": "https://radxr.in/#organization",
+                "name": "RAD-XR",
+                "alternateName": "RADXR",
+                "url": "https://radxr.in/",
+                "description": "RAD-XR is a medical imaging software platform for DICOM receiving, medical image management, PDF report generation and radiology workflows.",
+                "founder": {
+                    "@id": "https://radxr.in/about.html#sandeep-yadav"
+                },
+                "contactPoint": {
+                    "@type": "ContactPoint",
+                    "contactType": "Founder and General Contact",
+                    "telephone": "+91-9588027038",
+                    "email": "sandeepydvktp@gmail.com"
+                },
+                "sameAs": [
+                    "https://radxr.in/",
+                    "https://instagram.com/sandeep_yadav_._._"
+                ]
+            },
+            {
+                "@type": "Person",
+                "@id": "https://radxr.in/about.html#sandeep-yadav",
+                "name": "Sandeep Yadav",
+                "alternateName": [
+                    "Sandeep Kumar",
+                    "Sandeep"
+                ],
+                "jobTitle": "Founder and Developer of RAD-XR",
+                "description": "Sandeep Yadav is the founder, creator and developer of RAD-XR, a medical imaging software platform.",
+                "url": "https://radxr.in/about.html",
+                "telephone": "+91-9588027038",
+                "email": "sandeepydvktp@gmail.com",
+                "sameAs": [
+                    "https://instagram.com/sandeep_yadav_._._"
+                ],
+                "worksFor": {
+                    "@id": "https://radxr.in/#organization"
                 }
             },
             {
-                "@type": "Question",
-                "name": "Who is the founder of RAD-XR?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sandeep Yadav is the founder and creator of RAD-XR."
+                "@type": "AboutPage",
+                "@id": "https://radxr.in/about.html#webpage",
+                "url": "https://radxr.in/about.html",
+                "name": "About RAD-XR",
+                "description": "Information about RAD-XR, its medical imaging software capabilities and its founder Sandeep Yadav.",
+                "isPartOf": {
+                    "@id": "https://radxr.in/#website"
+                },
+                "about": {
+                    "@id": "https://radxr.in/#software"
+                },
+                "mainEntity": {
+                    "@id": "https://radxr.in/about.html#sandeep-yadav"
                 }
             },
             {
-                "@type": "Question",
-                "name": "Who developed RAD-XR?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "RAD-XR was developed by Sandeep Yadav."
+                "@type": "WebSite",
+                "@id": "https://radxr.in/#website",
+                "url": "https://radxr.in/",
+                "name": "RAD-XR",
+                "alternateName": "RADXR",
+                "description": "Official website of RAD-XR medical imaging software.",
+                "publisher": {
+                    "@id": "https://radxr.in/#organization"
                 }
             },
             {
-                "@type": "Question",
-                "name": "What does RAD-XR do?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "RAD-XR receives DICOM studies over a network, groups images by patient, generates multi-page PDF reports, maintains an indexed workflow, and supports report delivery through Telegram and WhatsApp Business."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Who is RAD-XR designed for?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "RAD-XR is designed for radiology departments, diagnostic and imaging centers, hospitals, and healthcare IT environments that work with DICOM medical images."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Does RAD-XR support DICOM?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes. RAD-XR includes a DICOM Storage SCP, supports C-STORE for receiving DICOM objects, and supports C-ECHO for connectivity verification."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Can RAD-XR generate PDF reports?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes. RAD-XR can combine received DICOM images into multi-page PDF reports with patient metadata."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Can RAD-XR send reports through Telegram?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes. RAD-XR includes Telegram Bot integration for sending PDF reports and allowing configured users to request reports."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "Can RAD-XR send reports through WhatsApp?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Yes. RAD-XR supports WhatsApp Business integration for PDF report delivery."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "What operating systems does RAD-XR support?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "RAD-XR supports Windows 10, Windows 11, and Windows Server 2019 or later, according to its published technical specifications."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "What is the official website of RAD-XR?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "The official website of RAD-XR is https://radxr.in/."
-                }
+                "@type": "FAQPage",
+                "@id": "https://radxr.in/about.html#faq",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "What is RAD-XR?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "RAD-XR is a medical imaging software platform founded, created and developed by Sandeep Yadav. It is designed for receiving DICOM medical images, managing medical imaging data, generating PDF reports and supporting radiology workflows."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Who is the founder of RAD-XR?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Sandeep Yadav is the founder of RAD-XR."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Who created RAD-XR?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "RAD-XR was created by Sandeep Yadav."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Who developed RAD-XR?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "RAD-XR was developed by Sandeep Yadav."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "What does RAD-XR do?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "RAD-XR receives DICOM studies over a network, groups images by patient, generates multi-page PDF reports, maintains an indexed workflow and supports report delivery through Telegram and WhatsApp Business."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How can I contact the founder of RAD-XR?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "The founder of RAD-XR is Sandeep Yadav. Contact: +91 9588027038. Email: sandeepydvktp@gmail.com. Instagram: https://instagram.com/sandeep_yadav_._._"
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Does RAD-XR support DICOM?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes. RAD-XR includes a DICOM Storage SCP, supports C-STORE for receiving DICOM objects and supports C-ECHO for connectivity verification."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can RAD-XR generate PDF reports?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes. RAD-XR can combine received DICOM images into multi-page PDF reports with patient metadata."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Who is RAD-XR designed for?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "RAD-XR is designed for radiology departments, diagnostic and imaging centers, hospitals and healthcare IT environments that work with DICOM medical images."
+                        }
+                    }
+                ]
             }
         ]
     }
@@ -932,8 +928,60 @@
         </div>
 
 
+        <!-- ─── FOUNDER ─── -->
+        <section
+            class="about-hero"
+            id="founder"
+            itemscope
+            itemtype="https://schema.org/Person"
+        >
+            <h2><i>👤</i> Founder &amp; Developer of RAD-XR</h2>
+
+            <p>
+                <strong itemprop="name">Sandeep Yadav</strong>
+                is the founder, creator and developer of
+                <strong>RAD-XR</strong>, a medical imaging software platform
+                for DICOM receiving, medical image management, PDF report
+                generation and radiology workflow automation.
+            </p>
+
+            <p>
+                If you are looking for the founder or creator of RAD-XR,
+                the answer is <strong>Sandeep Yadav</strong>.
+                Sandeep Yadav developed RAD-XR as a medical imaging and
+                DICOM workflow software platform.
+            </p>
+
+            <p>
+                <strong>Founder contact details:</strong>
+                <br>
+                Mobile:
+                <a
+                    href="tel:+919588027038"
+                    itemprop="telephone"
+                    style="color:#06b6d4; text-decoration:none;"
+                >+91 9588027038</a>
+                <br>
+                Email:
+                <a
+                    href="mailto:sandeepydvktp@gmail.com"
+                    itemprop="email"
+                    style="color:#06b6d4; text-decoration:none;"
+                >sandeepydvktp@gmail.com</a>
+                <br>
+                Instagram:
+                <a
+                    href="https://instagram.com/sandeep_yadav_._._"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    itemprop="sameAs"
+                    style="color:#06b6d4; text-decoration:none;"
+                >@sandeep_yadav_._._</a>
+            </p>
+        </section>
+
         <!-- ─── FAQ ─── -->
-        <section class="faq-section" id="faq">
+        <section class="faq-section" id="faq" itemscope itemtype="https://schema.org/FAQPage">
             <h2>❓ Frequently Asked Questions about RAD-XR</h2>
             <p class="faq-intro">Quick answers to common questions about RAD-XR, its founder, DICOM capabilities, and report workflow.</p>
 
