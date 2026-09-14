@@ -13,7 +13,6 @@
 <meta name="theme-color" content="#0b1a2e">
 <link rel="canonical" href="https://www.radxr.in/">
 
-<!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Free Online DICOM Viewer — DICOM to PDF & JPG Converter | RAD-XR">
 <meta property="og:description" content="View DICOM files (CT, MRI, X-ray) online for free and download as PDF or high-resolution JPG. Supports all DICOM transfer syntaxes. No upload, 100% private.">
@@ -21,13 +20,11 @@
 <meta property="og:site_name" content="RAD-XR">
 <meta property="og:image" content="https://www.radxr.in/footer.png">
 
-<!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Free Online DICOM Viewer — DICOM to PDF & JPG Converter">
 <meta name="twitter:description" content="View DICOM files online. Convert DICOM to PDF or JPG. All transfer syntaxes supported. Free, private, no upload.">
 <meta name="twitter:image" content="https://www.radxr.in/footer.png">
 
-<!-- Structured Data -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -87,16 +84,24 @@ body{
 .btn:disabled{background:#3a4a6b;cursor:not-allowed;transform:none;}
 .btn-secondary{background:#2d4a70;}
 .btn-secondary:hover{background:#3a5a80;}
-.main-grid{display:flex;gap:20px;}
-.left-panel{flex:1;min-width:0;display:flex;flex-direction:column;}
+.main-grid{display:flex;gap:20px;align-items:flex-start;}
+.left-panel{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;}
 .right-panel{width:280px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;}
+
+/* Viewer wrapper now shrinks to image width */
 .viewer-wrapper{
   position:relative;background:#000;border-radius:12px;overflow:hidden;margin-bottom:16px;
-  display:flex;justify-content:center;align-items:center;min-height:400px;
+  display:inline-flex;justify-content:center;align-items:center;
+  width:fit-content;max-width:100%;
 }
-.viewer-wrapper img,.viewer-wrapper canvas{display:block;max-width:100%;max-height:70vh;object-fit:contain;}
+.viewer-wrapper.full-width{width:100%;}
+.viewer-wrapper img,.viewer-wrapper canvas{
+  display:block;max-width:100%;max-height:70vh;object-fit:contain;
+}
+.viewer-wrapper img{height:auto;}
+
 .counter-row{text-align:center;font-size:1.05rem;font-weight:bold;padding:8px 0;color:var(--text-dim);}
-.tools{display:flex;flex-direction:column;gap:14px;background:var(--bg-panel);padding:16px 20px;border-radius:12px;}
+.tools{display:flex;flex-direction:column;gap:14px;background:var(--bg-panel);padding:16px 20px;border-radius:12px;width:100%;}
 .tool-group{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .tool-group label{font-weight:600;font-size:0.85rem;color:var(--text-dim);}
 .tool-group input[type="range"]{width:100px;}
@@ -130,7 +135,6 @@ body{
 .download-jpg-btn:hover{background:#2563eb;}
 .download-jpg-btn:disabled{background:#3a4a6b;cursor:not-allowed;}
 
-/* Inline slice navigator (inside tools panel) */
 .slice-nav-block{
   display:flex;flex-direction:column;gap:6px;
   padding:10px 0 4px;
@@ -177,7 +181,7 @@ body{
 .meta-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.9rem;}
 .meta-label{font-weight:600;color:var(--accent);}
 .meta-value{color:#c8d6e5;text-align:right;max-width:60%;word-break:break-word;}
-.mode-toggle{display:flex;gap:10px;margin-bottom:10px;}
+.mode-toggle{display:flex;gap:10px;margin-bottom:10px;width:100%;}
 .mode-toggle button{
   flex:1;padding:8px;border:none;border-radius:8px;background:#1e3c72;
   color:white;font-weight:bold;cursor:pointer;transition:all 0.2s;
@@ -204,7 +208,6 @@ body{
 .status.error{background:#6b1e1e;}
 .file-list{font-size:0.8rem;color:var(--text-dim);max-height:100px;overflow-y:auto;margin-top:10px;}
 
-/* SEO info section on upload screen */
 .seo-info{
   text-align:left;max-width:900px;margin:30px auto 0;padding:24px;
   background:var(--bg-panel);border-radius:12px;border:1px solid rgba(255,255,255,0.06);
@@ -237,7 +240,6 @@ body{
     <p>Free Online DICOM Viewer &amp; Converter</p>
   </div>
 
-  <!-- Upload panel -->
   <div id="uploadPanel" class="upload-panel">
     <h2>📁 Upload DICOM Files</h2>
     <p>Drag &amp; drop one or more .dcm files here, or click below to browse</p>
@@ -246,7 +248,6 @@ body{
     <div id="uploadStatus" class="status info"></div>
     <div id="fileList" class="file-list"></div>
 
-    <!-- ============ SEO INFO SECTION ============ -->
     <div class="seo-info">
       <h3>Free Online DICOM Viewer, DICOM to PDF &amp; DICOM to JPG Converter</h3>
       <p>RAD-XR is a free browser-based DICOM viewer that runs entirely on your device. No installation, no signup, no file upload — your medical images never leave your computer. Open CT, MRI, X-ray, Ultrasound, Mammography, PET, and other DICOM studies, and download them as an A4 PDF report or a high-resolution JPG image.</p>
@@ -286,7 +287,6 @@ body{
     </div>
   </div>
 
-  <!-- Viewer -->
   <div id="viewer" style="display:none;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap;">
       <div style="font-weight:600;">Patient: <span id="patientTitle" style="color:var(--accent);"></span></div>
@@ -358,7 +358,6 @@ body{
 
           <button class="reset-btn" id="resetFilters">Reset Filters</button>
 
-          <!-- 🔽 Inline slice navigator: right between Reset and Download PDF -->
           <div class="slice-nav-block" id="sliceNavBlock">
             <div class="slice-nav-counter" id="counter">1 / 1</div>
             <div class="slice-nav-controls">
@@ -383,7 +382,6 @@ body{
   </div>
 </div>
 
-<!-- ============ LIBRARIES ============ -->
 <script src="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/daikon@1.2.1/dist/daikon.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -391,9 +389,6 @@ body{
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
-/* =========================================================
-   CONSTANTS
-========================================================= */
 const INSTITUTE_NAME = 'RAD-XR';
 const FOOTER_IMAGE_PATH = 'footer.png';
 const FOOTER_LINK_URL = 'https://www.radxr.in';
@@ -403,16 +398,9 @@ if (window.pdfjsLib){
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
-/* =========================================================
-   GLOBAL STATE
-========================================================= */
 const state = {
-  dicoms: [],
-  frames: [],
-  volume: null,
-  currentIndex: 0,
-  currentMode: '2D',
-  footerImage: null
+  dicoms: [], frames: [], volume: null,
+  currentIndex: 0, currentMode: '2D', footerImage: null
 };
 
 const $ = id => document.getElementById(id);
@@ -423,9 +411,6 @@ function setStatus(el, msg, type='info'){
   if (type === 'info') setTimeout(() => { el.classList.remove('show'); }, 2500);
 }
 
-/* =========================================================
-   DICOM PARSING — ALL TRANSFER SYNTAXES
-========================================================= */
 function readFileAsArrayBuffer(file){
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -582,9 +567,6 @@ function frameToCanvas(dicom, frameIdx){
   return canvas;
 }
 
-/* =========================================================
-   FILE HANDLING
-========================================================= */
 async function handleFiles(files){
   const uploadStatus = $('uploadStatus');
   const fileListEl = $('fileList');
@@ -720,9 +702,6 @@ function buildVolume(){
   state.volume = { data: volume, dims: [newZ, newY, newX] };
 }
 
-/* =========================================================
-   VIEWER
-========================================================= */
 function updateViewer(index){
   if (index < 0) index = state.frames.length - 1;
   if (index >= state.frames.length) index = 0;
@@ -765,9 +744,6 @@ function resetAllFilters(){
   if (state.currentMode === '3D') update3DUniforms();
 }
 
-/* =========================================================
-   3D VOLUME VIEWER
-========================================================= */
 let three = {
   scene: null, camera: null, renderer: null, mesh: null,
   initialized: false, texture: null
@@ -881,8 +857,10 @@ function switchMode(mode){
 
   $('viewerImage').style.display = is3D ? 'none' : 'block';
   $('viewer3dContainer').style.display = is3D ? 'block' : 'none';
-  // Hide slice navigator in 3D mode
   $('sliceNavBlock').style.display = is3D ? 'none' : 'flex';
+
+  // Toggle wrapper full-width for 3D (needs full panel), shrink-to-fit for 2D
+  $('viewerWrapper').classList.toggle('full-width', is3D);
 
   $('wwGroup').style.display = is3D ? 'flex' : 'none';
   $('wlGroup').style.display = is3D ? 'flex' : 'none';
@@ -896,9 +874,6 @@ function switchMode(mode){
   }
 }
 
-/* =========================================================
-   FOOTER IMAGE
-========================================================= */
 function loadFooterImageFromPath(path){
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -930,9 +905,6 @@ async function initFooterImage(){
   }
 }
 
-/* =========================================================
-   PDF BUILDER
-========================================================= */
 function buildPDF(){
   const { jsPDF } = window.jspdf;
   if (!state.frames.length) throw new Error('No DICOM images loaded');
@@ -1061,17 +1033,11 @@ function formatDateForFilename(studyDate){
          d.getFullYear();
 }
 
-/* =========================================================
-   DOWNLOAD — PDF
-========================================================= */
 function downloadPDF(){
   const pdf = buildPDF();
   pdf.save(getOutputBaseName() + '.pdf');
 }
 
-/* =========================================================
-   DOWNLOAD — JPG (via PDF.js render at 3K+ resolution)
-========================================================= */
 async function downloadJPG(){
   const btnJpg = $('downloadJpgBtn');
   btnJpg.disabled = true;
@@ -1155,9 +1121,6 @@ async function downloadJPG(){
   }
 }
 
-/* =========================================================
-   EVENT WIRING
-========================================================= */
 $('fileInput').addEventListener('change', e => {
   if (e.target.files.length) handleFiles(e.target.files);
   e.target.value = '';
@@ -1233,9 +1196,6 @@ window.addEventListener('resize', () => {
   if (state.currentMode === '3D') resize3D();
 });
 
-/* =========================================================
-   BOOT
-========================================================= */
 initFooterImage();
 console.log('RAD-XR Web Viewer ready');
 </script>
