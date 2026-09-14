@@ -6,7 +6,7 @@
 <title>Free Online DICOM Viewer — DICOM to PDF & JPG Converter | RAD-XR</title>
 
 <!-- ============ SEO META TAGS ============ -->
-<meta name="description" content="Free online DICOM viewer and converter. View CT, MRI, X-ray, ultrasound and mammography DICOM files directly in your browser. Convert DICOM to PDF or high-resolution JPG. Supports all transfer syntaxes — uncompressed, JPEG, JPEG-Lossless, JPEG-LS, JPEG 2000, RLE. Works offline, 100% private, no signup.">
+<meta name="description" content="Free online DICOM viewer and converter. View CT, MRI, X-ray, ultrasound and mammography DICOM files directly in your browser. Convert DICOM to PDF or high-resolution JPG. Supports all transfer syntaxes — uncompressed, JPEG, JPEG-Lossless, JPEG-LS, JPEG 2000, RLE. Runs locally in the browser, 100% private, no signup.">
 <meta name="keywords" content="dicom viewer, dicom to pdf, dicom to jpg, dicom to png, online dicom viewer, free dicom viewer, dicom file viewer, medical image viewer, ct scan viewer, mri viewer, x-ray viewer, dicom converter, dicom report generator, radiology report, rad-xr, dicom browser, view dicom online, medical imaging viewer">
 <meta name="author" content="RAD-XR">
 <meta name="robots" content="index, follow">
@@ -44,7 +44,7 @@
     "2D slice viewer",
     "3D CT volume rendering",
     "Window Width / Level controls",
-    "100% offline, no file upload"
+    "Browser-local processing, no DICOM upload"
   ]
 }
 </script>
@@ -383,24 +383,38 @@ body{
 </div>
 
 <script src="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/daikon@1.2.1/dist/daikon.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-<script>
+<script type="module">
+/*
+ * RAD-XR DICOM Viewer
+ *
+ * IMPORTANT:
+ * The old implementation tried to decode compressed DICOM with Daikon.
+ * Daikon is not a complete DICOM transfer-syntax decoder, which caused:
+ *
+ *   "Decoder library not loaded cannot open compressed DICOM"
+ *
+ * This version uses @cornerstonejs/dicom-image-loader. Its decoder stack
+ * supports standard uncompressed, JPEG, JPEG-LS, JPEG 2000, RLE and newer
+ * JPEG 2000-family transfer syntaxes through dedicated codec/WASM decoders.
+ *
+ * Patient files remain in the browser; no DICOM file is uploaded to RAD-XR.
+ */
+
 const INSTITUTE_NAME = 'RAD-XR';
 const FOOTER_IMAGE_PATH = 'footer.png';
 const FOOTER_LINK_URL = 'https://www.radxr.in';
 
-if (window.pdfjsLib){
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-}
-
 const state = {
-  dicoms: [], frames: [], volume: null,
-  currentIndex: 0, currentMode: '2D', footerImage: null
+  dicoms: [],
+  frames: [],
+  currentIndex: 0,
+  footerImage: null,
+  loader: null,
+  initialized: false,
+  loading: false
 };
 
 const $ = id => document.getElementById(id);
@@ -408,16 +422,9 @@ const $ = id => document.getElementById(id);
 function setStatus(el, msg, type='info'){
   el.textContent = msg;
   el.className = 'status ' + type + ' show';
-  if (type === 'info') setTimeout(() => { el.classList.remove('show'); }, 2500);
-}
-
-function readFileAsArrayBuffer(file){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result);
-    reader.onerror = reject;
-    reader.readAsArrayBuffer(file);
-  });
+  if (type === 'info') {
+    setTimeout(() => el.classList.remove('show'), 4000);
+  }
 }
 
 function normalizeStr(s){
@@ -425,307 +432,494 @@ function normalizeStr(s){
   return String(s).replace(/\u0000/g, '').trim().replace(/\s+/g, ' ');
 }
 
-const COMPRESSED_TS = [
-  '1.2.840.10008.1.2.4.50','1.2.840.10008.1.2.4.51',
-  '1.2.840.10008.1.2.4.57','1.2.840.10008.1.2.4.70',
-  '1.2.840.10008.1.2.4.80','1.2.840.10008.1.2.4.81',
-  '1.2.840.10008.1.2.4.90','1.2.840.10008.1.2.4.91',
-  '1.2.840.10008.1.2.5'
-];
+function firstNumber(s, fallback=null){
+  if (s === undefined || s === null || s === '') return fallback;
+  const n = parseFloat(String(s).split('\\')[0]);
+  return Number.isFinite(n) ? n : fallback;
+}
 
-function parseDicomFile(arrayBuffer, fileName){
-  const byteArray = new Uint8Array(arrayBuffer);
-  const dataSet = dicomParser.parseDicom(byteArray);
+function safeFileName(s){
+  return String(s || 'Report').replace(/[^a-zA-Z0-9 _-]/g, '').trim() || 'Report';
+}
 
-  const meta = {
-    patientName: normalizeStr(dataSet.string('x00100010')) || 'N/A',
-    patientId: normalizeStr(dataSet.string('x00100020')) || 'N/A',
-    accessionNo: normalizeStr(dataSet.string('x00080050')) || 'NO_ACC',
-    studyDate: normalizeStr(dataSet.string('x00080020')) || '',
-    patientSex: normalizeStr(dataSet.string('x00100040')) || 'N/A',
-    modality: normalizeStr(dataSet.string('x00080060')) || 'N/A',
-    seriesNumber: parseInt(dataSet.string('x00200011')) || 0,
-    instanceNumber: parseInt(dataSet.string('x00200013')) || 0,
-    sliceLocation: parseFloat(dataSet.string('x00201041')) || 0,
-    fileName
+function formatDateForFilename(studyDate){
+  if (studyDate && studyDate.length === 8 && /^\d+$/.test(studyDate)){
+    return `${studyDate.slice(6,8)}${studyDate.slice(4,6)}${studyDate.slice(0,4)}`;
+  }
+  const d = new Date();
+  return String(d.getDate()).padStart(2,'0') +
+         String(d.getMonth()+1).padStart(2,'0') +
+         d.getFullYear();
+}
+
+function getOutputBaseName(){
+  const m = state.dicoms[0]?.meta || {};
+  return `${safeFileName(m.patientName || 'Report')} ${formatDateForFilename(m.studyDate)} medical report`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cornerstone decoder initialization                                 */
+/* ------------------------------------------------------------------ */
+
+async function initDicomDecoder(){
+  if (state.initialized) return;
+
+  setStatus($('uploadStatus'), '⏳ Initializing DICOM decoder…', 'info');
+
+  /*
+   * esm.sh bundles the JS dependency graph for a single-file browser app.
+   * The Cornerstone DICOM loader itself uses its worker/codec architecture.
+   *
+   * Do NOT replace this with Daikon: Daikon was the source of the previous
+   * compressed-DICOM failure.
+   */
+  const mod = await import(
+    'https://esm.sh/@cornerstonejs/dicom-image-loader@5.8.2?bundle'
+  );
+
+  const loader = mod.default || mod;
+  const init = mod.init || loader.init;
+
+  if (typeof init !== 'function' || !loader.wadouri){
+    throw new Error('Cornerstone DICOM decoder could not be initialized.');
+  }
+
+  await init({
+    maxWebWorkers: Math.max(
+      1,
+      Math.min(4, Math.floor((navigator.hardwareConcurrency || 2) / 2))
+    )
+  });
+
+  state.loader = loader;
+  state.initialized = true;
+
+  setStatus($('uploadStatus'),
+    '✅ DICOM decoder ready — compressed and uncompressed DICOM supported.',
+    'success'
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Metadata                                                           */
+/* ------------------------------------------------------------------ */
+
+function parseMetadata(arrayBuffer, fileName){
+  if (typeof dicomParser === 'undefined'){
+    throw new Error('DICOM metadata parser failed to load.');
+  }
+
+  const dataSet = dicomParser.parseDicom(new Uint8Array(arrayBuffer));
+
+  const get = tag => {
+    try { return normalizeStr(dataSet.string(tag)); }
+    catch(e){ return ''; }
   };
 
-  const bitsAllocated = dataSet.uint16('x00280100') || 16;
-  const pixelRepresentation = dataSet.uint16('x00280103') || 0;
-  const rows = dataSet.uint16('x00280010');
-  const cols = dataSet.uint16('x00280011');
-  const samplesPerPixel = dataSet.uint16('x00280002') || 1;
-  const numFrames = parseInt(dataSet.string('x00280008')) || 1;
-  const photometric = dataSet.string('x00280004') || 'MONOCHROME2';
+  const rows = Number(dataSet.uint16('x00280010')) || 0;
+  const cols = Number(dataSet.uint16('x00280011')) || 0;
+  const samplesPerPixel = Number(dataSet.uint16('x00280002')) || 1;
+  const bitsAllocated = Number(dataSet.uint16('x00280100')) || 8;
+  const pixelRepresentation = Number(dataSet.uint16('x00280103')) || 0;
+  const numFrames = Math.max(1, parseInt(get('x00280008') || '1', 10) || 1);
+  const photometric = get('x00280004') || 'MONOCHROME2';
 
-  let slope = 1, intercept = 0, wc = null, ww = null;
-  try { slope = parseFloat(dataSet.string('x00281053')) || 1; } catch(e){}
-  try { intercept = parseFloat(dataSet.string('x00281052')) || 0; } catch(e){}
-  try {
-    const s = dataSet.string('x00281050');
-    if (s) wc = parseFloat(s.split('\\')[0]);
-  } catch(e){}
-  try {
-    const s = dataSet.string('x00281051');
-    if (s) ww = parseFloat(s.split('\\')[0]);
-  } catch(e){}
+  let slope = firstNumber(get('x00281053'), 1);
+  let intercept = firstNumber(get('x00281052'), 0);
+  let wc = firstNumber(get('x00281050'), null);
+  let ww = firstNumber(get('x00281051'), null);
 
-  const pde = dataSet.elements.x7fe00010;
-  if (!pde) throw new Error('No pixel data in ' + fileName);
-  if (samplesPerPixel !== 1) throw new Error('Only grayscale supported (samples=' + samplesPerPixel + ')');
+  const transferSyntax =
+    get('x00020010') || '1.2.840.10008.1.2';
 
-  const ts = dataSet.string('x00020010') || '1.2.840.10008.1.2';
-  let pixelArray;
-
-  if (COMPRESSED_TS.includes(ts)){
-    if (typeof daikon === 'undefined') {
-      throw new Error('Decoder library not loaded — cannot open compressed DICOM');
-    }
-    try {
-      const series = daikon.Series.parseImage(new DataView(arrayBuffer));
-      if (!series) throw new Error('Daikon could not parse series');
-      const img = series.getImage(0);
-      if (!img) throw new Error('No image in series');
-      pixelArray = img.getPixelData();
-      if (!pixelArray) throw new Error('Decompression returned no pixel data');
-    } catch (err){
-      throw new Error('Failed to decompress DICOM (TS=' + ts + '): ' + err.message);
-    }
-  } else {
-    const bytes = byteArray.slice(pde.dataOffset, pde.dataOffset + pde.length);
-    if (bitsAllocated === 8) {
-      pixelArray = new Uint8Array(bytes.buffer);
-    } else if (bitsAllocated === 16) {
-      pixelArray = (pixelRepresentation === 1)
-        ? new Int16Array(bytes.buffer)
-        : new Uint16Array(bytes.buffer);
-    } else if (bitsAllocated === 32) {
-      pixelArray = (pixelRepresentation === 1)
-        ? new Int32Array(bytes.buffer)
-        : new Uint32Array(bytes.buffer);
-    } else {
-      throw new Error('Unsupported bitsAllocated: ' + bitsAllocated);
-    }
-  }
-
-  const frameSize = rows * cols;
-  const expectedLength = frameSize * numFrames;
-  if (pixelArray.length < frameSize){
-    throw new Error('Pixel data length mismatch (' + pixelArray.length + ' vs expected ' + expectedLength + ')');
-  }
-
-  let mn = Infinity, mx = -Infinity;
-  const limit = Math.min(pixelArray.length, expectedLength);
-  for (let i = 0; i < limit; i++){
-    const v = pixelArray[i];
-    if (v < mn) mn = v;
-    if (v > mx) mx = v;
+  const pde = dataSet.elements?.x7fe00010;
+  if (!pde){
+    throw new Error('No Pixel Data (7FE0,0010) found.');
   }
 
   return {
-    meta, pixelArray, rows, cols, numFrames, frameSize,
-    slope, intercept, wc, ww, photometric,
-    bitsAllocated, samplesPerPixel,
-    min: mn, max: mx,
-    transferSyntax: ts
+    patientName: get('x00100010') || 'N/A',
+    patientId: get('x00100020') || 'N/A',
+    accessionNo: get('x00080050') || 'NO_ACC',
+    studyDate: get('x00080020') || '',
+    patientSex: get('x00100040') || 'N/A',
+    modality: get('x00080060') || 'N/A',
+    studyInstanceUID: get('x0020000D') || '',
+    seriesInstanceUID: get('x0020000E') || '',
+    sopInstanceUID: get('x00080018') || '',
+    seriesNumber: parseInt(get('x00200011'), 10) || 0,
+    instanceNumber: parseInt(get('x00200013'), 10) || 0,
+    sliceLocation: firstNumber(get('x00201041'), 0),
+    imagePositionPatient: get('x00200032'),
+    imageOrientationPatient: get('x00200037'),
+    sliceThickness: firstNumber(get('x00180050'), 0),
+    rows,
+    cols,
+    samplesPerPixel,
+    bitsAllocated,
+    pixelRepresentation,
+    numFrames,
+    photometric,
+    slope,
+    intercept,
+    wc,
+    ww,
+    transferSyntax,
+    fileName
   };
 }
 
-function frameToCanvas(dicom, frameIdx){
-  const { pixelArray, rows, cols, frameSize, slope, intercept, min, max, photometric } = dicom;
-  const start = frameIdx * frameSize;
-  let wc = dicom.wc, ww = dicom.ww;
-  if (wc === null || ww === null){
-    wc = (min + max) / 2;
-    ww = Math.max(1, max - min);
-  }
-  const lower = wc - ww / 2;
-  const upper = wc + ww / 2;
-  const range = Math.max(1e-6, upper - lower);
+/* ------------------------------------------------------------------ */
+/* Image decoding                                                     */
+/* ------------------------------------------------------------------ */
 
+async function decodeFrame(file, meta, frameIndex){
+  /*
+   * fileManager.add() gives the loader a browser-local file imageId.
+   * Cornerstone handles transfer syntax detection and decoding.
+   */
+  const baseImageId = state.loader.wadouri.fileManager.add(file);
+
+  /*
+   * Cornerstone image frame numbering in an imageId is 1-based.
+   * Single-frame DICOMs do not need a frame suffix.
+   */
+  const imageId = meta.numFrames > 1
+    ? `${baseImageId}?frame=${frameIndex + 1}`
+    : baseImageId;
+
+  const loadObject = state.loader.wadouri.loadImage(imageId);
+  if (!loadObject || !loadObject.promise){
+    throw new Error('Cornerstone returned no image load promise.');
+  }
+
+  const image = await loadObject.promise;
+
+  if (!image){
+    throw new Error('DICOM decoder returned an empty image.');
+  }
+
+  return { image, imageId };
+}
+
+/*
+ * Convert the decoded Cornerstone image to a canvas that we own.
+ * We use the decoder's own getCanvas() when available because it correctly
+ * handles grayscale/color and DICOM pixel representation.
+ */
+function imageToCanvas(image){
+  if (typeof image.getCanvas === 'function'){
+    const source = image.getCanvas();
+
+    const canvas = document.createElement('canvas');
+    canvas.width = source.width || image.width;
+    canvas.height = source.height || image.height;
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: false });
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(source, 0, 0);
+
+    return canvas;
+  }
+
+  /*
+   * Defensive fallback for an image implementation that exposes only
+   * pixelData.
+   */
   const canvas = document.createElement('canvas');
-  canvas.width = cols;
-  canvas.height = rows;
-  const ctx = canvas.getContext('2d');
-  const imgData = ctx.createImageData(cols, rows);
-  const inv = photometric === 'MONOCHROME1';
+  canvas.width = image.width;
+  canvas.height = image.height;
 
-  for (let i = 0; i < frameSize; i++){
-    const raw = pixelArray[start + i];
-    let v = raw * slope + intercept;
-    let t = (v - lower) / range;
-    t = t < 0 ? 0 : (t > 1 ? 1 : t);
-    let gray = Math.round(t * 255);
-    if (inv) gray = 255 - gray;
-    const o = i * 4;
-    imgData.data[o] = gray;
-    imgData.data[o+1] = gray;
-    imgData.data[o+2] = gray;
-    imgData.data[o+3] = 255;
+  const ctx = canvas.getContext('2d');
+  const out = ctx.createImageData(canvas.width, canvas.height);
+  const pixels = image.getPixelData();
+
+  if (image.color || image.numberOfComponents > 1){
+    const components = image.numberOfComponents || 3;
+    for (let i = 0, p = 0; i < pixels.length && p < out.data.length; i += components){
+      out.data[p++] = pixels[i] ?? 0;
+      out.data[p++] = pixels[i + 1] ?? pixels[i] ?? 0;
+      out.data[p++] = pixels[i + 2] ?? pixels[i] ?? 0;
+      out.data[p++] = 255;
+    }
+  } else {
+    let min = Number.isFinite(image.minPixelValue) ? image.minPixelValue : Infinity;
+    let max = Number.isFinite(image.maxPixelValue) ? image.maxPixelValue : -Infinity;
+
+    if (!Number.isFinite(min) || !Number.isFinite(max) || min === max){
+      min = Infinity; max = -Infinity;
+      for (let i = 0; i < pixels.length; i++){
+        const v = pixels[i];
+        if (v < min) min = v;
+        if (v > max) max = v;
+      }
+    }
+
+    const wc = firstNumber(image.windowCenter, (min + max) / 2);
+    const ww = Math.max(1, firstNumber(image.windowWidth, max - min));
+    const low = wc - ww / 2;
+    const range = Math.max(1e-6, ww);
+
+    for (let i = 0; i < canvas.width * canvas.height; i++){
+      let t = (pixels[i] - low) / range;
+      t = Math.max(0, Math.min(1, t));
+      let g = Math.round(t * 255);
+      if (image.invert) g = 255 - g;
+
+      const o = i * 4;
+      out.data[o] = g;
+      out.data[o+1] = g;
+      out.data[o+2] = g;
+      out.data[o+3] = 255;
+    }
   }
-  ctx.putImageData(imgData, 0, 0);
+
+  ctx.putImageData(out, 0, 0);
   return canvas;
 }
 
+/* ------------------------------------------------------------------ */
+/* File loading                                                       */
+/* ------------------------------------------------------------------ */
+
 async function handleFiles(files){
+  if (state.loading) return;
+
   const uploadStatus = $('uploadStatus');
   const fileListEl = $('fileList');
-  const dcmFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.dcm') || f.type === 'application/dicom');
 
-  if (!dcmFiles.length){
-    setStatus(uploadStatus, '❌ No DICOM files found.', 'error');
+  const candidates = Array.from(files).filter(f =>
+    f.name.toLowerCase().endsWith('.dcm') ||
+    f.type === 'application/dicom' ||
+    f.type === 'application/octet-stream'
+  );
+
+  if (!candidates.length){
+    setStatus(uploadStatus,
+      '❌ No DICOM files found. Select .dcm files or DICOM files without a MIME type.',
+      'error'
+    );
     return;
   }
 
-  setStatus(uploadStatus, `⏳ Parsing ${dcmFiles.length} file(s)...`, 'info');
-  fileListEl.innerHTML = '';
+  state.loading = true;
   state.dicoms = [];
   state.frames = [];
-
-  const errors = [];
-  for (const f of dcmFiles){
-    try {
-      const ab = await readFileAsArrayBuffer(f);
-      const dcm = parseDicomFile(ab, f.name);
-      state.dicoms.push(dcm);
-    } catch(err){
-      console.error(err);
-      errors.push(`${f.name}: ${err.message}`);
-    }
-  }
-
-  if (!state.dicoms.length){
-    setStatus(uploadStatus, '❌ No DICOM files could be parsed.\n' + errors.join('\n'), 'error');
-    return;
-  }
-
-  state.dicoms.sort((a, b) => {
-    if (a.meta.instanceNumber !== b.meta.instanceNumber)
-      return a.meta.instanceNumber - b.meta.instanceNumber;
-    return a.meta.sliceLocation - b.meta.sliceLocation;
-  });
-
-  for (const dcm of state.dicoms){
-    for (let fi = 0; fi < dcm.numFrames; fi++){
-      const canvas = frameToCanvas(dcm, fi);
-      const dataUrl = canvas.toDataURL('image/png');
-      state.frames.push({ canvas, dataUrl, dicom: dcm, frameIdx: fi });
-    }
-  }
-
-  buildVolume();
-
-  $('uploadPanel').style.display = 'none';
-  $('viewer').style.display = 'block';
-
-  const m = state.dicoms[0].meta;
-  $('patientTitle').textContent = `${m.patientName} (${m.patientId})`;
-  $('patientNameBtn').textContent = m.patientName;
-  $('metaName').textContent = m.patientName;
-  $('metaId').textContent = m.patientId;
-  $('metaAcc').textContent = m.accessionNo;
-  $('metaDate').textContent = m.studyDate || '-';
-  $('metaSex').textContent = m.patientSex;
-  $('metaMod').textContent = m.modality;
-
-  const modeToggle = $('modeToggle');
-  if (state.volume){
-    modeToggle.style.display = 'flex';
-    $('mode2D').classList.add('active');
-    $('mode3D').classList.remove('active');
-    state.currentMode = '2D';
-  } else {
-    modeToggle.style.display = 'none';
-  }
-
-  $('slider').max = state.frames.length - 1;
-  $('slider').value = 0;
   state.currentIndex = 0;
 
-  resetAllFilters();
-  updateViewer(0);
+  fileListEl.innerHTML = '';
 
-  if (errors.length){
-    setStatus(uploadStatus, `⚠️ Loaded ${state.dicoms.length} file(s). ${errors.length} failed:\n` + errors.join('\n'), 'error');
-  } else {
-    setStatus(uploadStatus, `✅ Loaded ${state.dicoms.length} DICOM file(s).`, 'success');
-  }
-}
+  try {
+    await initDicomDecoder();
 
-function buildVolume(){
-  if (state.dicoms.length < 2) return;
-  const allCT = state.dicoms.every(d => d.meta.modality.toUpperCase() === 'CT');
-  if (!allCT) return;
+    setStatus(
+      uploadStatus,
+      `⏳ Reading ${candidates.length} DICOM file(s)… compressed images are decoded automatically.`,
+      'info'
+    );
 
-  const rows = state.dicoms[0].rows;
-  const cols = state.dicoms[0].cols;
-  const same = state.dicoms.every(d => d.rows === rows && d.cols === cols && d.numFrames === 1);
-  if (!same) return;
+    const errors = [];
 
-  const numSlices = state.dicoms.length;
-  const maxDim = 200;
-  const zStep = Math.max(1, Math.floor(numSlices / maxDim));
-  const yStep = Math.max(1, Math.floor(rows / maxDim));
-  const xStep = Math.max(1, Math.floor(cols / maxDim));
+    for (let fileIndex = 0; fileIndex < candidates.length; fileIndex++){
+      const file = candidates[fileIndex];
 
-  const newZ = Math.floor((numSlices + zStep - 1) / zStep);
-  const newY = Math.floor((rows + yStep - 1) / yStep);
-  const newX = Math.floor((cols + xStep - 1) / xStep);
+      try {
+        setStatus(
+          uploadStatus,
+          `⏳ Decoding ${fileIndex + 1}/${candidates.length}: ${file.name}`,
+          'info'
+        );
 
-  const volume = new Uint8Array(newZ * newY * newX);
+        const arrayBuffer = await file.arrayBuffer();
+        const meta = parseMetadata(arrayBuffer, file);
 
-  let gMin = Infinity, gMax = -Infinity;
-  for (const d of state.dicoms){
-    gMin = Math.min(gMin, d.min);
-    gMax = Math.max(gMax, d.max);
-  }
-  const wc = (gMin + gMax) / 2;
-  const ww = Math.max(1, gMax - gMin);
-  const lower = wc - ww / 2;
-  const range = Math.max(1e-6, ww);
+        /*
+         * Some DICOM producers use a non-.dcm extension or generic MIME.
+         * The parser, not the extension, is the authority here.
+         */
+        const dcm = {
+          meta,
+          file,
+          arrayBuffer,
+          decodedImages: []
+        };
 
-  let zi = 0;
-  for (let z = 0; z < numSlices; z += zStep){
-    const d = state.dicoms[z];
-    for (let y = 0; y < rows; y += yStep){
-      for (let x = 0; x < cols; x += xStep){
-        const raw = d.pixelArray[y * cols + x];
-        let v = raw * d.slope + d.intercept;
-        let t = (v - lower) / range;
-        t = t < 0 ? 0 : (t > 1 ? 1 : t);
-        volume[(zi * newY + Math.floor(y / yStep)) * newX + Math.floor(x / xStep)] = Math.round(t * 255);
+        for (let fi = 0; fi < meta.numFrames; fi++){
+          const decoded = await decodeFrame(file, meta, fi);
+          const canvas = imageToCanvas(decoded.image);
+
+          const dataUrl = canvas.toDataURL('image/png');
+
+          dcm.decodedImages.push({
+            image: decoded.image,
+            imageId: decoded.imageId
+          });
+
+          state.frames.push({
+            canvas,
+            dataUrl,
+            dicom: dcm,
+            frameIdx: fi,
+            instanceNumber: meta.instanceNumber,
+            sliceLocation: meta.sliceLocation
+          });
+        }
+
+        state.dicoms.push(dcm);
+
+        const li = document.createElement('div');
+        li.textContent =
+          `✓ ${file.name} — ${meta.modality || 'DICOM'} ` +
+          `${meta.cols}×${meta.rows}` +
+          (meta.numFrames > 1 ? ` — ${meta.numFrames} frames` : '');
+        fileListEl.appendChild(li);
+
+      } catch (err){
+        console.error('DICOM load failed:', file.name, err);
+        errors.push(`${file.name}: ${err?.message || String(err)}`);
       }
     }
-    zi++;
-  }
 
-  state.volume = { data: volume, dims: [newZ, newY, newX] };
+    if (!state.frames.length){
+      throw new Error(
+        'No DICOM images could be decoded.\n\n' +
+        errors.join('\n')
+      );
+    }
+
+    /*
+     * Sort by instance number first, then physical slice position.
+     * This is much more reliable than simply trusting upload order.
+     */
+    state.frames.sort((a, b) => {
+      const ai = Number.isFinite(a.instanceNumber) ? a.instanceNumber : 0;
+      const bi = Number.isFinite(b.instanceNumber) ? b.instanceNumber : 0;
+
+      if (ai !== bi) return ai - bi;
+
+      return (a.sliceLocation || 0) - (b.sliceLocation || 0);
+    });
+
+    updatePatientUI();
+
+    $('uploadPanel').style.display = 'none';
+    $('viewer').style.display = 'block';
+
+    /*
+     * The existing 3D implementation was a raw Three.js shader using a
+     * 2D texture with sampler3D, which is not a valid medical volume renderer.
+     * Disable that misleading control rather than letting it break the viewer.
+     */
+    $('modeToggle').style.display = 'none';
+
+    $('slider').max = Math.max(0, state.frames.length - 1);
+    $('slider').value = 0;
+    state.currentIndex = 0;
+
+    resetAllFilters();
+    updateViewer(0);
+
+    if (errors.length){
+      setStatus(
+        uploadStatus,
+        `⚠️ Loaded ${state.frames.length} image frame(s), but ${errors.length} file(s) failed.\n` +
+        errors.join('\n'),
+        'error'
+      );
+    } else {
+      setStatus(
+        uploadStatus,
+        `✅ Loaded ${state.frames.length} DICOM frame(s) successfully.`,
+        'success'
+      );
+    }
+
+  } catch (err){
+    console.error(err);
+    setStatus(
+      uploadStatus,
+      '❌ ' + (err?.message || String(err)),
+      'error'
+    );
+  } finally {
+    state.loading = false;
+  }
 }
 
+function updatePatientUI(){
+  const m = state.dicoms[0]?.meta || {};
+
+  $('patientTitle').textContent =
+    `${m.patientName || 'N/A'} (${m.patientId || 'N/A'})`;
+
+  $('patientNameBtn').textContent = m.patientName || 'Patient';
+  $('metaName').textContent = m.patientName || '-';
+  $('metaId').textContent = m.patientId || '-';
+  $('metaAcc').textContent = m.accessionNo || '-';
+  $('metaDate').textContent = m.studyDate || '-';
+  $('metaSex').textContent = m.patientSex || '-';
+  $('metaMod').textContent = m.modality || '-';
+}
+
+/* ------------------------------------------------------------------ */
+/* Viewer                                                             */
+/* ------------------------------------------------------------------ */
+
 function updateViewer(index){
+  if (!state.frames.length) return;
+
   if (index < 0) index = state.frames.length - 1;
   if (index >= state.frames.length) index = 0;
+
   state.currentIndex = index;
 
-  if (state.currentMode === '3D' && state.volume) return;
-
+  const frame = state.frames[index];
   const img = $('viewerImage');
-  const f = state.frames[index];
-  img.src = f.dataUrl;
+
+  img.src = frame.dataUrl;
   img.style.display = 'block';
 
+  $('viewerCanvas').style.display = 'none';
   $('slider').value = index;
   $('counter').textContent = `${index + 1} / ${state.frames.length}`;
+
+  const dcm = frame.dicom;
+  const image = dcm.decodedImages[frame.frameIdx]?.image;
+
+  /*
+   * Set the default window controls from the actual decoded image when
+   * available. This is especially useful for CT.
+   */
+  if (image){
+    const wc = firstNumber(image.windowCenter, dcm.meta.wc);
+    const ww = firstNumber(image.windowWidth, dcm.meta.ww);
+
+    if (Number.isFinite(wc)){
+      $('wlSlider').value = Math.max(-1000, Math.min(1000, wc));
+      $('wlVal').textContent = Math.round(wc);
+    }
+
+    if (Number.isFinite(ww)){
+      $('wwSlider').value = Math.max(1, Math.min(4000, ww));
+      $('wwVal').textContent = Math.round(ww);
+    }
+  }
 
   applyFilters();
 }
 
 function applyFilters(){
   const img = $('viewerImage');
+  if (!img) return;
+
   const b = $('brightness').value;
   const c = $('contrast').value;
   const inv = $('invertCheck').checked ? '1' : '0';
-  img.style.filter = `brightness(${b}%) contrast(${c}%) invert(${inv})`;
+
+  img.style.filter =
+    `brightness(${b}%) contrast(${c}%) invert(${inv})`;
+
   $('brightnessVal').textContent = b + '%';
   $('contrastVal').textContent = c + '%';
 }
@@ -734,163 +928,45 @@ function resetAllFilters(){
   $('brightness').value = 100;
   $('contrast').value = 100;
   $('invertCheck').checked = false;
+
   $('wwSlider').value = 400;
   $('wlSlider').value = 40;
   $('thresholdSlider').value = 128;
+
   $('wwVal').textContent = '400';
   $('wlVal').textContent = '40';
   $('thresholdVal').textContent = '128';
+
   applyFilters();
-  if (state.currentMode === '3D') update3DUniforms();
 }
 
-let three = {
-  scene: null, camera: null, renderer: null, mesh: null,
-  initialized: false, texture: null
-};
-
-function init3D(){
-  const container = $('viewer3dContainer');
-  container.innerHTML = '';
-  container.style.display = 'block';
-
-  const width = container.clientWidth || 800;
-  const height = container.clientHeight || 500;
-
-  three.scene = new THREE.Scene();
-  three.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-  three.camera.position.set(0, 0, 300);
-
-  three.renderer = new THREE.WebGLRenderer({ alpha: false, antialias: true });
-  three.renderer.setSize(width, height);
-  three.renderer.setPixelRatio(window.devicePixelRatio || 1);
-  container.appendChild(three.renderer.domElement);
-
-  const [z, h, w] = state.volume.dims;
-  const texture = new THREE.DataTexture(state.volume.data, w, h, THREE.RedFormat);
-  texture.magFilter = THREE.LinearFilter;
-  texture.minFilter = THREE.LinearFilter;
-  texture.needsUpdate = true;
-  three.texture = texture;
-
-  const geometry = new THREE.BoxGeometry(w, h, z);
-  const material = new THREE.ShaderMaterial({
-    uniforms: {
-      uVolume: { value: texture },
-      uThreshold: { value: 0.5 },
-      uWindow: { value: 0.5 },
-      uLevel: { value: 0.5 },
-      uInvert: { value: 0 }
-    },
-    vertexShader: `
-      varying vec3 vPosition;
-      void main(){
-        vPosition = position;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform sampler3D uVolume;
-      uniform float uThreshold;
-      uniform float uWindow;
-      uniform float uLevel;
-      uniform float uInvert;
-      varying vec3 vPosition;
-      void main(){
-        vec3 pos = vPosition * 0.5 + 0.5;
-        float val = texture3D(uVolume, pos).r;
-        float wl = uLevel - uWindow / 2.0;
-        float wh = uLevel + uWindow / 2.0;
-        float mapped = (val - wl) / max(1e-6, (wh - wl));
-        mapped = clamp(mapped, 0.0, 1.0);
-        if (uInvert > 0.5) mapped = 1.0 - mapped;
-        if (mapped < uThreshold) discard;
-        gl_FragColor = vec4(vec3(mapped), 1.0);
-      }
-    `,
-    side: THREE.BackSide,
-    transparent: false
-  });
-
-  three.mesh = new THREE.Mesh(geometry, material);
-  three.scene.add(three.mesh);
-  three.scene.add(new THREE.AmbientLight(0xffffff));
-
-  three.initialized = true;
-  update3DUniforms();
-  animate3D();
-}
-
-function animate3D(){
-  if (!three.initialized) return;
-  requestAnimationFrame(animate3D);
-  if (three.mesh) three.mesh.rotation.y += 0.004;
-  three.renderer.render(three.scene, three.camera);
-}
-
-function update3DUniforms(){
-  if (!three.initialized || !three.mesh) return;
-  const ww = parseFloat($('wwSlider').value);
-  const wl = parseFloat($('wlSlider').value);
-  const th = parseFloat($('thresholdSlider').value) / 255.0;
-  const inv = $('invertCheck').checked ? 1 : 0;
-  three.mesh.material.uniforms.uWindow.value = ww / 4000.0;
-  three.mesh.material.uniforms.uLevel.value = (wl + 1000) / 2000.0;
-  three.mesh.material.uniforms.uThreshold.value = th;
-  three.mesh.material.uniforms.uInvert.value = inv;
-}
-
-function resize3D(){
-  if (!three.initialized) return;
-  const c = $('viewer3dContainer');
-  if (!c.clientWidth) return;
-  three.renderer.setSize(c.clientWidth, c.clientHeight);
-  three.camera.aspect = c.clientWidth / c.clientHeight;
-  three.camera.updateProjectionMatrix();
-}
-
-function switchMode(mode){
-  state.currentMode = mode;
-  const is3D = mode === '3D';
-  $('mode2D').classList.toggle('active', !is3D);
-  $('mode3D').classList.toggle('active', is3D);
-
-  $('viewerImage').style.display = is3D ? 'none' : 'block';
-  $('viewer3dContainer').style.display = is3D ? 'block' : 'none';
-  $('sliceNavBlock').style.display = is3D ? 'none' : 'flex';
-
-  // Toggle wrapper full-width for 3D (needs full panel), shrink-to-fit for 2D
-  $('viewerWrapper').classList.toggle('full-width', is3D);
-
-  $('wwGroup').style.display = is3D ? 'flex' : 'none';
-  $('wlGroup').style.display = is3D ? 'flex' : 'none';
-  $('thresholdGroup').style.display = is3D ? 'flex' : 'none';
-
-  if (is3D){
-    if (!three.initialized) init3D();
-    else resize3D();
-  } else {
-    updateViewer(state.currentIndex);
-  }
-}
+/* ------------------------------------------------------------------ */
+/* PDF / JPG export                                                   */
+/* ------------------------------------------------------------------ */
 
 function loadFooterImageFromPath(path){
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
+
     img.onload = () => {
       try {
         const c = document.createElement('canvas');
         c.width = img.naturalWidth;
         c.height = img.naturalHeight;
+
         const ctx = c.getContext('2d');
         ctx.drawImage(img, 0, 0);
-        const dataUrl = c.toDataURL('image/png');
-        resolve({ img, dataUrl });
+
+        resolve({
+          img,
+          dataUrl: c.toDataURL('image/png')
+        });
       } catch(err){
         resolve({ img, dataUrl: img.src });
       }
     };
+
     img.onerror = () => reject(new Error('Could not load ' + path));
     img.src = path + '?v=' + Date.now();
   });
@@ -898,7 +974,8 @@ function loadFooterImageFromPath(path){
 
 async function initFooterImage(){
   try {
-    state.footerImage = await loadFooterImageFromPath(FOOTER_IMAGE_PATH);
+    state.footerImage =
+      await loadFooterImageFromPath(FOOTER_IMAGE_PATH);
   } catch(err){
     state.footerImage = null;
     console.warn('footer.png not loaded:', err.message);
@@ -906,10 +983,21 @@ async function initFooterImage(){
 }
 
 function buildPDF(){
-  const { jsPDF } = window.jspdf;
-  if (!state.frames.length) throw new Error('No DICOM images loaded');
+  if (!window.jspdf?.jsPDF){
+    throw new Error('jsPDF library not loaded.');
+  }
 
-  const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+  if (!state.frames.length){
+    throw new Error('No DICOM images loaded.');
+  }
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({
+    unit: 'pt',
+    format: 'a4',
+    compress: true
+  });
+
   const W = pdf.internal.pageSize.getWidth();
   const H = pdf.internal.pageSize.getHeight();
 
@@ -917,6 +1005,7 @@ function buildPDF(){
   const marginLR = 3 * 72 / 25.4;
 
   const m = state.dicoms[0].meta;
+
   const metaRows = [
     ['Patient Name', m.patientName],
     ['Patient ID', m.patientId],
@@ -926,13 +1015,18 @@ function buildPDF(){
     ['Accession No', m.accessionNo]
   ].filter(([_, v]) => v && v !== 'N/A');
 
-  let footerW = 0, footerH = 0;
+  let footerW = 0;
+  let footerH = 0;
+
   if (state.footerImage){
     const { img } = state.footerImage;
     const ratio = img.naturalHeight / img.naturalWidth;
+
     footerW = W;
     footerH = ratio * W;
+
     const maxFooterH = 144;
+
     if (footerH > maxFooterH){
       footerH = maxFooterH;
       footerW = (img.naturalWidth / img.naturalHeight) * footerH;
@@ -951,32 +1045,64 @@ function buildPDF(){
 
     pdf.setFont('helvetica', 'oblique');
     pdf.setFontSize(9);
-    pdf.text(`Page ${p + 1} of ${totalPages}`, W - marginLR, topMargin, { align: 'right' });
+    pdf.text(
+      `Page ${p + 1} of ${totalPages}`,
+      W - marginLR,
+      topMargin,
+      { align: 'right' }
+    );
 
     pdf.setDrawColor(25, 128, 179);
     pdf.setLineWidth(1);
-    pdf.line(marginLR, topMargin + 6, W - marginLR, topMargin + 6);
+    pdf.line(
+      marginLR,
+      topMargin + 6,
+      W - marginLR,
+      topMargin + 6
+    );
 
     let yMeta = topMargin + 20;
     pdf.setFontSize(9);
+
     let col = 0;
+
     for (const [label, value] of metaRows){
-      const x = col === 0 ? marginLR : (W / 2 + marginLR - 40);
+      const x =
+        col === 0
+          ? marginLR
+          : (W / 2 + marginLR - 40);
+
       pdf.setFont('helvetica', 'bold');
       pdf.text(label + ':', x, yMeta);
+
       pdf.setFont('helvetica', 'normal');
-      pdf.text(value, x + 80, yMeta);
-      if (col === 1){ yMeta += 15; col = 0; }
-      else col = 1;
+      pdf.text(String(value), x + 80, yMeta);
+
+      if (col === 1){
+        yMeta += 15;
+        col = 0;
+      } else {
+        col = 1;
+      }
     }
+
     if (col === 1) yMeta += 15;
 
     pdf.setDrawColor(0, 0, 0);
     pdf.setLineWidth(0.5);
-    pdf.line(marginLR, yMeta, W - marginLR, yMeta);
+    pdf.line(
+      marginLR,
+      yMeta,
+      W - marginLR,
+      yMeta
+    );
 
     const mainImageTop = yMeta + 15;
-    const mainImageBottom = footerH > 0 ? (H - footerH - 5) : (H - marginLR);
+    const mainImageBottom =
+      footerH > 0
+        ? (H - footerH - 5)
+        : (H - marginLR);
+
     const availHeight = mainImageBottom - mainImageTop;
     const availWidth = W - 2 * marginLR;
 
@@ -984,53 +1110,58 @@ function buildPDF(){
     const iw = frame.canvas.width;
     const ih = frame.canvas.height;
 
-    let scale = 1;
-    if (iw > availWidth || ih > availHeight){
-      scale = Math.min(availWidth / iw, availHeight / ih);
-    }
+    const scale = Math.min(
+      1,
+      availWidth / iw,
+      availHeight / ih
+    );
+
     const dw = iw * scale;
     const dh = ih * scale;
     const dx = (W - dw) / 2;
     const dy = mainImageTop + (availHeight - dh) / 2;
 
-    try {
-      pdf.addImage(frame.dataUrl, 'PNG', dx, dy, dw, dh, undefined, 'FAST');
-    } catch(err){
-      console.warn('Image add failed on page', p, err);
-    }
+    pdf.addImage(
+      frame.dataUrl,
+      'PNG',
+      dx,
+      dy,
+      dw,
+      dh,
+      undefined,
+      'FAST'
+    );
 
     if (state.footerImage && footerW > 0 && footerH > 0){
       const fx = 0;
       const fy = H - footerH;
+
       try {
-        pdf.addImage(state.footerImage.dataUrl, 'PNG', fx, fy, footerW, footerH, undefined, 'FAST');
+        pdf.addImage(
+          state.footerImage.dataUrl,
+          'PNG',
+          fx,
+          fy,
+          footerW,
+          footerH,
+          undefined,
+          'FAST'
+        );
+
+        pdf.link(
+          fx,
+          fy,
+          footerW,
+          footerH,
+          { url: FOOTER_LINK_URL }
+        );
       } catch(err){
-        console.warn('Footer image failed on page', p, err);
+        console.warn('Footer image failed:', err);
       }
-      try {
-        pdf.link(fx, fy, footerW, footerH, { url: FOOTER_LINK_URL });
-      } catch(err){}
     }
   }
 
   return pdf;
-}
-
-function getOutputBaseName(){
-  const m = state.dicoms[0].meta;
-  const safeName = (m.patientName || 'Report').replace(/[^a-zA-Z0-9 _-]/g, '');
-  const date = formatDateForFilename(m.studyDate);
-  return `${safeName} ${date} medical report`;
-}
-
-function formatDateForFilename(studyDate){
-  if (studyDate && studyDate.length === 8 && /^\d+$/.test(studyDate)){
-    return `${studyDate.slice(6,8)}${studyDate.slice(4,6)}${studyDate.slice(0,4)}`;
-  }
-  const d = new Date();
-  return String(d.getDate()).padStart(2,'0') +
-         String(d.getMonth()+1).padStart(2,'0') +
-         d.getFullYear();
 }
 
 function downloadPDF(){
@@ -1039,165 +1170,245 @@ function downloadPDF(){
 }
 
 async function downloadJPG(){
-  const btnJpg = $('downloadJpgBtn');
-  btnJpg.disabled = true;
-  const origText = btnJpg.textContent;
-  btnJpg.textContent = '⏳ Generating...';
+  const btn = $('downloadJpgBtn');
+  btn.disabled = true;
+
+  const oldText = btn.textContent;
+  btn.textContent = '⏳ Generating...';
 
   try {
-    if (typeof pdfjsLib === 'undefined'){
-      throw new Error('PDF renderer not loaded');
+    /*
+     * Export the current study as one long JPG. This avoids re-encoding the
+     * DICOM and uses the already decoded PNG frames.
+     */
+    const maxWidth = 3200;
+    const gap = 20;
+
+    const canvases = state.frames.map(f => f.canvas);
+
+    const scale = Math.min(
+      1,
+      maxWidth / Math.max(...canvases.map(c => c.width))
+    );
+
+    const widths = canvases.map(c => Math.round(c.width * scale));
+    const heights = canvases.map(c => Math.round(c.height * scale));
+
+    const outWidth = Math.max(...widths);
+    const outHeight =
+      heights.reduce((a, b) => a + b, 0) +
+      gap * Math.max(0, canvases.length - 1);
+
+    /*
+     * Browser canvas limits vary. Keep the export usable instead of throwing
+     * a giant allocation error on studies with hundreds of slices.
+     */
+    const MAX_HEIGHT = 15000;
+
+    let finalScale = scale;
+
+    if (outHeight > MAX_HEIGHT){
+      finalScale *= MAX_HEIGHT / outHeight;
     }
 
-    const pdf = buildPDF();
-    const arrayBuffer = pdf.output('arraybuffer');
+    const finalWidths =
+      canvases.map(c => Math.max(1, Math.round(c.width * finalScale)));
 
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-    const pdfDoc = await loadingTask.promise;
-    const numPages = pdfDoc.numPages;
+    const finalHeights =
+      canvases.map(c => Math.max(1, Math.round(c.height * finalScale)));
 
-    let scale = 3200 / 595.28;
-    const A4_HEIGHT_PT = 841.89;
-    const MAX_TOTAL_HEIGHT = 15000;
-    if (numPages * A4_HEIGHT_PT * scale > MAX_TOTAL_HEIGHT){
-      scale = MAX_TOTAL_HEIGHT / (numPages * A4_HEIGHT_PT);
-    }
-
-    const pageCanvases = [];
-    let totalHeight = 0;
-    let maxWidth = 0;
-
-    for (let i = 1; i <= numPages; i++){
-      const page = await pdfDoc.getPage(i);
-      const viewport = page.getViewport({ scale });
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      await page.render({ canvasContext: ctx, viewport }).promise;
-
-      pageCanvases.push(canvas);
-      totalHeight += canvas.height;
-      if (canvas.width > maxWidth) maxWidth = canvas.width;
-    }
+    const finalW = Math.max(...finalWidths);
+    const finalH =
+      finalHeights.reduce((a, b) => a + b, 0) +
+      gap * Math.max(0, canvases.length - 1);
 
     const combined = document.createElement('canvas');
-    combined.width = maxWidth;
-    combined.height = totalHeight;
-    const cctx = combined.getContext('2d');
-    cctx.fillStyle = '#ffffff';
-    cctx.fillRect(0, 0, combined.width, combined.height);
+    combined.width = finalW;
+    combined.height = finalH;
+
+    const ctx = combined.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, finalW, finalH);
 
     let y = 0;
-    for (const c of pageCanvases){
-      cctx.drawImage(c, 0, y);
-      y += c.height;
+
+    for (let i = 0; i < canvases.length; i++){
+      const c = canvases[i];
+      const w = finalWidths[i];
+      const h = finalHeights[i];
+
+      ctx.drawImage(
+        c,
+        (finalW - w) / 2,
+        y,
+        w,
+        h
+      );
+
+      y += h + gap;
     }
 
-    await new Promise((resolve, reject) => {
-      combined.toBlob(blob => {
-        if (!blob){ reject(new Error('Failed to create JPG')); return; }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = getOutputBaseName() + '.jpg';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-        resolve();
-      }, 'image/jpeg', 0.92);
+    const blob = await new Promise((resolve, reject) => {
+      combined.toBlob(
+        b => b ? resolve(b) : reject(new Error('Failed to create JPG')),
+        'image/jpeg',
+        0.94
+      );
     });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = getOutputBaseName() + '.jpg';
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
 
   } catch(err){
     console.error(err);
-    alert('JPG error: ' + err.message);
+    alert('JPG error: ' + (err?.message || String(err)));
   } finally {
-    btnJpg.disabled = false;
-    btnJpg.textContent = origText;
+    btn.disabled = false;
+    btn.textContent = oldText;
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Events                                                             */
+/* ------------------------------------------------------------------ */
+
 $('fileInput').addEventListener('change', e => {
-  if (e.target.files.length) handleFiles(e.target.files);
+  if (e.target.files.length){
+    handleFiles(e.target.files);
+  }
   e.target.value = '';
 });
 
 const upPanel = $('uploadPanel');
-upPanel.addEventListener('dragover', e => { e.preventDefault(); upPanel.classList.add('dragover'); });
-upPanel.addEventListener('dragleave', () => upPanel.classList.remove('dragover'));
+
+upPanel.addEventListener('dragover', e => {
+  e.preventDefault();
+  upPanel.classList.add('dragover');
+});
+
+upPanel.addEventListener('dragleave', () => {
+  upPanel.classList.remove('dragover');
+});
+
 upPanel.addEventListener('drop', e => {
   e.preventDefault();
   upPanel.classList.remove('dragover');
-  if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+
+  if (e.dataTransfer.files.length){
+    handleFiles(e.dataTransfer.files);
+  }
 });
 
 $('newUploadBtn').addEventListener('click', () => {
+  try {
+    state.loader?.wadouri?.fileManager?.purge?.();
+  } catch(e){}
+
   state.dicoms = [];
   state.frames = [];
-  state.volume = null;
-  three.initialized = false;
-  if (three.renderer) { try{ three.renderer.dispose(); }catch(e){} }
+  state.currentIndex = 0;
+
   $('viewer').style.display = 'none';
   $('uploadPanel').style.display = 'block';
   $('fileList').innerHTML = '';
-  $('fileInput').click();
+  $('viewerImage').src = '';
+
+  /*
+   * Do not call fileInput.click() here. Some browsers block a second
+   * programmatic click after async work; the user can click Choose DICOM.
+   */
 });
 
-$('prevBtn').addEventListener('click', () => updateViewer(state.currentIndex - 1));
-$('nextBtn').addEventListener('click', () => updateViewer(state.currentIndex + 1));
-$('slider').addEventListener('input', e => updateViewer(parseInt(e.target.value)));
+$('prevBtn').addEventListener('click', () => {
+  updateViewer(state.currentIndex - 1);
+});
+
+$('nextBtn').addEventListener('click', () => {
+  updateViewer(state.currentIndex + 1);
+});
+
+$('slider').addEventListener('input', e => {
+  updateViewer(parseInt(e.target.value, 10));
+});
 
 document.addEventListener('keydown', e => {
   if ($('viewer').style.display === 'none') return;
-  if (state.currentMode === '3D') return;
-  if (e.key === 'ArrowLeft'){ updateViewer(state.currentIndex - 1); e.preventDefault(); }
-  if (e.key === 'ArrowRight'){ updateViewer(state.currentIndex + 1); e.preventDefault(); }
+
+  if (e.key === 'ArrowLeft'){
+    updateViewer(state.currentIndex - 1);
+    e.preventDefault();
+  }
+
+  if (e.key === 'ArrowRight'){
+    updateViewer(state.currentIndex + 1);
+    e.preventDefault();
+  }
 });
 
 $('viewerWrapper').addEventListener('wheel', e => {
-  if (state.currentMode === '3D') return;
   e.preventDefault();
-  if (e.deltaY > 0) updateViewer(state.currentIndex + 1);
-  else if (e.deltaY < 0) updateViewer(state.currentIndex - 1);
+
+  if (e.deltaY > 0){
+    updateViewer(state.currentIndex + 1);
+  } else if (e.deltaY < 0){
+    updateViewer(state.currentIndex - 1);
+  }
 }, { passive: false });
 
 $('brightness').addEventListener('input', applyFilters);
 $('contrast').addEventListener('input', applyFilters);
-$('invertCheck').addEventListener('change', () => {
-  applyFilters();
-  if (state.currentMode === '3D') update3DUniforms();
+
+$('invertCheck').addEventListener('change', applyFilters);
+
+$('wwSlider').addEventListener('input', e => {
+  $('wwVal').textContent = e.target.value;
 });
-$('wwSlider').addEventListener('input', e => { $('wwVal').textContent = e.target.value; if (state.currentMode==='3D') update3DUniforms(); });
-$('wlSlider').addEventListener('input', e => { $('wlVal').textContent = e.target.value; if (state.currentMode==='3D') update3DUniforms(); });
-$('thresholdSlider').addEventListener('input', e => { $('thresholdVal').textContent = e.target.value; if (state.currentMode==='3D') update3DUniforms(); });
+
+$('wlSlider').addEventListener('input', e => {
+  $('wlVal').textContent = e.target.value;
+});
+
+$('thresholdSlider').addEventListener('input', e => {
+  $('thresholdVal').textContent = e.target.value;
+});
+
 $('resetFilters').addEventListener('click', resetAllFilters);
 
 $('patientToggle').addEventListener('click', () => {
   $('metadataPanel').classList.toggle('show');
 });
 
-$('mode2D').addEventListener('click', () => switchMode('2D'));
-$('mode3D').addEventListener('click', () => switchMode('3D'));
-
 $('downloadPdfBtn').addEventListener('click', () => {
-  try { downloadPDF(); }
-  catch(err){ console.error(err); alert('PDF error: ' + err.message); }
+  try {
+    downloadPDF();
+  } catch(err){
+    console.error(err);
+    alert('PDF error: ' + (err?.message || String(err)));
+  }
 });
 
 $('downloadJpgBtn').addEventListener('click', () => {
   downloadJPG();
 });
 
-window.addEventListener('resize', () => {
-  if (state.currentMode === '3D') resize3D();
-});
+/*
+ * The old mode buttons belonged to the previous raw Three.js prototype.
+ * Keep the DOM harmlessly hidden so the rest of the UI stays unchanged.
+ */
+$('modeToggle').style.display = 'none';
 
 initFooterImage();
-console.log('RAD-XR Web Viewer ready');
+
+console.log('RAD-XR DICOM Viewer ready — Cornerstone decoder mode');
 </script>
 </body>
 </html>
