@@ -2,75 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <!-- =========================================
          RAD-XR - Primary SEO
     ========================================== -->
-
     <title>RAD-XR | DICOM PACS &amp; Radiology Workflow Software</title>
-
     <meta name="description" content="RAD-XR is DICOM PACS and radiology workflow software for receiving DICOM medical images, managing patient studies, generating PDF reports, and supporting radiology workflows. Developed by Sandeep Yadav." />
-
     <meta name="keywords" content="RAD-XR, RADXR, DICOM PACS, PACS software, radiology workflow software, DICOM receiver, medical imaging software, DICOM software, Sandeep Yadav, RAD-XR founder" />
-
     <meta name="author" content="Sandeep Yadav">
-
     <meta name="robots" content="index, follow">
-
     <meta name="googlebot" content="index, follow">
-
     <meta name="bingbot" content="index, follow">
-
 
     <!-- =========================================
          Canonical URL
     ========================================== -->
-
     <link rel="canonical" href="https://radxr.in/">
-
 
     <!-- =========================================
          Open Graph / Social Media
     ========================================== -->
-
     <meta property="og:type" content="website">
-
     <meta property="og:site_name" content="RAD-XR">
-
-    <meta property="og:title"
-          content="RAD-XR | DICOM PACS & Radiology Workflow Software"
-
-    <meta property="og:description"
-          content="RAD-XR is DICOM PACS and radiology workflow software for DICOM receiving, patient study management, PDF report generation, and radiology workflows.">
-
+    <meta property="og:title" content="RAD-XR | DICOM PACS & Radiology Workflow Software">
+    <meta property="og:description" content="RAD-XR is DICOM PACS and radiology workflow software for DICOM receiving, patient study management, PDF report generation, and radiology workflows.">
     <meta property="og:url" content="https://radxr.in/">
-
 
     <!-- =========================================
          Twitter / X
     ========================================== -->
-
     <meta name="twitter:card" content="summary">
-
-    <meta name="twitter:title"
-          content="RAD-XR | DICOM PACS & Radiology Workflow Software"
-
-    <meta name="twitter:description"
-          content="RAD-XR is DICOM PACS and radiology workflow software for DICOM receiving, patient study management, PDF report generation, and radiology workflows.">
-
+    <meta name="twitter:title" content="RAD-XR | DICOM PACS & Radiology Workflow Software">
+    <meta name="twitter:description" content="RAD-XR is DICOM PACS and radiology workflow software for DICOM receiving, patient study management, PDF report generation, and radiology workflows.">
 
     <!-- =========================================
          Structured Data - RAD-XR Software
     ========================================== -->
-<!-- =========================================
-         Structured Data - Official Website
-    ========================================== -->
-<!-- =========================================
+    <!-- =========================================
          EXISTING WEBSITE CSS STARTS BELOW
     ========================================== -->
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -183,6 +154,36 @@
             border-color: #06b6d4;
         }
         .hero .btn-group a.primary:hover { background: #0891b2; }
+
+        /* ─── NEW: DICOM VIEWER BUTTON ─── */
+        .hero .btn-group a.dicom-viewer-btn {
+            background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero .btn-group a.dicom-viewer-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .hero .btn-group a.dicom-viewer-btn:hover::before {
+            left: 100%;
+        }
+        .hero .btn-group a.dicom-viewer-btn:hover {
+            background: linear-gradient(135deg, #0891b2 0%, #7c3aed 100%);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.5);
+            color: #ffffff;
+        }
 
         /* ─── SOFTWARE PREVIEW ─── */
         .preview-section {
@@ -347,8 +348,6 @@
             background: #0f0f1a;
         }
         footer span { color: #06b6d4; }
-
-
 
         /* ─── FOUNDER / CREATOR ─── */
         .founder-section {
@@ -727,7 +726,6 @@
       ]
     }
     </script>
-
 </head>
 <body>
     <header>
@@ -762,12 +760,15 @@
             <a href="privacy.html">Privacy</a>
             <a href="demo.html">Demo</a>
             <a href="contact.html">Contact</a>
+            <!-- NEW: RAD-XR DICOM Viewer Button -->
+            <a href="https://radxr.in/dicom_viewer" class="dicom-viewer-btn" target="_blank" rel="noopener noreferrer">
+                🩻 RAD‑XR DICOM Viewer
+            </a>
         </div>
     </div>
 
 
     <!-- ─── ABOUT RAD-XR ─── -->
-
     <section style="
         max-width: 900px;
         margin: 1.5rem auto 2.5rem;
