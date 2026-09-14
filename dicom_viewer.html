@@ -3,7 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RAD-XR Dicom Viewer</title>
+<title>Free Online DICOM Viewer — DICOM to PDF & JPG Converter | RAD-XR</title>
+
+<!-- ============ SEO META TAGS ============ -->
+<meta name="description" content="Free online DICOM viewer and converter. View CT, MRI, X-ray, ultrasound and mammography DICOM files directly in your browser. Convert DICOM to PDF or high-resolution JPG. Supports all transfer syntaxes — uncompressed, JPEG, JPEG-Lossless, JPEG-LS, JPEG 2000, RLE. Works offline, 100% private, no signup.">
+<meta name="keywords" content="dicom viewer, dicom to pdf, dicom to jpg, dicom to png, online dicom viewer, free dicom viewer, dicom file viewer, medical image viewer, ct scan viewer, mri viewer, x-ray viewer, dicom converter, dicom report generator, radiology report, rad-xr, dicom browser, view dicom online, medical imaging viewer">
+<meta name="author" content="RAD-XR">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0b1a2e">
+<link rel="canonical" href="https://www.radxr.in/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Free Online DICOM Viewer — DICOM to PDF & JPG Converter | RAD-XR">
+<meta property="og:description" content="View DICOM files (CT, MRI, X-ray) online for free and download as PDF or high-resolution JPG. Supports all DICOM transfer syntaxes. No upload, 100% private.">
+<meta property="og:url" content="https://www.radxr.in/">
+<meta property="og:site_name" content="RAD-XR">
+<meta property="og:image" content="https://www.radxr.in/footer.png">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free Online DICOM Viewer — DICOM to PDF & JPG Converter">
+<meta name="twitter:description" content="View DICOM files online. Convert DICOM to PDF or JPG. All transfer syntaxes supported. Free, private, no upload.">
+<meta name="twitter:image" content="https://www.radxr.in/footer.png">
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "RAD-XR DICOM Viewer",
+  "url": "https://www.radxr.in/",
+  "applicationCategory": "HealthApplication",
+  "operatingSystem": "Any (browser-based)",
+  "browserRequirements": "Modern browser with JavaScript",
+  "description": "Free online DICOM viewer and converter. View CT, MRI, X-ray and ultrasound DICOM files in the browser and download as PDF or high-resolution JPG.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "DICOM viewer",
+    "DICOM to PDF converter",
+    "DICOM to JPG converter",
+    "All transfer syntaxes supported",
+    "2D slice viewer",
+    "3D CT volume rendering",
+    "Window Width / Level controls",
+    "100% offline, no file upload"
+  ]
+}
+</script>
+
 <style>
 :root{
   --bg-dark:#0b1a2e; --bg-card:#0f2440; --bg-panel:#132a44;
@@ -81,6 +129,13 @@ body{
   border-radius:20px;cursor:pointer;font-weight:600;width:100%;transition:all 0.2s;
 }
 .download-btn:hover{background:#0d9668;}
+.download-btn:disabled{background:#3a4a6b;cursor:not-allowed;}
+.download-jpg-btn{
+  background:#3b82f6;color:white;border:none;padding:8px 18px;
+  border-radius:20px;cursor:pointer;font-weight:600;width:100%;transition:all 0.2s;
+}
+.download-jpg-btn:hover{background:#2563eb;}
+.download-jpg-btn:disabled{background:#3a4a6b;cursor:not-allowed;}
 .glass-button{
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
   border-radius:50px;padding:12px 24px;display:flex;align-items:center;justify-content:center;
@@ -110,10 +165,7 @@ body{
   box-shadow:0 8px 32px rgba(0,0,0,0.4);
   width:100%;text-align:center;
 }
-.glass-pill:hover{
-  background:rgba(255,255,255,0.14);
-  transform:translateY(-1px);
-}
+.glass-pill:hover{background:rgba(255,255,255,0.14);transform:translateY(-1px);}
 .footer-section{text-align:center;margin-top:20px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.05);font-size:0.85rem;}
 .footer-section a.radxr-link{color:var(--accent);text-decoration:none;font-weight:600;}
 .status{padding:10px 15px;border-radius:8px;margin:10px 0;font-size:0.85rem;display:none;}
@@ -122,6 +174,26 @@ body{
 .status.success{background:#0d4d33;}
 .status.error{background:#6b1e1e;}
 .file-list{font-size:0.8rem;color:var(--text-dim);max-height:100px;overflow-y:auto;margin-top:10px;}
+
+/* SEO info section on upload screen */
+.seo-info{
+  text-align:left;max-width:900px;margin:30px auto 0;padding:24px;
+  background:var(--bg-panel);border-radius:12px;border:1px solid rgba(255,255,255,0.06);
+}
+.seo-info h3{color:var(--accent);font-size:1.15rem;margin-bottom:10px;}
+.seo-info h4{color:var(--accent);font-size:0.98rem;margin:18px 0 8px;}
+.seo-info p{font-size:0.9rem;line-height:1.6;color:var(--text-dim);margin-bottom:8px;}
+.seo-info ul,.seo-info ol{font-size:0.88rem;line-height:1.7;color:var(--text-dim);padding-left:22px;margin-bottom:8px;}
+.seo-info li{margin-bottom:4px;}
+.seo-info code{
+  background:var(--bg-dark);padding:1px 6px;border-radius:4px;
+  font-size:0.85rem;color:#b0c4de;
+}
+.seo-info strong{color:var(--text);}
+.seo-footer{
+  margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06);
+  font-size:0.82rem;color:#6b7280;text-align:center;letter-spacing:0.2px;
+}
 @media (max-width:768px){
   .main-grid{flex-direction:column;}
   .right-panel{width:100%;}
@@ -134,7 +206,7 @@ body{
 <div class="container">
   <div class="header">
     <h1>RAD-XR</h1>
-    <p>Local DICOM Viewer &amp; Report Generator</p>
+    <p>Free Online DICOM Viewer &amp; Converter</p>
   </div>
 
   <!-- Upload panel -->
@@ -145,6 +217,45 @@ body{
     <input type="file" id="fileInput" multiple accept=".dcm,application/dicom">
     <div id="uploadStatus" class="status info"></div>
     <div id="fileList" class="file-list"></div>
+
+    <!-- ============ SEO INFO SECTION ============ -->
+    <div class="seo-info">
+      <h3>Free Online DICOM Viewer, DICOM to PDF &amp; DICOM to JPG Converter</h3>
+      <p>RAD-XR is a free browser-based DICOM viewer that runs entirely on your device. No installation, no signup, no file upload — your medical images never leave your computer. Open CT, MRI, X-ray, Ultrasound, Mammography, PET, and other DICOM studies, and download them as an A4 PDF report or a high-resolution JPG image.</p>
+
+      <h4>✅ Supported DICOM Transfer Syntaxes</h4>
+      <ul>
+        <li>Uncompressed — Implicit VR Little Endian, Explicit VR Little Endian, Explicit VR Big Endian</li>
+        <li>JPEG Baseline (Process 1)</li>
+        <li>JPEG Extended (Process 2 &amp; 4)</li>
+        <li>JPEG Lossless (Process 14 &amp; 14 SV1)</li>
+        <li>JPEG-LS Lossless and Near-Lossless</li>
+        <li>JPEG 2000 Lossless and Lossy</li>
+        <li>RLE Lossless</li>
+      </ul>
+
+      <h4>🛠️ Features</h4>
+      <ul>
+        <li>2D slice-by-slice DICOM viewer with slider, keyboard and mouse-wheel navigation</li>
+        <li>3D volume rendering for multi-slice CT studies</li>
+        <li>Brightness, contrast, invert and Window Width / Window Level tools</li>
+        <li>Export A4 PDF report (WhatsApp-ready format)</li>
+        <li>Export high-resolution JPG (3K+ pixels wide)</li>
+        <li>Multi-frame DICOM support</li>
+        <li>100% private — no server upload, works offline after page load</li>
+      </ul>
+
+      <h4>📖 How to Use</h4>
+      <ol>
+        <li>Drag &amp; drop your <code>.dcm</code> files, or click <strong>Choose DICOM Files</strong>.</li>
+        <li>Browse slices using the navigator. Use the tools panel to adjust brightness, contrast, and window level.</li>
+        <li>Click <strong>Download PDF</strong> for a printable A4 medical report, or <strong>Download JPG</strong> for a high-resolution image.</li>
+      </ol>
+
+      <p class="seo-footer">
+        DICOM viewer · DICOM to PDF converter · DICOM to JPG converter · DICOM to PNG · online DICOM browser · free medical image viewer · CT / MRI / X-ray viewer · radiology report generator
+      </p>
+    </div>
   </div>
 
   <!-- Viewer -->
@@ -161,15 +272,15 @@ body{
           <button id="mode3D">3D Volume</button>
         </div>
         <div class="viewer-wrapper" id="viewerWrapper">
-          <img id="viewerImage" src="" alt="Medical Image" style="display:none;">
+          <img id="viewerImage" src="" alt="DICOM medical image" style="display:none;">
           <canvas id="viewerCanvas" style="display:none;"></canvas>
           <div id="viewer3dContainer" style="width:100%;height:60vh;display:none;"></div>
         </div>
         <div class="counter-row" id="counter">1 / 1</div>
         <div class="nav-controls">
-          <button id="prevBtn">❮</button>
+          <button id="prevBtn" aria-label="Previous slice">❮</button>
           <input type="range" id="slider" min="0" max="0" value="0">
-          <button id="nextBtn">❯</button>
+          <button id="nextBtn" aria-label="Next slice">❯</button>
         </div>
       </div>
 
@@ -224,7 +335,8 @@ body{
           </div>
           <button class="reset-btn" id="resetFilters">Reset Filters</button>
           <button class="download-btn" id="downloadPdfBtn">⬇️ Download PDF</button>
-          <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" class="glass-pill">
+          <button class="download-jpg-btn" id="downloadJpgBtn">🖼️ Download JPG</button>
+          <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" rel="noopener" class="glass-pill">
             Made with ❤️ by Sandeep
           </a>
         </div>
@@ -232,13 +344,16 @@ body{
     </div>
 
     <div class="footer-section">
-      <a href="https://www.radxr.in" target="_blank" class="radxr-link">www.radxr.in</a>
+      <a href="https://www.radxr.in" target="_blank" rel="noopener" class="radxr-link">www.radxr.in</a>
     </div>
   </div>
 </div>
 
+<!-- ============ LIBRARIES ============ -->
 <script src="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daikon@1.2.1/dist/daikon.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
@@ -249,6 +364,12 @@ const INSTITUTE_NAME = 'RAD-XR';
 const FOOTER_IMAGE_PATH = 'footer.png';
 const FOOTER_LINK_URL = 'https://www.radxr.in';
 
+// PDF.js worker
+if (window.pdfjsLib){
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
 /* =========================================================
    GLOBAL STATE
 ========================================================= */
@@ -258,7 +379,7 @@ const state = {
   volume: null,
   currentIndex: 0,
   currentMode: '2D',
-  footerImage: null  // { img, dataUrl }
+  footerImage: null
 };
 
 const $ = id => document.getElementById(id);
@@ -270,7 +391,7 @@ function setStatus(el, msg, type='info'){
 }
 
 /* =========================================================
-   DICOM PARSING
+   DICOM PARSING — ALL TRANSFER SYNTAXES
 ========================================================= */
 function readFileAsArrayBuffer(file){
   return new Promise((resolve, reject) => {
@@ -285,6 +406,19 @@ function normalizeStr(s){
   if (!s) return '';
   return String(s).replace(/\u0000/g, '').trim().replace(/\s+/g, ' ');
 }
+
+// Full list of compressed transfer syntaxes that daikon can decode
+const COMPRESSED_TS = [
+  '1.2.840.10008.1.2.4.50', // JPEG Baseline
+  '1.2.840.10008.1.2.4.51', // JPEG Extended
+  '1.2.840.10008.1.2.4.57', // JPEG Lossless
+  '1.2.840.10008.1.2.4.70', // JPEG Lossless SV1
+  '1.2.840.10008.1.2.4.80', // JPEG-LS Lossless
+  '1.2.840.10008.1.2.4.81', // JPEG-LS Near-Lossless
+  '1.2.840.10008.1.2.4.90', // JPEG 2000 Lossless
+  '1.2.840.10008.1.2.4.91', // JPEG 2000
+  '1.2.840.10008.1.2.5'     // RLE Lossless
+];
 
 function parseDicomFile(arrayBuffer, fileName){
   const byteArray = new Uint8Array(arrayBuffer);
@@ -327,33 +461,55 @@ function parseDicomFile(arrayBuffer, fileName){
   if (!pde) throw new Error('No pixel data in ' + fileName);
   if (samplesPerPixel !== 1) throw new Error('Only grayscale supported (samples=' + samplesPerPixel + ')');
 
-  const ts = dataSet.string('x00020010');
-  const compressedTS = ['1.2.840.10008.1.2.4.50','1.2.840.10008.1.2.4.51','1.2.840.10008.1.2.4.57',
-                        '1.2.840.10008.1.2.4.70','1.2.840.10008.1.2.4.80','1.2.840.10008.1.2.4.81',
-                        '1.2.840.10008.1.2.4.90','1.2.840.10008.1.2.4.91','1.2.840.10008.1.2.5'];
-  if (compressedTS.includes(ts)) {
-    throw new Error('Compressed transfer syntax not supported in browser (TS: ' + ts + ')');
-  }
-
-  const bytes = byteArray.slice(pde.dataOffset, pde.dataOffset + pde.length);
+  const ts = dataSet.string('x00020010') || '1.2.840.10008.1.2';
   let pixelArray;
-  if (bitsAllocated === 8) {
-    pixelArray = new Uint8Array(bytes.buffer);
-  } else if (bitsAllocated === 16) {
-    pixelArray = (pixelRepresentation === 1)
-      ? new Int16Array(bytes.buffer)
-      : new Uint16Array(bytes.buffer);
-  } else if (bitsAllocated === 32) {
-    pixelArray = (pixelRepresentation === 1)
-      ? new Int32Array(bytes.buffer)
-      : new Uint32Array(bytes.buffer);
+
+  if (COMPRESSED_TS.includes(ts)){
+    // ---- Compressed pixel data: use daikon for decompression ----
+    if (typeof daikon === 'undefined') {
+      throw new Error('Decoder library not loaded — cannot open compressed DICOM');
+    }
+    try {
+      const series = daikon.Series.parseImage(new DataView(arrayBuffer));
+      if (!series) throw new Error('Daikon could not parse series');
+      const img = series.getImage(0);
+      if (!img) throw new Error('No image in series');
+      pixelArray = img.getPixelData();
+      if (!pixelArray) throw new Error('Decompression returned no pixel data');
+    } catch (err){
+      throw new Error('Failed to decompress DICOM (TS=' + ts + '): ' + err.message);
+    }
   } else {
-    throw new Error('Unsupported bitsAllocated: ' + bitsAllocated);
+    // ---- Uncompressed pixel data: read directly ----
+    const bytes = byteArray.slice(pde.dataOffset, pde.dataOffset + pde.length);
+    if (bitsAllocated === 8) {
+      pixelArray = new Uint8Array(bytes.buffer);
+    } else if (bitsAllocated === 16) {
+      pixelArray = (pixelRepresentation === 1)
+        ? new Int16Array(bytes.buffer)
+        : new Uint16Array(bytes.buffer);
+    } else if (bitsAllocated === 32) {
+      pixelArray = (pixelRepresentation === 1)
+        ? new Int32Array(bytes.buffer)
+        : new Uint32Array(bytes.buffer);
+    } else {
+      throw new Error('Unsupported bitsAllocated: ' + bitsAllocated);
+    }
   }
 
   const frameSize = rows * cols;
+  const expectedLength = frameSize * numFrames;
+  if (pixelArray.length < expectedLength){
+    // Daikon may return fewer elements if it strips padding
+    // Silently continue if at least frameSize elements exist
+    if (pixelArray.length < frameSize){
+      throw new Error('Pixel data length mismatch (' + pixelArray.length + ' vs expected ' + expectedLength + ')');
+    }
+  }
+
   let mn = Infinity, mx = -Infinity;
-  for (let i = 0; i < pixelArray.length; i++){
+  const limit = Math.min(pixelArray.length, expectedLength);
+  for (let i = 0; i < limit; i++){
     const v = pixelArray[i];
     if (v < mn) mn = v;
     if (v > mx) mx = v;
@@ -363,7 +519,8 @@ function parseDicomFile(arrayBuffer, fileName){
     meta, pixelArray, rows, cols, numFrames, frameSize,
     slope, intercept, wc, ww, photometric,
     bitsAllocated, samplesPerPixel,
-    min: mn, max: mx
+    min: mn, max: mx,
+    transferSyntax: ts
   };
 }
 
@@ -428,6 +585,7 @@ async function handleFiles(files){
       const dcm = parseDicomFile(ab, f.name);
       state.dicoms.push(dcm);
     } catch(err){
+      console.error(err);
       errors.push(`${f.name}: ${err.message}`);
     }
   }
@@ -717,7 +875,7 @@ function switchMode(mode){
 }
 
 /* =========================================================
-   FOOTER IMAGE LOADER (footer.png) — silent, no UI feedback
+   FOOTER IMAGE
 ========================================================= */
 function loadFooterImageFromPath(path){
   return new Promise((resolve, reject) => {
@@ -751,15 +909,15 @@ async function initFooterImage(){
 }
 
 /* =========================================================
-   PDF GENERATION (A4) with clickable footer
+   PDF BUILDER (returns jsPDF instance) — A4
 ========================================================= */
-function generatePDF(){
+function buildPDF(){
   const { jsPDF } = window.jspdf;
-  if (!state.frames.length) return;
+  if (!state.frames.length) throw new Error('No DICOM images loaded');
 
   const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
-  const W = pdf.internal.pageSize.getWidth();   // 595.28
-  const H = pdf.internal.pageSize.getHeight();  // 841.89
+  const W = pdf.internal.pageSize.getWidth();
+  const H = pdf.internal.pageSize.getHeight();
 
   const topMargin = 8 * 72 / 25.4;
   const marginLR = 3 * 72 / 25.4;
@@ -855,18 +1013,20 @@ function generatePDF(){
       } catch(err){
         console.warn('Footer image failed on page', p, err);
       }
-
       try {
         pdf.link(fx, fy, footerW, footerH, { url: FOOTER_LINK_URL });
-      } catch(err){
-        console.warn('Link annotation failed on page', p, err);
-      }
+      } catch(err){}
     }
   }
 
+  return pdf;
+}
+
+function getOutputBaseName(){
+  const m = state.dicoms[0].meta;
   const safeName = (m.patientName || 'Report').replace(/[^a-zA-Z0-9 _-]/g, '');
   const date = formatDateForFilename(m.studyDate);
-  pdf.save(`${safeName} ${date} medical report.pdf`);
+  return `${safeName} ${date} medical report`;
 }
 
 function formatDateForFilename(studyDate){
@@ -877,6 +1037,109 @@ function formatDateForFilename(studyDate){
   return String(d.getDate()).padStart(2,'0') +
          String(d.getMonth()+1).padStart(2,'0') +
          d.getFullYear();
+}
+
+/* =========================================================
+   DOWNLOAD — PDF
+========================================================= */
+function downloadPDF(){
+  const pdf = buildPDF();
+  pdf.save(getOutputBaseName() + '.pdf');
+}
+
+/* =========================================================
+   DOWNLOAD — JPG (via PDF.js render at 3K+ resolution)
+========================================================= */
+async function downloadJPG(){
+  const btnPdf = $('downloadPdfBtn');
+  const btnJpg = $('downloadJpgBtn');
+  btnJpg.disabled = true;
+  const origText = btnJpg.textContent;
+  btnJpg.textContent = '⏳ Generating...';
+
+  try {
+    if (typeof pdfjsLib === 'undefined'){
+      throw new Error('PDF renderer not loaded');
+    }
+
+    // 1. Build the PDF (reuse same code)
+    const pdf = buildPDF();
+    const arrayBuffer = pdf.output('arraybuffer');
+
+    // 2. Load into PDF.js
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdfDoc = await loadingTask.promise;
+    const numPages = pdfDoc.numPages;
+
+    // 3. Choose scale to hit ~3200px width (≈ 4K wide JPG)
+    // A4 width in points = 595.28
+    let scale = 3200 / 595.28;
+    // Guard against absurdly tall combined images (browser canvas limits)
+    const A4_HEIGHT_PT = 841.89;
+    const MAX_TOTAL_HEIGHT = 15000;
+    if (numPages * A4_HEIGHT_PT * scale > MAX_TOTAL_HEIGHT){
+      scale = MAX_TOTAL_HEIGHT / (numPages * A4_HEIGHT_PT);
+    }
+
+    // 4. Render each page to its own canvas
+    const pageCanvases = [];
+    let totalHeight = 0;
+    let maxWidth = 0;
+
+    for (let i = 1; i <= numPages; i++){
+      const page = await pdfDoc.getPage(i);
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      pageCanvases.push(canvas);
+      totalHeight += canvas.height;
+      if (canvas.width > maxWidth) maxWidth = canvas.width;
+    }
+
+    // 5. Combine all pages vertically into one canvas
+    const combined = document.createElement('canvas');
+    combined.width = maxWidth;
+    combined.height = totalHeight;
+    const cctx = combined.getContext('2d');
+    cctx.fillStyle = '#ffffff';
+    cctx.fillRect(0, 0, combined.width, combined.height);
+
+    let y = 0;
+    for (const c of pageCanvases){
+      cctx.drawImage(c, 0, y);
+      y += c.height;
+    }
+
+    // 6. Export as JPEG (quality 0.92)
+    await new Promise((resolve, reject) => {
+      combined.toBlob(blob => {
+        if (!blob){ reject(new Error('Failed to create JPG')); return; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = getOutputBaseName() + '.jpg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        resolve();
+      }, 'image/jpeg', 0.92);
+    });
+
+  } catch(err){
+    console.error(err);
+    alert('JPG error: ' + err.message);
+  } finally {
+    btnJpg.disabled = false;
+    btnJpg.textContent = origText;
+  }
 }
 
 /* =========================================================
@@ -945,12 +1208,12 @@ $('mode2D').addEventListener('click', () => switchMode('2D'));
 $('mode3D').addEventListener('click', () => switchMode('3D'));
 
 $('downloadPdfBtn').addEventListener('click', () => {
-  try {
-    generatePDF();
-  } catch(err){
-    console.error(err);
-    alert('PDF error: ' + err.message);
-  }
+  try { downloadPDF(); }
+  catch(err){ console.error(err); alert('PDF error: ' + err.message); }
+});
+
+$('downloadJpgBtn').addEventListener('click', () => {
+  downloadJPG();
 });
 
 window.addEventListener('resize', () => {
@@ -962,6 +1225,8 @@ window.addEventListener('resize', () => {
 ========================================================= */
 initFooterImage();
 console.log('RAD-XR Web Viewer ready');
+console.log('daikon:', typeof daikon);
+console.log('pdfjsLib:', typeof pdfjsLib);
 </script>
 </body>
 </html>
