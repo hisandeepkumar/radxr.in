@@ -382,6 +382,7 @@ body{
   </div>
 </div>
 
+<script src="https://unpkg.com/cornerstone-core@2.2.3/dist/cornerstone.min.js"></script>
 <script src="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js"></script>
 <script src="https://unpkg.com/@cornerstonejs/dicom-image-loader@1.86.0/dist/cornerstoneDICOMImageLoaderNoWebWorkers.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -419,6 +420,10 @@ const state = {
 };
 
 const $ = id => document.getElementById(id);
+
+window.addEventListener('error', event => {
+  console.error('RAD-XR runtime error:', event.error || event.message);
+});
 
 function setStatus(el, msg, type='info'){
   el.textContent = msg;
@@ -467,54 +472,60 @@ async function initDicomDecoder(){
 
   setStatus($('uploadStatus'), '⏳ Initializing DICOM decoder…', 'info');
 
-  /*
-   * IMPORTANT:
-   * This is the UMD NoWebWorkers build. It is deliberately used for RAD-XR's
-   * plain static HTML deployment.
-   *
-   * The previous 2.x ESM build created:
-   *   new Worker(...decodeImageFrameWorker.js...)
-   * from esm.sh. Chrome blocked that worker because the page is hosted on
-   * radxr.in while the worker script was on esm.sh.
-   *
-   * The NoWebWorkers build performs decoding in the page itself, so there is
-   * no cross-origin Worker at all. It still uses Cornerstone's DICOM codec
-   * stack rather than Daikon.
-   */
   const loader =
     window.cornerstoneDICOMImageLoader ||
     window.cornerstoneDICOMImageLoaderNoWebWorkers;
 
+  if (!window.cornerstone){
+    throw new Error(
+      'Cornerstone core failed to load. Refresh the page and check CDN access.'
+    );
+  }
+
   if (!loader || !loader.wadouri){
     throw new Error(
-      'Cornerstone DICOM decoder failed to load. ' +
-      'Check that unpkg.com is reachable and the loader script is not blocked.'
+      'Cornerstone DICOM loader failed to load. Refresh the page and check CDN access.'
     );
   }
 
   /*
-   * Version 1.x exposes configure/webWorkerManager. The NoWebWorkers build
-   * does not require a decode worker. Configure only the decoder itself and
-   * explicitly disable workers if the API exposes that option.
+   * Cornerstone 1.x/1.86 DICOM loader explicitly requires these external
+   * dependencies. Without these assignments it throws:
+   * "requires a copy of Cornerstone to work properly".
+   */
+  loader.external = loader.external || {};
+  loader.external.cornerstone = window.cornerstone;
+  loader.external.dicomParser = window.dicomParser;
+
+  /*
+   * This is the NoWebWorkers browser build. We intentionally do not create
+   * any worker, avoiding the cross-origin Worker problem from esm.sh.
    */
   if (typeof loader.configure === 'function'){
-    try {
-      loader.configure({
-        useWebWorkers: false,
-        decodeConfig: {
-          convertFloatPixelDataToInt: false
-        }
-      });
-    } catch (e){
-      console.warn('NoWebWorkers configure warning:', e);
-    }
+    loader.configure({
+      useWebWorkers: false,
+      decodeConfig: {
+        convertFloatPixelDataToInt: false
+      }
+    });
+  }
+
+  /*
+   * Some releases expose the file manager after configure; verify it now so
+   * failure is immediate and understandable instead of happening later.
+   */
+  if (!loader.wadouri.fileManager){
+    throw new Error(
+      'Cornerstone local-file manager is unavailable in this browser build.'
+    );
   }
 
   state.loader = loader;
   state.initialized = true;
 
-  setStatus($('uploadStatus'),
-    '✅ DICOM decoder ready — compressed and uncompressed DICOM supported.',
+  setStatus(
+    $('uploadStatus'),
+    '✅ DICOM decoder ready — standard and compressed DICOM supported.',
     'success'
   );
 }
@@ -593,109 +604,45 @@ function parseMetadata(arrayBuffer, fileName){
 /* ------------------------------------------------------------------ */
 
 async function decodeFrame(file, meta, frameIndex){
-  /*
-   * fileManager.add() gives the loader a browser-local file imageId.
-   * Cornerstone handles transfer syntax detection and decoding.
-   */
-  const baseImageId = state.loader.wadouri.fileManager.add(file);
+  const wadouri = state.loader?.wadouri;
+
+  if (!wadouri?.fileManager || typeof wadouri.loadImage !== 'function'){
+    throw new Error('Cornerstone local DICOM image loader is unavailable.');
+  }
+
+  const baseImageId = wadouri.fileManager.add(file);
 
   /*
-   * Cornerstone image frame numbering in an imageId is 1-based.
-   * Single-frame DICOMs do not need a frame suffix.
+   * Multi-frame frame selection is 1-based in the WADO-URI loader.
+   * Single-frame instances are loaded without a frame suffix.
    */
   const imageId = meta.numFrames > 1
     ? `${baseImageId}?frame=${frameIndex + 1}`
     : baseImageId;
 
-  const loadObject = state.loader.wadouri.loadImage(imageId);
-  if (!loadObject || !loadObject.promise){
-    throw new Error('Cornerstone returned no image load promise.');
-  }
+  try {
+    const loadObject = wadouri.loadImage(imageId);
 
-  const image = await loadObject.promise;
-
-  if (!image){
-    throw new Error('DICOM decoder returned an empty image.');
-  }
-
-  return { image, imageId };
-}
-
-/*
- * Convert the decoded Cornerstone image to a canvas that we own.
- * We use the decoder's own getCanvas() when available because it correctly
- * handles grayscale/color and DICOM pixel representation.
- */
-function imageToCanvas(image){
-  if (typeof image.getCanvas === 'function'){
-    const source = image.getCanvas();
-
-    const canvas = document.createElement('canvas');
-    canvas.width = source.width || image.width;
-    canvas.height = source.height || image.height;
-
-    const ctx = canvas.getContext('2d', { willReadFrequently: false });
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(source, 0, 0);
-
-    return canvas;
-  }
-
-  /*
-   * Defensive fallback for an image implementation that exposes only
-   * pixelData.
-   */
-  const canvas = document.createElement('canvas');
-  canvas.width = image.width;
-  canvas.height = image.height;
-
-  const ctx = canvas.getContext('2d');
-  const out = ctx.createImageData(canvas.width, canvas.height);
-  const pixels = image.getPixelData();
-
-  if (image.color || image.numberOfComponents > 1){
-    const components = image.numberOfComponents || 3;
-    for (let i = 0, p = 0; i < pixels.length && p < out.data.length; i += components){
-      out.data[p++] = pixels[i] ?? 0;
-      out.data[p++] = pixels[i + 1] ?? pixels[i] ?? 0;
-      out.data[p++] = pixels[i + 2] ?? pixels[i] ?? 0;
-      out.data[p++] = 255;
-    }
-  } else {
-    let min = Number.isFinite(image.minPixelValue) ? image.minPixelValue : Infinity;
-    let max = Number.isFinite(image.maxPixelValue) ? image.maxPixelValue : -Infinity;
-
-    if (!Number.isFinite(min) || !Number.isFinite(max) || min === max){
-      min = Infinity; max = -Infinity;
-      for (let i = 0; i < pixels.length; i++){
-        const v = pixels[i];
-        if (v < min) min = v;
-        if (v > max) max = v;
-      }
+    if (!loadObject?.promise){
+      throw new Error('Cornerstone did not return an image load promise.');
     }
 
-    const wc = firstNumber(image.windowCenter, (min + max) / 2);
-    const ww = Math.max(1, firstNumber(image.windowWidth, max - min));
-    const low = wc - ww / 2;
-    const range = Math.max(1e-6, ww);
+    const image = await loadObject.promise;
 
-    for (let i = 0; i < canvas.width * canvas.height; i++){
-      let t = (pixels[i] - low) / range;
-      t = Math.max(0, Math.min(1, t));
-      let g = Math.round(t * 255);
-      if (image.invert) g = 255 - g;
-
-      const o = i * 4;
-      out.data[o] = g;
-      out.data[o+1] = g;
-      out.data[o+2] = g;
-      out.data[o+3] = 255;
+    if (!image){
+      throw new Error('Cornerstone returned an empty DICOM image.');
     }
-  }
 
-  ctx.putImageData(out, 0, 0);
-  return canvas;
+    return { image, imageId };
+  } finally {
+    /*
+     * The decoded pixels are already available; release the blob reference
+     * to keep memory under control for large studies.
+     */
+    try {
+      wadouri.fileManager.remove?.(baseImageId);
+    } catch(e) {}
+  }
 }
 
 /* ------------------------------------------------------------------ */
