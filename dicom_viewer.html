@@ -95,15 +95,8 @@ body{
   display:flex;justify-content:center;align-items:center;min-height:400px;
 }
 .viewer-wrapper img,.viewer-wrapper canvas{display:block;max-width:100%;max-height:70vh;object-fit:contain;}
-.nav-controls{display:flex;align-items:center;justify-content:center;gap:20px;padding:10px 0;}
-.nav-controls button{
-  background:#1e3c72;color:white;border:none;border-radius:50%;
-  width:44px;height:44px;font-size:1.4rem;cursor:pointer;transition:all 0.2s;
-}
-.nav-controls button:hover{background:#2a4d8f;}
-.nav-controls input[type="range"]{width:300px;max-width:60%;}
 .counter-row{text-align:center;font-size:1.05rem;font-weight:bold;padding:8px 0;color:var(--text-dim);}
-.tools{display:flex;flex-direction:column;gap:16px;background:var(--bg-panel);padding:16px 20px;border-radius:12px;}
+.tools{display:flex;flex-direction:column;gap:14px;background:var(--bg-panel);padding:16px 20px;border-radius:12px;}
 .tool-group{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .tool-group label{font-weight:600;font-size:0.85rem;color:var(--text-dim);}
 .tool-group input[type="range"]{width:100px;}
@@ -136,6 +129,42 @@ body{
 }
 .download-jpg-btn:hover{background:#2563eb;}
 .download-jpg-btn:disabled{background:#3a4a6b;cursor:not-allowed;}
+
+/* Inline slice navigator (inside tools panel) */
+.slice-nav-block{
+  display:flex;flex-direction:column;gap:6px;
+  padding:10px 0 4px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.slice-nav-counter{
+  text-align:center;font-size:0.85rem;font-weight:700;
+  color:var(--text-dim);letter-spacing:0.4px;
+}
+.slice-nav-controls{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.slice-nav-controls button{
+  background:#1e3c72;color:white;border:none;border-radius:50%;
+  width:36px;height:36px;font-size:1.1rem;cursor:pointer;flex-shrink:0;
+  transition:background 0.2s;display:flex;align-items:center;justify-content:center;
+  line-height:1;
+}
+.slice-nav-controls button:hover{background:#2a4d8f;}
+.slice-nav-controls input[type="range"]{
+  flex:1;min-width:0;height:6px;border-radius:3px;
+  -webkit-appearance:none;appearance:none;background:#1e3c72;outline:none;
+}
+.slice-nav-controls input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--accent);cursor:pointer;
+  border:2px solid #0b1a2e;
+}
+.slice-nav-controls input[type="range"]::-moz-range-thumb{
+  width:16px;height:16px;border-radius:50%;background:var(--accent);
+  cursor:pointer;border:2px solid #0b1a2e;
+}
+
 .glass-button{
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
   border-radius:50px;padding:12px 24px;display:flex;align-items:center;justify-content:center;
@@ -197,7 +226,6 @@ body{
 @media (max-width:768px){
   .main-grid{flex-direction:column;}
   .right-panel{width:100%;}
-  .nav-controls input[type="range"]{width:auto;flex:1;}
 }
 </style>
 </head>
@@ -276,12 +304,6 @@ body{
           <canvas id="viewerCanvas" style="display:none;"></canvas>
           <div id="viewer3dContainer" style="width:100%;height:60vh;display:none;"></div>
         </div>
-        <div class="counter-row" id="counter">1 / 1</div>
-        <div class="nav-controls">
-          <button id="prevBtn" aria-label="Previous slice">❮</button>
-          <input type="range" id="slider" min="0" max="0" value="0">
-          <button id="nextBtn" aria-label="Next slice">❯</button>
-        </div>
       </div>
 
       <div class="right-panel">
@@ -333,7 +355,19 @@ body{
             <input type="range" id="thresholdSlider" min="0" max="255" value="128">
             <span id="thresholdVal" style="font-size:0.8rem;">128</span>
           </div>
+
           <button class="reset-btn" id="resetFilters">Reset Filters</button>
+
+          <!-- 🔽 Inline slice navigator: right between Reset and Download PDF -->
+          <div class="slice-nav-block" id="sliceNavBlock">
+            <div class="slice-nav-counter" id="counter">1 / 1</div>
+            <div class="slice-nav-controls">
+              <button id="prevBtn" aria-label="Previous slice">❮</button>
+              <input type="range" id="slider" min="0" max="0" value="0">
+              <button id="nextBtn" aria-label="Next slice">❯</button>
+            </div>
+          </div>
+
           <button class="download-btn" id="downloadPdfBtn">⬇️ Download PDF</button>
           <button class="download-jpg-btn" id="downloadJpgBtn">🖼️ Download JPG</button>
           <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" rel="noopener" class="glass-pill">
@@ -364,7 +398,6 @@ const INSTITUTE_NAME = 'RAD-XR';
 const FOOTER_IMAGE_PATH = 'footer.png';
 const FOOTER_LINK_URL = 'https://www.radxr.in';
 
-// PDF.js worker
 if (window.pdfjsLib){
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -407,17 +440,12 @@ function normalizeStr(s){
   return String(s).replace(/\u0000/g, '').trim().replace(/\s+/g, ' ');
 }
 
-// Full list of compressed transfer syntaxes that daikon can decode
 const COMPRESSED_TS = [
-  '1.2.840.10008.1.2.4.50', // JPEG Baseline
-  '1.2.840.10008.1.2.4.51', // JPEG Extended
-  '1.2.840.10008.1.2.4.57', // JPEG Lossless
-  '1.2.840.10008.1.2.4.70', // JPEG Lossless SV1
-  '1.2.840.10008.1.2.4.80', // JPEG-LS Lossless
-  '1.2.840.10008.1.2.4.81', // JPEG-LS Near-Lossless
-  '1.2.840.10008.1.2.4.90', // JPEG 2000 Lossless
-  '1.2.840.10008.1.2.4.91', // JPEG 2000
-  '1.2.840.10008.1.2.5'     // RLE Lossless
+  '1.2.840.10008.1.2.4.50','1.2.840.10008.1.2.4.51',
+  '1.2.840.10008.1.2.4.57','1.2.840.10008.1.2.4.70',
+  '1.2.840.10008.1.2.4.80','1.2.840.10008.1.2.4.81',
+  '1.2.840.10008.1.2.4.90','1.2.840.10008.1.2.4.91',
+  '1.2.840.10008.1.2.5'
 ];
 
 function parseDicomFile(arrayBuffer, fileName){
@@ -465,7 +493,6 @@ function parseDicomFile(arrayBuffer, fileName){
   let pixelArray;
 
   if (COMPRESSED_TS.includes(ts)){
-    // ---- Compressed pixel data: use daikon for decompression ----
     if (typeof daikon === 'undefined') {
       throw new Error('Decoder library not loaded — cannot open compressed DICOM');
     }
@@ -480,7 +507,6 @@ function parseDicomFile(arrayBuffer, fileName){
       throw new Error('Failed to decompress DICOM (TS=' + ts + '): ' + err.message);
     }
   } else {
-    // ---- Uncompressed pixel data: read directly ----
     const bytes = byteArray.slice(pde.dataOffset, pde.dataOffset + pde.length);
     if (bitsAllocated === 8) {
       pixelArray = new Uint8Array(bytes.buffer);
@@ -499,12 +525,8 @@ function parseDicomFile(arrayBuffer, fileName){
 
   const frameSize = rows * cols;
   const expectedLength = frameSize * numFrames;
-  if (pixelArray.length < expectedLength){
-    // Daikon may return fewer elements if it strips padding
-    // Silently continue if at least frameSize elements exist
-    if (pixelArray.length < frameSize){
-      throw new Error('Pixel data length mismatch (' + pixelArray.length + ' vs expected ' + expectedLength + ')');
-    }
+  if (pixelArray.length < frameSize){
+    throw new Error('Pixel data length mismatch (' + pixelArray.length + ' vs expected ' + expectedLength + ')');
   }
 
   let mn = Infinity, mx = -Infinity;
@@ -859,8 +881,8 @@ function switchMode(mode){
 
   $('viewerImage').style.display = is3D ? 'none' : 'block';
   $('viewer3dContainer').style.display = is3D ? 'block' : 'none';
-  $('counter').style.display = is3D ? 'none' : 'block';
-  document.querySelector('.nav-controls').style.display = is3D ? 'none' : 'flex';
+  // Hide slice navigator in 3D mode
+  $('sliceNavBlock').style.display = is3D ? 'none' : 'flex';
 
   $('wwGroup').style.display = is3D ? 'flex' : 'none';
   $('wlGroup').style.display = is3D ? 'flex' : 'none';
@@ -909,7 +931,7 @@ async function initFooterImage(){
 }
 
 /* =========================================================
-   PDF BUILDER (returns jsPDF instance) — A4
+   PDF BUILDER
 ========================================================= */
 function buildPDF(){
   const { jsPDF } = window.jspdf;
@@ -1051,7 +1073,6 @@ function downloadPDF(){
    DOWNLOAD — JPG (via PDF.js render at 3K+ resolution)
 ========================================================= */
 async function downloadJPG(){
-  const btnPdf = $('downloadPdfBtn');
   const btnJpg = $('downloadJpgBtn');
   btnJpg.disabled = true;
   const origText = btnJpg.textContent;
@@ -1062,26 +1083,20 @@ async function downloadJPG(){
       throw new Error('PDF renderer not loaded');
     }
 
-    // 1. Build the PDF (reuse same code)
     const pdf = buildPDF();
     const arrayBuffer = pdf.output('arraybuffer');
 
-    // 2. Load into PDF.js
     const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
     const pdfDoc = await loadingTask.promise;
     const numPages = pdfDoc.numPages;
 
-    // 3. Choose scale to hit ~3200px width (≈ 4K wide JPG)
-    // A4 width in points = 595.28
     let scale = 3200 / 595.28;
-    // Guard against absurdly tall combined images (browser canvas limits)
     const A4_HEIGHT_PT = 841.89;
     const MAX_TOTAL_HEIGHT = 15000;
     if (numPages * A4_HEIGHT_PT * scale > MAX_TOTAL_HEIGHT){
       scale = MAX_TOTAL_HEIGHT / (numPages * A4_HEIGHT_PT);
     }
 
-    // 4. Render each page to its own canvas
     const pageCanvases = [];
     let totalHeight = 0;
     let maxWidth = 0;
@@ -1103,7 +1118,6 @@ async function downloadJPG(){
       if (canvas.width > maxWidth) maxWidth = canvas.width;
     }
 
-    // 5. Combine all pages vertically into one canvas
     const combined = document.createElement('canvas');
     combined.width = maxWidth;
     combined.height = totalHeight;
@@ -1117,7 +1131,6 @@ async function downloadJPG(){
       y += c.height;
     }
 
-    // 6. Export as JPEG (quality 0.92)
     await new Promise((resolve, reject) => {
       combined.toBlob(blob => {
         if (!blob){ reject(new Error('Failed to create JPG')); return; }
@@ -1225,8 +1238,6 @@ window.addEventListener('resize', () => {
 ========================================================= */
 initFooterImage();
 console.log('RAD-XR Web Viewer ready');
-console.log('daikon:', typeof daikon);
-console.log('pdfjsLib:', typeof pdfjsLib);
 </script>
 </body>
 </html>
