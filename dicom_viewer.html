@@ -383,6 +383,7 @@ body{
 </div>
 
 <script src="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js"></script>
+<script src="https://unpkg.com/@cornerstonejs/dicom-image-loader@1.86.0/dist/cornerstoneDICOMImageLoaderNoWebWorkers.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
@@ -458,7 +459,7 @@ function getOutputBaseName(){
 }
 
 /* ------------------------------------------------------------------ */
-/* Cornerstone decoder initialization                                 */
+/* Cornerstone decoder initialization — static-host safe                                 */
 /* ------------------------------------------------------------------ */
 
 async function initDicomDecoder(){
@@ -467,29 +468,47 @@ async function initDicomDecoder(){
   setStatus($('uploadStatus'), '⏳ Initializing DICOM decoder…', 'info');
 
   /*
-   * esm.sh bundles the JS dependency graph for a single-file browser app.
-   * The Cornerstone DICOM loader itself uses its worker/codec architecture.
+   * IMPORTANT:
+   * This is the UMD NoWebWorkers build. It is deliberately used for RAD-XR's
+   * plain static HTML deployment.
    *
-   * Do NOT replace this with Daikon: Daikon was the source of the previous
-   * compressed-DICOM failure.
+   * The previous 2.x ESM build created:
+   *   new Worker(...decodeImageFrameWorker.js...)
+   * from esm.sh. Chrome blocked that worker because the page is hosted on
+   * radxr.in while the worker script was on esm.sh.
+   *
+   * The NoWebWorkers build performs decoding in the page itself, so there is
+   * no cross-origin Worker at all. It still uses Cornerstone's DICOM codec
+   * stack rather than Daikon.
    */
-  const mod = await import(
-    'https://esm.sh/@cornerstonejs/dicom-image-loader@5.8.2?bundle'
-  );
+  const loader =
+    window.cornerstoneDICOMImageLoader ||
+    window.cornerstoneDICOMImageLoaderNoWebWorkers;
 
-  const loader = mod.default || mod;
-  const init = mod.init || loader.init;
-
-  if (typeof init !== 'function' || !loader.wadouri){
-    throw new Error('Cornerstone DICOM decoder could not be initialized.');
+  if (!loader || !loader.wadouri){
+    throw new Error(
+      'Cornerstone DICOM decoder failed to load. ' +
+      'Check that unpkg.com is reachable and the loader script is not blocked.'
+    );
   }
 
-  await init({
-    maxWebWorkers: Math.max(
-      1,
-      Math.min(4, Math.floor((navigator.hardwareConcurrency || 2) / 2))
-    )
-  });
+  /*
+   * Version 1.x exposes configure/webWorkerManager. The NoWebWorkers build
+   * does not require a decode worker. Configure only the decoder itself and
+   * explicitly disable workers if the API exposes that option.
+   */
+  if (typeof loader.configure === 'function'){
+    try {
+      loader.configure({
+        useWebWorkers: false,
+        decodeConfig: {
+          convertFloatPixelDataToInt: false
+        }
+      });
+    } catch (e){
+      console.warn('NoWebWorkers configure warning:', e);
+    }
+  }
 
   state.loader = loader;
   state.initialized = true;
