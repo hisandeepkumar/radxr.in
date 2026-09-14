@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAD-XR Dicom Viewer</title>
+<style>
+:root{
+  --bg-dark:#0b1a2e; --bg-card:#0f2440; --bg-panel:#132a44;
+  --accent:#5b9bd5; --text:#e0e6ed; --text-dim:#b0c4de;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:var(--bg-dark); color:var(--text);
+  min-height:100vh; padding:20px; display:flex; flex-direction:column; align-items:center;
+}
+.container{
+  max-width:1400px; width:100%; background:var(--bg-card);
+  border-radius:16px; box-shadow:0 8px 30px rgba(0,0,0,0.7); padding:20px;
+}
+.header{background:#1a365d;color:white;padding:16px 20px;border-radius:12px;text-align:center;margin-bottom:20px;}
+.header h1{font-size:1.6rem;margin-bottom:4px;}
+.header p{font-size:0.85rem;color:#b0c4de;}
+.upload-panel{
+  text-align:center;padding:40px 20px;border:2px dashed #2d4a70;
+  border-radius:12px;margin-bottom:20px;transition:all 0.3s;
+}
+.upload-panel.dragover{border-color:var(--accent);background:#16335a;}
+.upload-panel h2{font-size:1.2rem;margin-bottom:8px;}
+.upload-panel p{font-size:0.9rem;color:var(--text-dim);margin-bottom:16px;}
+.upload-panel input[type=file]{display:none;}
+.btn{
+  background:var(--accent);color:white;border:none;padding:10px 24px;border-radius:8px;
+  font-weight:600;cursor:pointer;font-size:0.95rem;transition:all 0.2s;text-decoration:none;
+  display:inline-block;
+}
+.btn:hover{background:#4a8ac4;transform:translateY(-1px);}
+.btn:disabled{background:#3a4a6b;cursor:not-allowed;transform:none;}
+.btn-secondary{background:#2d4a70;}
+.btn-secondary:hover{background:#3a5a80;}
+.main-grid{display:flex;gap:20px;}
+.left-panel{flex:1;min-width:0;display:flex;flex-direction:column;}
+.right-panel{width:280px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;}
+.viewer-wrapper{
+  position:relative;background:#000;border-radius:12px;overflow:hidden;margin-bottom:16px;
+  display:flex;justify-content:center;align-items:center;min-height:400px;
+}
+.viewer-wrapper img,.viewer-wrapper canvas{display:block;max-width:100%;max-height:70vh;object-fit:contain;}
+.nav-controls{display:flex;align-items:center;justify-content:center;gap:20px;padding:10px 0;}
+.nav-controls button{
+  background:#1e3c72;color:white;border:none;border-radius:50%;
+  width:44px;height:44px;font-size:1.4rem;cursor:pointer;transition:all 0.2s;
+}
+.nav-controls button:hover{background:#2a4d8f;}
+.nav-controls input[type="range"]{width:300px;max-width:60%;}
+.counter-row{text-align:center;font-size:1.05rem;font-weight:bold;padding:8px 0;color:var(--text-dim);}
+.tools{display:flex;flex-direction:column;gap:16px;background:var(--bg-panel);padding:16px 20px;border-radius:12px;}
+.tool-group{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.tool-group label{font-weight:600;font-size:0.85rem;color:var(--text-dim);}
+.tool-group input[type="range"]{width:100px;}
+.switch{position:relative;width:50px;height:28px;display:inline-block;}
+.switch input{opacity:0;width:0;height:0;}
+.slider-toggle{
+  position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;
+  background:#3a4a6b;transition:0.3s;border-radius:34px;
+}
+.slider-toggle:before{
+  content:"";position:absolute;height:20px;width:20px;
+  left:4px;bottom:4px;background:white;transition:0.3s;border-radius:50%;
+}
+.switch input:checked + .slider-toggle{background:var(--accent);}
+.switch input:checked + .slider-toggle:before{transform:translateX(22px);}
+.reset-btn{
+  background:#dc3545;color:white;border:none;padding:8px 18px;
+  border-radius:20px;cursor:pointer;font-weight:600;width:100%;transition:all 0.2s;
+}
+.reset-btn:hover{background:#c82333;}
+.glass-button{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+  border-radius:50px;padding:12px 24px;display:flex;align-items:center;justify-content:center;
+  gap:16px;cursor:pointer;color:var(--text);font-weight:600;font-size:1.05rem;width:100%;
+  transition:all 0.2s;
+}
+.glass-button:hover{background:rgba(255,255,255,0.14);}
+.metadata-panel{background:var(--bg-panel);border-radius:12px;padding:16px 20px;margin-top:10px;display:none;}
+.metadata-panel.show{display:block;}
+.meta-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.9rem;}
+.meta-label{font-weight:600;color:var(--accent);}
+.meta-value{color:#c8d6e5;text-align:right;max-width:60%;word-break:break-word;}
+.mode-toggle{display:flex;gap:10px;margin-bottom:10px;}
+.mode-toggle button{
+  flex:1;padding:8px;border:none;border-radius:8px;background:#1e3c72;
+  color:white;font-weight:bold;cursor:pointer;transition:all 0.2s;
+}
+.mode-toggle button.active{background:var(--accent);}
+.pdf-section{margin-top:20px;padding:20px;background:var(--bg-panel);border-radius:12px;}
+.pdf-section h2{font-size:1.05rem;margin-bottom:12px;color:var(--accent);}
+.pdf-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+.footer-status{font-size:0.8rem;color:var(--text-dim);}
+.footer-section{text-align:center;margin-top:20px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.05);font-size:0.85rem;}
+.footer-section a{color:var(--accent);text-decoration:none;font-weight:600;}
+.status{padding:10px 15px;border-radius:8px;margin:10px 0;font-size:0.85rem;display:none;}
+.status.show{display:block;}
+.status.info{background:#1e3c72;}
+.status.success{background:#0d4d33;}
+.status.error{background:#6b1e1e;}
+.file-list{font-size:0.8rem;color:var(--text-dim);max-height:100px;overflow-y:auto;margin-top:10px;}
+@media (max-width:768px){
+  .main-grid{flex-direction:column;}
+  .right-panel{width:100%;}
+  .nav-controls input[type="range"]{width:auto;flex:1;}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>RAD-XR</h1>
+    <p>Local DICOM Viewer &amp; Report Generator</p>
+  </div>
+
+  <!-- Upload panel -->
+  <div id="uploadPanel" class="upload-panel">
+    <h2>📁 Upload DICOM Files</h2>
+    <p>Drag &amp; drop one or more .dcm files here, or click below to browse</p>
+    <label for="fileInput" class="btn">Choose DICOM Files</label>
+    <input type="file" id="fileInput" multiple accept=".dcm,application/dicom">
+    <div id="uploadStatus" class="status info"></div>
+    <div id="fileList" class="file-list"></div>
+  </div>
+
+  <!-- Viewer -->
+  <div id="viewer" style="display:none;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap;">
+      <div style="font-weight:600;">Patient: <span id="patientTitle" style="color:var(--accent);"></span></div>
+      <button class="btn btn-secondary" id="newUploadBtn">📁 Upload New</button>
+    </div>
+
+    <div class="main-grid">
+      <div class="left-panel">
+        <div class="mode-toggle" id="modeToggle" style="display:none;">
+          <button id="mode2D" class="active">2D Slice</button>
+          <button id="mode3D">3D Volume</button>
+        </div>
+        <div class="viewer-wrapper" id="viewerWrapper">
+          <img id="viewerImage" src="" alt="Medical Image" style="display:none;">
+          <canvas id="viewerCanvas" style="display:none;"></canvas>
+          <div id="viewer3dContainer" style="width:100%;height:60vh;display:none;"></div>
+        </div>
+        <div class="counter-row" id="counter">1 / 1</div>
+        <div class="nav-controls">
+          <button id="prevBtn">❮</button>
+          <input type="range" id="slider" min="0" max="0" value="0">
+          <button id="nextBtn">❯</button>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="patient-section">
+          <div class="glass-button" id="patientToggle">
+            <span>👤 <span id="patientNameBtn">Patient</span></span>
+            <span>▼</span>
+          </div>
+          <div class="metadata-panel" id="metadataPanel">
+            <div class="meta-row"><span class="meta-label">Patient Name</span><span class="meta-value" id="metaName">-</span></div>
+            <div class="meta-row"><span class="meta-label">Patient ID</span><span class="meta-value" id="metaId">-</span></div>
+            <div class="meta-row"><span class="meta-label">Accession No</span><span class="meta-value" id="metaAcc">-</span></div>
+            <div class="meta-row"><span class="meta-label">Study Date</span><span class="meta-value" id="metaDate">-</span></div>
+            <div class="meta-row"><span class="meta-label">Patient Sex</span><span class="meta-value" id="metaSex">-</span></div>
+            <div class="meta-row"><span class="meta-label">Modality</span><span class="meta-value" id="metaMod">-</span></div>
+          </div>
+        </div>
+
+        <div class="tools">
+          <div class="tool-group">
+            <label for="brightness">Brightness</label>
+            <input type="range" id="brightness" min="0" max="200" value="100">
+            <span id="brightnessVal" style="font-size:0.8rem;">100%</span>
+          </div>
+          <div class="tool-group">
+            <label for="contrast">Contrast</label>
+            <input type="range" id="contrast" min="0" max="200" value="100">
+            <span id="contrastVal" style="font-size:0.8rem;">100%</span>
+          </div>
+          <div class="tool-group">
+            <label>Invert</label>
+            <label class="switch">
+              <input type="checkbox" id="invertCheck">
+              <span class="slider-toggle"></span>
+            </label>
+          </div>
+          <div class="tool-group" id="wwGroup" style="display:none;">
+            <label for="wwSlider">Window Width</label>
+            <input type="range" id="wwSlider" min="1" max="4000" value="400">
+            <span id="wwVal" style="font-size:0.8rem;">400</span>
+          </div>
+          <div class="tool-group" id="wlGroup" style="display:none;">
+            <label for="wlSlider">Window Level</label>
+            <input type="range" id="wlSlider" min="-1000" max="1000" value="40">
+            <span id="wlVal" style="font-size:0.8rem;">40</span>
+          </div>
+          <div class="tool-group" id="thresholdGroup" style="display:none;">
+            <label for="thresholdSlider">Threshold</label>
+            <input type="range" id="thresholdSlider" min="0" max="255" value="128">
+            <span id="thresholdVal" style="font-size:0.8rem;">128</span>
+          </div>
+          <button class="reset-btn" id="resetFilters">Reset Filters</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PDF Section -->
+    <div class="pdf-section">
+      <h2>📄 Download PDF Report (WhatsApp Format)</h2>
+      <div class="pdf-controls">
+        <button class="btn" id="downloadPdfBtn">⬇️ Download PDF</button>
+        <span class="footer-status" id="footerStatus">⏳ Loading footer.png...</span>
+      </div>
+      <div id="pdfStatus" class="status info"></div>
+    </div>
+
+    <div class="footer-section">
+      <a href="https://www.radxr.in" target="_blank" class="footer-link">www.radxr.in</a><br>
+      <span style="color:#6b7280;font-size:0.85rem;">Made with ❤️ by Sandeep</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+/* =========================================================
+   CONSTANTS
+========================================================= */
+const INSTITUTE_NAME = 'RAD-XR';
+const FOOTER_IMAGE_PATH = 'footer.png';
+const FOOTER_LINK_URL = 'https://www.radxr.in';
+
+/* =========================================================
+   GLOBAL STATE
+========================================================= */
+const state = {
+  dicoms: [],
+  frames: [],
+  volume: null,
+  currentIndex: 0,
+  currentMode: '2D',
+  footerImage: null  // { img, dataUrl }
+};
+
+const $ = id => document.getElementById(id);
+
+function setStatus(el, msg, type='info'){
+  el.textContent = msg;
+  el.className = 'status ' + type + ' show';
+  if (type === 'info') setTimeout(() => { el.classList.remove('show'); }, 2500);
+}
+
+/* =========================================================
+   DICOM PARSING
+========================================================= */
+function readFileAsArrayBuffer(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function normalizeStr(s){
+  if (!s) return '';
+  return String(s).replace(/\u0000/g, '').trim().replace(/\s+/g, ' ');
+}
+
+function parseDicomFile(arrayBuffer, fileName){
+  const byteArray = new Uint8Array(arrayBuffer);
+  const dataSet = dicomParser.parseDicom(byteArray);
+
+  const meta = {
+    patientName: normalizeStr(dataSet.string('x00100010')) || 'N/A',
+    patientId: normalizeStr(dataSet.string('x00100020')) || 'N/A',
+    accessionNo: normalizeStr(dataSet.string('x00080050')) || 'NO_ACC',
+    studyDate: normalizeStr(dataSet.string('x00080020')) || '',
+    patientSex: normalizeStr(dataSet.string('x00100040')) || 'N/A',
+    modality: normalizeStr(dataSet.string('x00080060')) || 'N/A',
+    seriesNumber: parseInt(dataSet.string('x00200011')) || 0,
+    instanceNumber: parseInt(dataSet.string('x00200013')) || 0,
+    sliceLocation: parseFloat(dataSet.string('x00201041')) || 0,
+    fileName
+  };
+
+  const bitsAllocated = dataSet.uint16('x00280100') || 16;
+  const pixelRepresentation = dataSet.uint16('x00280103') || 0;
+  const rows = dataSet.uint16('x00280010');
+  const cols = dataSet.uint16('x00280011');
+  const samplesPerPixel = dataSet.uint16('x00280002') || 1;
+  const numFrames = parseInt(dataSet.string('x00280008')) || 1;
+  const photometric = dataSet.string('x00280004') || 'MONOCHROME2';
+
+  let slope = 1, intercept = 0, wc = null, ww = null;
+  try { slope = parseFloat(dataSet.string('x00281053')) || 1; } catch(e){}
+  try { intercept = parseFloat(dataSet.string('x00281052')) || 0; } catch(e){}
+  try {
+    const s = dataSet.string('x00281050');
+    if (s) wc = parseFloat(s.split('\\')[0]);
+  } catch(e){}
+  try {
+    const s = dataSet.string('x00281051');
+    if (s) ww = parseFloat(s.split('\\')[0]);
+  } catch(e){}
+
+  const pde = dataSet.elements.x7fe00010;
+  if (!pde) throw new Error('No pixel data in ' + fileName);
+  if (samplesPerPixel !== 1) throw new Error('Only grayscale supported (samples=' + samplesPerPixel + ')');
+
+  const ts = dataSet.string('x00020010');
+  const compressedTS = ['1.2.840.10008.1.2.4.50','1.2.840.10008.1.2.4.51','1.2.840.10008.1.2.4.57',
+                        '1.2.840.10008.1.2.4.70','1.2.840.10008.1.2.4.80','1.2.840.10008.1.2.4.81',
+                        '1.2.840.10008.1.2.4.90','1.2.840.10008.1.2.4.91','1.2.840.10008.1.2.5'];
+  if (compressedTS.includes(ts)) {
+    throw new Error('Compressed transfer syntax not supported in browser (TS: ' + ts + ')');
+  }
+
+  const bytes = byteArray.slice(pde.dataOffset, pde.dataOffset + pde.length);
+  let pixelArray;
+  if (bitsAllocated === 8) {
+    pixelArray = new Uint8Array(bytes.buffer);
+  } else if (bitsAllocated === 16) {
+    pixelArray = (pixelRepresentation === 1)
+      ? new Int16Array(bytes.buffer)
+      : new Uint16Array(bytes.buffer);
+  } else if (bitsAllocated === 32) {
+    pixelArray = (pixelRepresentation === 1)
+      ? new Int32Array(bytes.buffer)
+      : new Uint32Array(bytes.buffer);
+  } else {
+    throw new Error('Unsupported bitsAllocated: ' + bitsAllocated);
+  }
+
+  const frameSize = rows * cols;
+  let mn = Infinity, mx = -Infinity;
+  for (let i = 0; i < pixelArray.length; i++){
+    const v = pixelArray[i];
+    if (v < mn) mn = v;
+    if (v > mx) mx = v;
+  }
+
+  return {
+    meta, pixelArray, rows, cols, numFrames, frameSize,
+    slope, intercept, wc, ww, photometric,
+    bitsAllocated, samplesPerPixel,
+    min: mn, max: mx
+  };
+}
+
+function frameToCanvas(dicom, frameIdx){
+  const { pixelArray, rows, cols, frameSize, slope, intercept, min, max, photometric } = dicom;
+  const start = frameIdx * frameSize;
+  let wc = dicom.wc, ww = dicom.ww;
+  if (wc === null || ww === null){
+    wc = (min + max) / 2;
+    ww = Math.max(1, max - min);
+  }
+  const lower = wc - ww / 2;
+  const upper = wc + ww / 2;
+  const range = Math.max(1e-6, upper - lower);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = cols;
+  canvas.height = rows;
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.createImageData(cols, rows);
+  const inv = photometric === 'MONOCHROME1';
+
+  for (let i = 0; i < frameSize; i++){
+    const raw = pixelArray[start + i];
+    let v = raw * slope + intercept;
+    let t = (v - lower) / range;
+    t = t < 0 ? 0 : (t > 1 ? 1 : t);
+    let gray = Math.round(t * 255);
+    if (inv) gray = 255 - gray;
+    const o = i * 4;
+    imgData.data[o] = gray;
+    imgData.data[o+1] = gray;
+    imgData.data[o+2] = gray;
+    imgData.data[o+3] = 255;
+  }
+  ctx.putImageData(imgData, 0, 0);
+  return canvas;
+}
+
+/* =========================================================
+   FILE HANDLING
+========================================================= */
+async function handleFiles(files){
+  const uploadStatus = $('uploadStatus');
+  const fileListEl = $('fileList');
+  const dcmFiles = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.dcm') || f.type === 'application/dicom');
+
+  if (!dcmFiles.length){
+    setStatus(uploadStatus, '❌ No DICOM files found.', 'error');
+    return;
+  }
+
+  setStatus(uploadStatus, `⏳ Parsing ${dcmFiles.length} file(s)...`, 'info');
+  fileListEl.innerHTML = '';
+  state.dicoms = [];
+  state.frames = [];
+
+  const errors = [];
+  for (const f of dcmFiles){
+    try {
+      const ab = await readFileAsArrayBuffer(f);
+      const dcm = parseDicomFile(ab, f.name);
+      state.dicoms.push(dcm);
+    } catch(err){
+      errors.push(`${f.name}: ${err.message}`);
+    }
+  }
+
+  if (!state.dicoms.length){
+    setStatus(uploadStatus, '❌ No DICOM files could be parsed.\n' + errors.join('\n'), 'error');
+    return;
+  }
+
+  state.dicoms.sort((a, b) => {
+    if (a.meta.instanceNumber !== b.meta.instanceNumber)
+      return a.meta.instanceNumber - b.meta.instanceNumber;
+    return a.meta.sliceLocation - b.meta.sliceLocation;
+  });
+
+  for (const dcm of state.dicoms){
+    for (let fi = 0; fi < dcm.numFrames; fi++){
+      const canvas = frameToCanvas(dcm, fi);
+      const dataUrl = canvas.toDataURL('image/png');
+      state.frames.push({ canvas, dataUrl, dicom: dcm, frameIdx: fi });
+    }
+  }
+
+  buildVolume();
+
+  $('uploadPanel').style.display = 'none';
+  $('viewer').style.display = 'block';
+
+  const m = state.dicoms[0].meta;
+  $('patientTitle').textContent = `${m.patientName} (${m.patientId})`;
+  $('patientNameBtn').textContent = m.patientName;
+  $('metaName').textContent = m.patientName;
+  $('metaId').textContent = m.patientId;
+  $('metaAcc').textContent = m.accessionNo;
+  $('metaDate').textContent = m.studyDate || '-';
+  $('metaSex').textContent = m.patientSex;
+  $('metaMod').textContent = m.modality;
+
+  const modeToggle = $('modeToggle');
+  if (state.volume){
+    modeToggle.style.display = 'flex';
+    $('mode2D').classList.add('active');
+    $('mode3D').classList.remove('active');
+    state.currentMode = '2D';
+  } else {
+    modeToggle.style.display = 'none';
+  }
+
+  $('slider').max = state.frames.length - 1;
+  $('slider').value = 0;
+  state.currentIndex = 0;
+
+  resetAllFilters();
+  updateViewer(0);
+
+  if (errors.length){
+    setStatus(uploadStatus, `⚠️ Loaded ${state.dicoms.length} file(s). ${errors.length} failed:\n` + errors.join('\n'), 'error');
+  } else {
+    setStatus(uploadStatus, `✅ Loaded ${state.dicoms.length} DICOM file(s).`, 'success');
+  }
+}
+
+function buildVolume(){
+  if (state.dicoms.length < 2) return;
+  const allCT = state.dicoms.every(d => d.meta.modality.toUpperCase() === 'CT');
+  if (!allCT) return;
+
+  const rows = state.dicoms[0].rows;
+  const cols = state.dicoms[0].cols;
+  const same = state.dicoms.every(d => d.rows === rows && d.cols === cols && d.numFrames === 1);
+  if (!same) return;
+
+  const numSlices = state.dicoms.length;
+  const maxDim = 200;
+  const zStep = Math.max(1, Math.floor(numSlices / maxDim));
+  const yStep = Math.max(1, Math.floor(rows / maxDim));
+  const xStep = Math.max(1, Math.floor(cols / maxDim));
+
+  const newZ = Math.floor((numSlices + zStep - 1) / zStep);
+  const newY = Math.floor((rows + yStep - 1) / yStep);
+  const newX = Math.floor((cols + xStep - 1) / xStep);
+
+  const volume = new Uint8Array(newZ * newY * newX);
+
+  let gMin = Infinity, gMax = -Infinity;
+  for (const d of state.dicoms){
+    gMin = Math.min(gMin, d.min);
+    gMax = Math.max(gMax, d.max);
+  }
+  const wc = (gMin + gMax) / 2;
+  const ww = Math.max(1, gMax - gMin);
+  const lower = wc - ww / 2;
+  const range = Math.max(1e-6, ww);
+
+  let zi = 0;
+  for (let z = 0; z < numSlices; z += zStep){
+    const d = state.dicoms[z];
+    for (let y = 0; y < rows; y += yStep){
+      for (let x = 0; x < cols; x += xStep){
+        const raw = d.pixelArray[y * cols + x];
+        let v = raw * d.slope + d.intercept;
+        let t = (v - lower) / range;
+        t = t < 0 ? 0 : (t > 1 ? 1 : t);
+        volume[(zi * newY + Math.floor(y / yStep)) * newX + Math.floor(x / xStep)] = Math.round(t * 255);
+      }
+    }
+    zi++;
+  }
+
+  state.volume = { data: volume, dims: [newZ, newY, newX] };
+}
+
+/* =========================================================
+   VIEWER
+========================================================= */
+function updateViewer(index){
+  if (index < 0) index = state.frames.length - 1;
+  if (index >= state.frames.length) index = 0;
+  state.currentIndex = index;
+
+  if (state.currentMode === '3D' && state.volume) return;
+
+  const img = $('viewerImage');
+  const f = state.frames[index];
+  img.src = f.dataUrl;
+  img.style.display = 'block';
+
+  $('slider').value = index;
+  $('counter').textContent = `${index + 1} / ${state.frames.length}`;
+
+  applyFilters();
+}
+
+function applyFilters(){
+  const img = $('viewerImage');
+  const b = $('brightness').value;
+  const c = $('contrast').value;
+  const inv = $('invertCheck').checked ? '1' : '0';
+  img.style.filter = `brightness(${b}%) contrast(${c}%) invert(${inv})`;
+  $('brightnessVal').textContent = b + '%';
+  $('contrastVal').textContent = c + '%';
+}
+
+function resetAllFilters(){
+  $('brightness').value = 100;
+  $('contrast').value = 100;
+  $('invertCheck').checked = false;
+  $('wwSlider').value = 400;
+  $('wlSlider').value = 40;
+  $('thresholdSlider').value = 128;
+  $('wwVal').textContent = '400';
+  $('wlVal').textContent = '40';
+  $('thresholdVal').textContent = '128';
+  applyFilters();
+  if (state.currentMode === '3D') update3DUniforms();
+}
+
+/* =========================================================
+   3D VOLUME VIEWER
+========================================================= */
+let three = {
+  scene: null, camera: null, renderer: null, mesh: null,
+  initialized: false, texture: null
+};
+
+function init3D(){
+  const container = $('viewer3dContainer');
+  container.innerHTML = '';
+  container.style.display = 'block';
+
+  const width = container.clientWidth || 800;
+  const height = container.clientHeight || 500;
+
+  three.scene = new THREE.Scene();
+  three.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+  three.camera.position.set(0, 0, 300);
+
+  three.renderer = new THREE.WebGLRenderer({ alpha: false, antialias: true });
+  three.renderer.setSize(width, height);
+  three.renderer.setPixelRatio(window.devicePixelRatio || 1);
+  container.appendChild(three.renderer.domElement);
+
+  const [z, h, w] = state.volume.dims;
+  const texture = new THREE.DataTexture(state.volume.data, w, h, THREE.RedFormat);
+  texture.magFilter = THREE.LinearFilter;
+  texture.minFilter = THREE.LinearFilter;
+  texture.needsUpdate = true;
+  three.texture = texture;
+
+  const geometry = new THREE.BoxGeometry(w, h, z);
+  const material = new THREE.ShaderMaterial({
+    uniforms: {
+      uVolume: { value: texture },
+      uThreshold: { value: 0.5 },
+      uWindow: { value: 0.5 },
+      uLevel: { value: 0.5 },
+      uInvert: { value: 0 }
+    },
+    vertexShader: `
+      varying vec3 vPosition;
+      void main(){
+        vPosition = position;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform sampler3D uVolume;
+      uniform float uThreshold;
+      uniform float uWindow;
+      uniform float uLevel;
+      uniform float uInvert;
+      varying vec3 vPosition;
+      void main(){
+        vec3 pos = vPosition * 0.5 + 0.5;
+        float val = texture3D(uVolume, pos).r;
+        float wl = uLevel - uWindow / 2.0;
+        float wh = uLevel + uWindow / 2.0;
+        float mapped = (val - wl) / max(1e-6, (wh - wl));
+        mapped = clamp(mapped, 0.0, 1.0);
+        if (uInvert > 0.5) mapped = 1.0 - mapped;
+        if (mapped < uThreshold) discard;
+        gl_FragColor = vec4(vec3(mapped), 1.0);
+      }
+    `,
+    side: THREE.BackSide,
+    transparent: false
+  });
+
+  three.mesh = new THREE.Mesh(geometry, material);
+  three.scene.add(three.mesh);
+  three.scene.add(new THREE.AmbientLight(0xffffff));
+
+  three.initialized = true;
+  update3DUniforms();
+  animate3D();
+}
+
+function animate3D(){
+  if (!three.initialized) return;
+  requestAnimationFrame(animate3D);
+  if (three.mesh) three.mesh.rotation.y += 0.004;
+  three.renderer.render(three.scene, three.camera);
+}
+
+function update3DUniforms(){
+  if (!three.initialized || !three.mesh) return;
+  const ww = parseFloat($('wwSlider').value);
+  const wl = parseFloat($('wlSlider').value);
+  const th = parseFloat($('thresholdSlider').value) / 255.0;
+  const inv = $('invertCheck').checked ? 1 : 0;
+  three.mesh.material.uniforms.uWindow.value = ww / 4000.0;
+  three.mesh.material.uniforms.uLevel.value = (wl + 1000) / 2000.0;
+  three.mesh.material.uniforms.uThreshold.value = th;
+  three.mesh.material.uniforms.uInvert.value = inv;
+}
+
+function resize3D(){
+  if (!three.initialized) return;
+  const c = $('viewer3dContainer');
+  if (!c.clientWidth) return;
+  three.renderer.setSize(c.clientWidth, c.clientHeight);
+  three.camera.aspect = c.clientWidth / c.clientHeight;
+  three.camera.updateProjectionMatrix();
+}
+
+function switchMode(mode){
+  state.currentMode = mode;
+  const is3D = mode === '3D';
+  $('mode2D').classList.toggle('active', !is3D);
+  $('mode3D').classList.toggle('active', is3D);
+
+  $('viewerImage').style.display = is3D ? 'none' : 'block';
+  $('viewer3dContainer').style.display = is3D ? 'block' : 'none';
+  $('counter').style.display = is3D ? 'none' : 'block';
+  document.querySelector('.nav-controls').style.display = is3D ? 'none' : 'flex';
+
+  $('wwGroup').style.display = is3D ? 'flex' : 'none';
+  $('wlGroup').style.display = is3D ? 'flex' : 'none';
+  $('thresholdGroup').style.display = is3D ? 'flex' : 'none';
+
+  if (is3D){
+    if (!three.initialized) init3D();
+    else resize3D();
+  } else {
+    updateViewer(state.currentIndex);
+  }
+}
+
+/* =========================================================
+   FOOTER IMAGE LOADER (footer.png)
+========================================================= */
+function loadFooterImageFromPath(path){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      // Convert to data URL for jsPDF embedding (avoid tainted canvas issues)
+      try {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth;
+        c.height = img.naturalHeight;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const dataUrl = c.toDataURL('image/png');
+        resolve({ img, dataUrl });
+      } catch(err){
+        // Canvas tainted (CORS) — fall back to raw src
+        resolve({ img, dataUrl: img.src });
+      }
+    };
+    img.onerror = () => reject(new Error('Could not load ' + path));
+    // Cache-bust to force fresh load
+    img.src = path + '?v=' + Date.now();
+  });
+}
+
+async function initFooterImage(){
+  const el = $('footerStatus');
+  try {
+    const fi = await loadFooterImageFromPath(FOOTER_IMAGE_PATH);
+    state.footerImage = fi;
+    el.textContent = `✅ ${FOOTER_IMAGE_PATH} loaded (${fi.img.naturalWidth}×${fi.img.naturalHeight})`;
+    el.style.color = '#10b981';
+  } catch(err){
+    state.footerImage = null;
+    el.textContent = `⚠️ ${FOOTER_IMAGE_PATH} not found — PDF will have no footer`;
+    el.style.color = '#f59e0b';
+    console.warn(err);
+  }
+}
+
+/* =========================================================
+   PDF GENERATION (WhatsApp format) with clickable footer
+========================================================= */
+function generatePDF(){
+  const { jsPDF } = window.jspdf;
+  if (!state.frames.length) return;
+
+  const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+  const W = pdf.internal.pageSize.getWidth();   // 595.28
+  const H = pdf.internal.pageSize.getHeight();  // 841.89
+
+  const topMargin = 8 * 72 / 25.4;
+  const marginLR = 3 * 72 / 25.4;
+
+  const m = state.dicoms[0].meta;
+  const metaRows = [
+    ['Patient Name', m.patientName],
+    ['Patient ID', m.patientId],
+    ['Patient Sex', m.patientSex],
+    ['Study Date', m.studyDate || 'N/A'],
+    ['Modality', m.modality],
+    ['Accession No', m.accessionNo]
+  ].filter(([_, v]) => v && v !== 'N/A');
+
+  let footerW = 0, footerH = 0;
+  if (state.footerImage){
+    const { img } = state.footerImage;
+    const ratio = img.naturalHeight / img.naturalWidth;
+    footerW = W;
+    footerH = ratio * W;
+    const maxFooterH = 144;
+    if (footerH > maxFooterH){
+      footerH = maxFooterH;
+      footerW = (img.naturalWidth / img.naturalHeight) * footerH;
+    }
+  }
+
+  const totalPages = state.frames.length;
+
+  for (let p = 0; p < totalPages; p++){
+    if (p > 0) pdf.addPage();
+
+    // Header — institute name (fixed)
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(14);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text(INSTITUTE_NAME, marginLR, topMargin);
+
+    // Page counter top-right
+    pdf.setFont('helvetica', 'oblique');
+    pdf.setFontSize(9);
+    pdf.text(`Page ${p + 1} of ${totalPages}`, W - marginLR, topMargin, { align: 'right' });
+
+    // Cyan line
+    pdf.setDrawColor(25, 128, 179);
+    pdf.setLineWidth(1);
+    pdf.line(marginLR, topMargin + 6, W - marginLR, topMargin + 6);
+
+    // Metadata 2-column
+    let yMeta = topMargin + 20;
+    pdf.setFontSize(9);
+    let col = 0;
+    for (const [label, value] of metaRows){
+      const x = col === 0 ? marginLR : (W / 2 + marginLR - 40);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(label + ':', x, yMeta);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(value, x + 80, yMeta);
+      if (col === 1){ yMeta += 15; col = 0; }
+      else col = 1;
+    }
+    if (col === 1) yMeta += 15;
+
+    pdf.setDrawColor(0, 0, 0);
+    pdf.setLineWidth(0.5);
+    pdf.line(marginLR, yMeta, W - marginLR, yMeta);
+
+    // Main image placement
+    const mainImageTop = yMeta + 15;
+    const mainImageBottom = footerH > 0 ? (H - footerH - 5) : (H - marginLR);
+    const availHeight = mainImageBottom - mainImageTop;
+    const availWidth = W - 2 * marginLR;
+
+    const frame = state.frames[p];
+    const iw = frame.canvas.width;
+    const ih = frame.canvas.height;
+
+    let scale = 1;
+    if (iw > availWidth || ih > availHeight){
+      scale = Math.min(availWidth / iw, availHeight / ih);
+    }
+    const dw = iw * scale;
+    const dh = ih * scale;
+    const dx = (W - dw) / 2;
+    const dy = mainImageTop + (availHeight - dh) / 2;
+
+    try {
+      pdf.addImage(frame.dataUrl, 'PNG', dx, dy, dw, dh, undefined, 'FAST');
+    } catch(err){
+      console.warn('Image add failed on page', p, err);
+    }
+
+    // Footer image at bottom
+    if (state.footerImage && footerW > 0 && footerH > 0){
+      const fx = 0;
+      const fy = H - footerH;
+      try {
+        pdf.addImage(state.footerImage.dataUrl, 'PNG', fx, fy, footerW, footerH, undefined, 'FAST');
+      } catch(err){
+        console.warn('Footer image failed on page', p, err);
+      }
+
+      // 🔗 Clickable link over the footer image → www.radxr.in
+      try {
+        pdf.link(fx, fy, footerW, footerH, { url: FOOTER_LINK_URL });
+      } catch(err){
+        console.warn('Link annotation failed on page', p, err);
+      }
+    }
+  }
+
+  const safeName = (m.patientName || 'Report').replace(/[^a-zA-Z0-9 _-]/g, '');
+  const date = formatDateForFilename(m.studyDate);
+  pdf.save(`${safeName} ${date} medical report.pdf`);
+}
+
+function formatDateForFilename(studyDate){
+  if (studyDate && studyDate.length === 8 && /^\d+$/.test(studyDate)){
+    return `${studyDate.slice(6,8)}${studyDate.slice(4,6)}${studyDate.slice(0,4)}`;
+  }
+  const d = new Date();
+  return String(d.getDate()).padStart(2,'0') +
+         String(d.getMonth()+1).padStart(2,'0') +
+         d.getFullYear();
+}
+
+/* =========================================================
+   EVENT WIRING
+========================================================= */
+$('fileInput').addEventListener('change', e => {
+  if (e.target.files.length) handleFiles(e.target.files);
+  e.target.value = '';
+});
+
+const upPanel = $('uploadPanel');
+upPanel.addEventListener('dragover', e => { e.preventDefault(); upPanel.classList.add('dragover'); });
+upPanel.addEventListener('dragleave', () => upPanel.classList.remove('dragover'));
+upPanel.addEventListener('drop', e => {
+  e.preventDefault();
+  upPanel.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+});
+
+$('newUploadBtn').addEventListener('click', () => {
+  state.dicoms = [];
+  state.frames = [];
+  state.volume = null;
+  three.initialized = false;
+  if (three.renderer) { try{ three.renderer.dispose(); }catch(e){} }
+  $('viewer').style.display = 'none';
+  $('uploadPanel').style.display = 'block';
+  $('fileList').innerHTML = '';
+  $('fileInput').click();
+});
+
+$('prevBtn').addEventListener('click', () => updateViewer(state.currentIndex - 1));
+$('nextBtn').addEventListener('click', () => updateViewer(state.currentIndex + 1));
+$('slider').addEventListener('input', e => updateViewer(parseInt(e.target.value)));
+
+document.addEventListener('keydown', e => {
+  if ($('viewer').style.display === 'none') return;
+  if (state.currentMode === '3D') return;
+  if (e.key === 'ArrowLeft'){ updateViewer(state.currentIndex - 1); e.preventDefault(); }
+  if (e.key === 'ArrowRight'){ updateViewer(state.currentIndex + 1); e.preventDefault(); }
+});
+
+$('viewerWrapper').addEventListener('wheel', e => {
+  if (state.currentMode === '3D') return;
+  e.preventDefault();
+  if (e.deltaY > 0) updateViewer(state.currentIndex + 1);
+  else if (e.deltaY < 0) updateViewer(state.currentIndex - 1);
+}, { passive: false });
+
+$('brightness').addEventListener('input', applyFilters);
+$('contrast').addEventListener('input', applyFilters);
+$('invertCheck').addEventListener('change', () => {
+  applyFilters();
+  if (state.currentMode === '3D') update3DUniforms();
+});
+$('wwSlider').addEventListener('input', e => { $('wwVal').textContent = e.target.value; if (state.currentMode==='3D') update3DUniforms(); });
+$('wlSlider').addEventListener('input', e => { $('wlVal').textContent = e.target.value; if (state.currentMode==='3D') update3DUniforms(); });
+$('thresholdSlider').addEventListener('input', e => { $('thresholdVal').textContent = e.target.value; if (state.currentMode==='3D') update3DUniforms(); });
+$('resetFilters').addEventListener('click', resetAllFilters);
+
+$('patientToggle').addEventListener('click', () => {
+  $('metadataPanel').classList.toggle('show');
+});
+
+$('mode2D').addEventListener('click', () => switchMode('2D'));
+$('mode3D').addEventListener('click', () => switchMode('3D'));
+
+$('downloadPdfBtn').addEventListener('click', () => {
+  const st = $('pdfStatus');
+  try {
+    setStatus(st, '⏳ Generating PDF...', 'info');
+    setTimeout(() => {
+      try {
+        generatePDF();
+        setStatus(st, '✅ PDF downloaded successfully!', 'success');
+      } catch(err){
+        console.error(err);
+        setStatus(st, '❌ PDF error: ' + err.message, 'error');
+      }
+    }, 100);
+  } catch(err){
+    setStatus(st, '❌ ' + err.message, 'error');
+  }
+});
+
+window.addEventListener('resize', () => {
+  if (state.currentMode === '3D') resize3D();
+});
+
+/* =========================================================
+   BOOT
+========================================================= */
+initFooterImage();
+console.log('RAD-XR Web Viewer ready');
+</script>
+</body>
+</html>
