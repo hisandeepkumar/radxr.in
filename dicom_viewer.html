@@ -76,6 +76,11 @@ body{
   border-radius:20px;cursor:pointer;font-weight:600;width:100%;transition:all 0.2s;
 }
 .reset-btn:hover{background:#c82333;}
+.download-btn{
+  background:#10b981;color:white;border:none;padding:8px 18px;
+  border-radius:20px;cursor:pointer;font-weight:600;width:100%;transition:all 0.2s;
+}
+.download-btn:hover{background:#0d9668;}
 .glass-button{
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
   border-radius:50px;padding:12px 24px;display:flex;align-items:center;justify-content:center;
@@ -94,12 +99,23 @@ body{
   color:white;font-weight:bold;cursor:pointer;transition:all 0.2s;
 }
 .mode-toggle button.active{background:var(--accent);}
-.pdf-section{margin-top:20px;padding:20px;background:var(--bg-panel);border-radius:12px;}
-.pdf-section h2{font-size:1.05rem;margin-bottom:12px;color:var(--accent);}
-.pdf-controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
-.footer-status{font-size:0.8rem;color:var(--text-dim);}
+.glass-pill{
+  display:inline-block;padding:8px 18px;
+  background:rgba(255,255,255,0.06);
+  -webkit-backdrop-filter:blur(12px);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.12);border-radius:60px;
+  color:#e0e6ed;font-weight:600;font-size:0.95rem;
+  text-decoration:none;transition:all 0.3s ease;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+  width:100%;text-align:center;
+}
+.glass-pill:hover{
+  background:rgba(255,255,255,0.14);
+  transform:translateY(-1px);
+}
 .footer-section{text-align:center;margin-top:20px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.05);font-size:0.85rem;}
-.footer-section a{color:var(--accent);text-decoration:none;font-weight:600;}
+.footer-section a.radxr-link{color:var(--accent);text-decoration:none;font-weight:600;}
 .status{padding:10px 15px;border-radius:8px;margin:10px 0;font-size:0.85rem;display:none;}
 .status.show{display:block;}
 .status.info{background:#1e3c72;}
@@ -207,23 +223,16 @@ body{
             <span id="thresholdVal" style="font-size:0.8rem;">128</span>
           </div>
           <button class="reset-btn" id="resetFilters">Reset Filters</button>
+          <button class="download-btn" id="downloadPdfBtn">⬇️ Download PDF</button>
+          <a href="https://www.instagram.com/sandeep_yadav_._._" target="_blank" class="glass-pill">
+            Made with ❤️ by Sandeep
+          </a>
         </div>
       </div>
     </div>
 
-    <!-- PDF Section -->
-    <div class="pdf-section">
-      <h2>📄 Download PDF Report (WhatsApp Format)</h2>
-      <div class="pdf-controls">
-        <button class="btn" id="downloadPdfBtn">⬇️ Download PDF</button>
-        <span class="footer-status" id="footerStatus">⏳ Loading footer.png...</span>
-      </div>
-      <div id="pdfStatus" class="status info"></div>
-    </div>
-
     <div class="footer-section">
-      <a href="https://www.radxr.in" target="_blank" class="footer-link">www.radxr.in</a><br>
-      <span style="color:#6b7280;font-size:0.85rem;">Made with ❤️ by Sandeep</span>
+      <a href="https://www.radxr.in" target="_blank" class="radxr-link">www.radxr.in</a>
     </div>
   </div>
 </div>
@@ -708,14 +717,13 @@ function switchMode(mode){
 }
 
 /* =========================================================
-   FOOTER IMAGE LOADER (footer.png)
+   FOOTER IMAGE LOADER (footer.png) — silent, no UI feedback
 ========================================================= */
 function loadFooterImageFromPath(path){
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
-      // Convert to data URL for jsPDF embedding (avoid tainted canvas issues)
       try {
         const c = document.createElement('canvas');
         c.width = img.naturalWidth;
@@ -725,33 +733,25 @@ function loadFooterImageFromPath(path){
         const dataUrl = c.toDataURL('image/png');
         resolve({ img, dataUrl });
       } catch(err){
-        // Canvas tainted (CORS) — fall back to raw src
         resolve({ img, dataUrl: img.src });
       }
     };
     img.onerror = () => reject(new Error('Could not load ' + path));
-    // Cache-bust to force fresh load
     img.src = path + '?v=' + Date.now();
   });
 }
 
 async function initFooterImage(){
-  const el = $('footerStatus');
   try {
-    const fi = await loadFooterImageFromPath(FOOTER_IMAGE_PATH);
-    state.footerImage = fi;
-    el.textContent = `✅ ${FOOTER_IMAGE_PATH} loaded (${fi.img.naturalWidth}×${fi.img.naturalHeight})`;
-    el.style.color = '#10b981';
+    state.footerImage = await loadFooterImageFromPath(FOOTER_IMAGE_PATH);
   } catch(err){
     state.footerImage = null;
-    el.textContent = `⚠️ ${FOOTER_IMAGE_PATH} not found — PDF will have no footer`;
-    el.style.color = '#f59e0b';
-    console.warn(err);
+    console.warn('footer.png not loaded:', err.message);
   }
 }
 
 /* =========================================================
-   PDF GENERATION (WhatsApp format) with clickable footer
+   PDF GENERATION (A4) with clickable footer
 ========================================================= */
 function generatePDF(){
   const { jsPDF } = window.jspdf;
@@ -792,23 +792,19 @@ function generatePDF(){
   for (let p = 0; p < totalPages; p++){
     if (p > 0) pdf.addPage();
 
-    // Header — institute name (fixed)
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(14);
     pdf.setTextColor(0, 0, 0);
     pdf.text(INSTITUTE_NAME, marginLR, topMargin);
 
-    // Page counter top-right
     pdf.setFont('helvetica', 'oblique');
     pdf.setFontSize(9);
     pdf.text(`Page ${p + 1} of ${totalPages}`, W - marginLR, topMargin, { align: 'right' });
 
-    // Cyan line
     pdf.setDrawColor(25, 128, 179);
     pdf.setLineWidth(1);
     pdf.line(marginLR, topMargin + 6, W - marginLR, topMargin + 6);
 
-    // Metadata 2-column
     let yMeta = topMargin + 20;
     pdf.setFontSize(9);
     let col = 0;
@@ -827,7 +823,6 @@ function generatePDF(){
     pdf.setLineWidth(0.5);
     pdf.line(marginLR, yMeta, W - marginLR, yMeta);
 
-    // Main image placement
     const mainImageTop = yMeta + 15;
     const mainImageBottom = footerH > 0 ? (H - footerH - 5) : (H - marginLR);
     const availHeight = mainImageBottom - mainImageTop;
@@ -852,7 +847,6 @@ function generatePDF(){
       console.warn('Image add failed on page', p, err);
     }
 
-    // Footer image at bottom
     if (state.footerImage && footerW > 0 && footerH > 0){
       const fx = 0;
       const fy = H - footerH;
@@ -862,7 +856,6 @@ function generatePDF(){
         console.warn('Footer image failed on page', p, err);
       }
 
-      // 🔗 Clickable link over the footer image → www.radxr.in
       try {
         pdf.link(fx, fy, footerW, footerH, { url: FOOTER_LINK_URL });
       } catch(err){
@@ -952,20 +945,11 @@ $('mode2D').addEventListener('click', () => switchMode('2D'));
 $('mode3D').addEventListener('click', () => switchMode('3D'));
 
 $('downloadPdfBtn').addEventListener('click', () => {
-  const st = $('pdfStatus');
   try {
-    setStatus(st, '⏳ Generating PDF...', 'info');
-    setTimeout(() => {
-      try {
-        generatePDF();
-        setStatus(st, '✅ PDF downloaded successfully!', 'success');
-      } catch(err){
-        console.error(err);
-        setStatus(st, '❌ PDF error: ' + err.message, 'error');
-      }
-    }, 100);
+    generatePDF();
   } catch(err){
-    setStatus(st, '❌ ' + err.message, 'error');
+    console.error(err);
+    alert('PDF error: ' + err.message);
   }
 });
 
