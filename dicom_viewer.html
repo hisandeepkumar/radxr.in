@@ -839,13 +839,20 @@ function imageToCanvas(image){
   const out = rgba.data;
 
   const isColor = image.color === true;
+  const totalPixels = image.width * image.height;
 
   if (isColor){
-    const rgbaPlanar = image.rgba === true;
-    const samplesPerPixel = image.samplesPerPixel || 3;
+    /*
+     * cornerstoneDICOMImageLoader always hands back either tightly
+     * interleaved RGB (3 bytes/pixel) or RGBA (4 bytes/pixel) data -
+     * never planar. Detect the stride from the actual buffer length
+     * instead of trusting image.rgba/samplesPerPixel, which aren't
+     * populated on every decode path.
+     */
+    const stride = Math.round(pixelData.length / totalPixels) || 3;
 
-    for (let px = 0, n = image.width * image.height; px < n; px++){
-      const srcIdx = rgbaPlanar ? px * 4 : px * samplesPerPixel;
+    for (let px = 0; px < totalPixels; px++){
+      const srcIdx = px * stride;
       out[px * 4] = pixelData[srcIdx];
       out[px * 4 + 1] = pixelData[srcIdx + 1];
       out[px * 4 + 2] = pixelData[srcIdx + 2];
@@ -854,23 +861,43 @@ function imageToCanvas(image){
   } else {
     const slope = Number.isFinite(image.slope) ? image.slope : 1;
     const intercept = Number.isFinite(image.intercept) ? image.intercept : 0;
+    const invert = image.invert === true; // MONOCHROME1
 
-    const wc = Number.isFinite(image.windowCenter)
-      ? image.windowCenter
-      : (image.minPixelValue + image.maxPixelValue) / 2;
-    const ww = Number.isFinite(image.windowWidth) && image.windowWidth > 0
-      ? image.windowWidth
-      : (image.maxPixelValue - image.minPixelValue) || 1;
+    let low, high;
 
-    const low = wc - ww / 2;
-    const high = wc + ww / 2;
+    if (Number.isFinite(image.windowCenter) && Number.isFinite(image.windowWidth) && image.windowWidth > 0){
+      // DICOM Window Center/Width are already expressed in rescaled
+      // (post slope/intercept) units, matching `raw` below.
+      low = image.windowCenter - image.windowWidth / 2;
+      high = image.windowCenter + image.windowWidth / 2;
+    } else {
+      /*
+       * No Window Center/Width tag (common for CR/DX/X-ray). Compute the
+       * actual min/max of the RESCALED pixel data ourselves instead of
+       * using image.minPixelValue/maxPixelValue, which are raw (pre
+       * slope/intercept) values and not always populated for every decode
+       * path - mixing raw and rescaled ranges is what made images render
+       * blank/black.
+       */
+      let minV = Infinity;
+      let maxV = -Infinity;
+      for (let px = 0; px < totalPixels; px++){
+        const v = pixelData[px] * slope + intercept;
+        if (v < minV) minV = v;
+        if (v > maxV) maxV = v;
+      }
+      low = minV;
+      high = maxV;
+    }
+
     const range = (high - low) || 1;
 
-    for (let px = 0, n = image.width * image.height; px < n; px++){
+    for (let px = 0; px < totalPixels; px++){
       const raw = pixelData[px] * slope + intercept;
       let v = Math.round(((raw - low) / range) * 255);
       if (v < 0) v = 0;
       if (v > 255) v = 255;
+      if (invert) v = 255 - v;
 
       out[px * 4] = v;
       out[px * 4 + 1] = v;
