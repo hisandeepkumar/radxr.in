@@ -489,13 +489,23 @@ async function initDicomDecoder(){
   }
 
   /*
-   * Cornerstone 1.x/1.86 DICOM loader explicitly requires these external
-   * dependencies. Without these assignments it throws:
-   * "requires a copy of Cornerstone to work properly".
+   * Cornerstone's DICOM loader exposes "external" as a live-binding
+   * getter with its own internal getters/setters for .cornerstone and
+   * .dicomParser (each of which already falls back to window.cornerstone /
+   * window.dicomParser automatically). "external" itself has NO setter,
+   * so `loader.external = loader.external || {}` throws:
+   *   "Cannot set property external of #<Object> which has only a getter"
+   * in a <script type="module"> (which always runs in strict mode).
+   * That crash was silently aborting initDicomDecoder() on every file,
+   * which is why nothing ever opened. We only ever write the nested
+   * properties, never reassign `external` itself.
    */
-  loader.external = loader.external || {};
-  loader.external.cornerstone = window.cornerstone;
-  loader.external.dicomParser = window.dicomParser;
+  try {
+    loader.external.cornerstone = window.cornerstone;
+    loader.external.dicomParser = window.dicomParser;
+  } catch (e) {
+    console.warn('Could not explicitly set cornerstoneDICOMImageLoader.external; relying on automatic window fallback.', e);
+  }
 
   /*
    * This is the NoWebWorkers browser build. We intentionally do not create
@@ -574,8 +584,8 @@ function parseMetadata(arrayBuffer, fileName){
     studyDate: get('x00080020') || '',
     patientSex: get('x00100040') || 'N/A',
     modality: get('x00080060') || 'N/A',
-    studyInstanceUID: get('x0020000D') || '',
-    seriesInstanceUID: get('x0020000E') || '',
+    studyInstanceUID: get('x0020000d') || '',
+    seriesInstanceUID: get('x0020000e') || '',
     sopInstanceUID: get('x00080018') || '',
     seriesNumber: parseInt(get('x00200011'), 10) || 0,
     instanceNumber: parseInt(get('x00200013'), 10) || 0,
@@ -811,6 +821,66 @@ async function handleFiles(files){
   } finally {
     state.loading = false;
   }
+}
+
+function imageToCanvas(image){
+  const canvas = document.createElement('canvas');
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const ctx = canvas.getContext('2d');
+
+  const pixelData = image.getPixelData ? image.getPixelData() : null;
+
+  if (!pixelData){
+    throw new Error('Decoded image has no accessible pixel data.');
+  }
+
+  const rgba = ctx.createImageData(image.width, image.height);
+  const out = rgba.data;
+
+  const isColor = image.color === true;
+
+  if (isColor){
+    const rgbaPlanar = image.rgba === true;
+    const samplesPerPixel = image.samplesPerPixel || 3;
+
+    for (let px = 0, n = image.width * image.height; px < n; px++){
+      const srcIdx = rgbaPlanar ? px * 4 : px * samplesPerPixel;
+      out[px * 4] = pixelData[srcIdx];
+      out[px * 4 + 1] = pixelData[srcIdx + 1];
+      out[px * 4 + 2] = pixelData[srcIdx + 2];
+      out[px * 4 + 3] = 255;
+    }
+  } else {
+    const slope = Number.isFinite(image.slope) ? image.slope : 1;
+    const intercept = Number.isFinite(image.intercept) ? image.intercept : 0;
+
+    const wc = Number.isFinite(image.windowCenter)
+      ? image.windowCenter
+      : (image.minPixelValue + image.maxPixelValue) / 2;
+    const ww = Number.isFinite(image.windowWidth) && image.windowWidth > 0
+      ? image.windowWidth
+      : (image.maxPixelValue - image.minPixelValue) || 1;
+
+    const low = wc - ww / 2;
+    const high = wc + ww / 2;
+    const range = (high - low) || 1;
+
+    for (let px = 0, n = image.width * image.height; px < n; px++){
+      const raw = pixelData[px] * slope + intercept;
+      let v = Math.round(((raw - low) / range) * 255);
+      if (v < 0) v = 0;
+      if (v > 255) v = 255;
+
+      out[px * 4] = v;
+      out[px * 4 + 1] = v;
+      out[px * 4 + 2] = v;
+      out[px * 4 + 3] = 255;
+    }
+  }
+
+  ctx.putImageData(rgba, 0, 0);
+  return canvas;
 }
 
 function updatePatientUI(){
