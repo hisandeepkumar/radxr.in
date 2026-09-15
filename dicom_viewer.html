@@ -382,9 +382,9 @@ body{
   </div>
 </div>
 
-<script src="https://unpkg.com/cornerstone-core@2.2.3/dist/cornerstone.min.js"></script>
+<script src="https://unpkg.com/cornerstone-core@2.6.1/dist/cornerstone.min.js"></script>
 <script src="https://unpkg.com/dicom-parser@1.8.21/dist/dicomParser.min.js"></script>
-<script src="https://unpkg.com/@cornerstonejs/dicom-image-loader@1.86.0/dist/cornerstoneDICOMImageLoaderNoWebWorkers.bundle.min.js"></script>
+<script src="https://unpkg.com/cornerstone-wado-image-loader@4.13.2/dist/cornerstoneWADOImageLoaderNoWebWorkers.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
@@ -398,9 +398,20 @@ body{
  *
  *   "Decoder library not loaded cannot open compressed DICOM"
  *
- * This version uses @cornerstonejs/dicom-image-loader. Its decoder stack
- * supports standard uncompressed, JPEG, JPEG-LS, JPEG 2000, RLE and newer
- * JPEG 2000-family transfer syntaxes through dedicated codec/WASM decoders.
+ * A later version switched to the scoped @cornerstonejs/dicom-image-loader
+ * package - but that package targets Cornerstone3D (@cornerstonejs/core),
+ * which exposes a `cornerstone.Enums.MetadataModules` namespace. This page
+ * loads the legacy, unscoped `cornerstone-core` package instead (an
+ * intentional, lighter-weight 2D-only choice), which has no `.Enums` at
+ * all, so every decode failed with:
+ *   "Cannot destructure property 'MetadataModules' of 'C.Enums' as it is
+ *   undefined"
+ *
+ * This version uses cornerstone-wado-image-loader instead, the loader
+ * built specifically to pair with legacy cornerstone-core. Its decoder
+ * stack supports standard uncompressed, JPEG, JPEG-LS, JPEG 2000, RLE and
+ * newer JPEG 2000-family transfer syntaxes through dedicated codec/WASM
+ * decoders, without requiring Cornerstone3D at all.
  *
  * Patient files remain in the browser; no DICOM file is uploaded to RAD-XR.
  */
@@ -473,6 +484,7 @@ async function initDicomDecoder(){
   setStatus($('uploadStatus'), '⏳ Initializing DICOM decoder…', 'info');
 
   const loader =
+    window.cornerstoneWADOImageLoader ||
     window.cornerstoneDICOMImageLoader ||
     window.cornerstoneDICOMImageLoaderNoWebWorkers;
 
@@ -504,7 +516,7 @@ async function initDicomDecoder(){
     loader.external.cornerstone = window.cornerstone;
     loader.external.dicomParser = window.dicomParser;
   } catch (e) {
-    console.warn('Could not explicitly set cornerstoneDICOMImageLoader.external; relying on automatic window fallback.', e);
+    console.warn('Could not explicitly set the DICOM loader\'s external.cornerstone/dicomParser; relying on automatic window fallback.', e);
   }
 
   /*
@@ -631,13 +643,34 @@ async function decodeFrame(file, meta, frameIndex){
     : baseImageId;
 
   try {
+    console.log(`[RAD-XR] decoding "${file.name}" frame ${frameIndex + 1}/${meta.numFrames}, transferSyntax=${meta.transferSyntax}, imageId=${imageId}`);
+
     const loadObject = wadouri.loadImage(imageId);
 
     if (!loadObject?.promise){
       throw new Error('Cornerstone did not return an image load promise.');
     }
 
-    const image = await loadObject.promise;
+    /*
+     * Compressed transfer syntaxes (JPEG/JPEG-LS/JPEG2000) decode via WASM
+     * codecs loaded on first use. If that WASM fetch/instantiate ever stalls
+     * (blocked request, wrong network settings, etc.) the promise from
+     * loadImage() never settles and the UI silently sits on "Decoding..."
+     * forever with no error. Race it against a timeout so a stall becomes a
+     * visible, actionable error instead of an infinite silent hang.
+     */
+    const DECODE_TIMEOUT_MS = 20000;
+    const timeout = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(
+        `Decode timed out after ${DECODE_TIMEOUT_MS / 1000}s (transferSyntax ${meta.transferSyntax}). ` +
+        `This usually means the WASM decoder for this compressed format could not be fetched ` +
+        `(check the browser Network tab for a pending/failed request ending in .wasm).`
+      )), DECODE_TIMEOUT_MS);
+    });
+
+    const image = await Promise.race([loadObject.promise, timeout]);
+
+    console.log(`[RAD-XR] decoded "${file.name}" frame ${frameIndex + 1}/${meta.numFrames} ->`, image);
 
     if (!image){
       throw new Error('Cornerstone returned an empty DICOM image.');
@@ -709,6 +742,7 @@ async function handleFiles(files){
 
         const arrayBuffer = await file.arrayBuffer();
         const meta = parseMetadata(arrayBuffer, file);
+        console.log(`[RAD-XR] parsed metadata for "${file.name}":`, meta);
 
         /*
          * Some DICOM producers use a non-.dcm extension or generic MIME.
